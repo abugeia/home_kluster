@@ -1,7 +1,7 @@
 server:
   ingress:
     enabled: true
-    hostname: argocd.hk.cagou.ovh
+    hostname: argocd.valab.top
     ingressClassName: traefik
     tls: false
     annotations:
@@ -17,7 +17,7 @@ server:
   #   enabled: true
 
 global:
-  domain: argocd.hk.cagou.ovh
+  domain: argocd.valab.top
 
 configs:
   params:
