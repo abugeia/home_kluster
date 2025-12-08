@@ -3,18 +3,18 @@ server:
     enabled: true
     hostname: argocd.hk.cagou.ovh
     ingressClassName: traefik
-    tls: true
+    tls: false
     annotations:
       traefik.ingress.kubernetes.io/max-body-size: "128Mi"
-      cert-manager.io/cluster-issuer: letsencrypt
+      # cert-manager.io/cluster-issuer: letsencrypt
   certificate:
-    enabled: true
-    issuer: 
-      kind: ClusterIssuer
-      name: letsencrypt
-    domain: argocd.hk.cagou.ovh
-  certificateSecret:
-    enabled: true
+    enabled: false
+    # issuer: 
+    #   kind: ClusterIssuer
+    #   name: letsencrypt
+    # domain: argocd.hk.cagou.ovh
+  # certificateSecret:
+  #   enabled: true
 
 global:
   domain: argocd.hk.cagou.ovh
