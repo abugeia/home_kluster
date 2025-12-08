@@ -1,0 +1,33 @@
+
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: security
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dev
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: observability
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: boten-anna
+---
+# initialement créé par ansible
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cloudflared
+---
+# initialement créé par ansible
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: argocd
