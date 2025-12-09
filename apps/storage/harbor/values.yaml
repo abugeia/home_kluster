@@ -1,0 +1,77 @@
+# Harbor Helm Values pour Home Kluster (AMD64)
+# Chart: harbor v1.17.1
+# TLS désactivé car on passe par un tunnel Cloudflare
+
+ipFamily:
+  ipv6:
+    enabled: false
+
+expose:
+  type: ingress
+  tls:
+    enabled: false
+  ingress:
+    hosts:
+      core: harbor.valab.top
+    controller: default
+    className: "traefik"
+    annotations: {}
+
+externalURL: https://harbor.valab.top
+
+# Admin password - TODO: utiliser un secret
+existingSecretAdminPasswordKey: HARBOR_ADMIN_PASSWORD
+harborAdminPassword: Harbor12345
+
+# Components configuration
+portal:
+  resources:
+    limits:
+      memory: 128Mi
+
+core:
+  startupProbe:
+    initialDelaySeconds: 15
+  resources:
+    limits:
+      memory: 256Mi
+
+jobservice:
+  resources:
+    limits:
+      memory: 128Mi
+
+registry:
+  registry:
+    resources:
+      limits:
+        memory: 256Mi
+  controller:
+    resources:
+      limits:
+        memory: 128Mi
+
+trivy:
+  enabled: false
+
+# Base de données externe sur LXC PostgreSQL
+database:
+  type: external
+  external:
+    host: 10.0.0.12
+    port: 5432
+    existingSecret: harbor-pg-secret
+    coreDatabase: harbor_db
+    username: harbor_user
+
+# Redis interne
+redis:
+  internal:
+    resources:
+      limits:
+        memory: 128Mi
+
+exporter:
+  resources:
+    limits:
+      memory: 128Mi
