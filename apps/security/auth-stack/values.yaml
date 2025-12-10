@@ -1,0 +1,101 @@
+# ==========================================================
+# 1. POCKET ID (L'Annuaire)
+# ==========================================================
+pocket-id:
+  controllers:
+    main:
+      containers:
+        main:
+          image:
+            repository: ghcr.io/pocket-id/pocket-id
+            tag: latest
+          env:
+            # L'URL publique est en HTTPS (géré par Cloudflare)
+            PUBLIC_APP_URL: "https://auth-id.valab.top"
+  service:
+    main:
+      ports:
+        http:
+          port: 80
+  ingress:
+    main:
+      enabled: true
+      className: traefik
+      # Pas de TLS ici, Cloudflare s'en occupe
+      hosts:
+        - host: auth-id.valab.top
+          paths:
+            - path: /
+              service:
+                name: main
+                port: http
+
+# ==========================================================
+# 2. TINYAUTH (Le Portail Unique)
+# ==========================================================
+tinyauth:
+  controllers:
+    main:
+      containers:
+        main:
+          image:
+            repository: ghcr.io/steveiliop56/tinyauth
+            tag: latest
+          env:
+            # Très important : HTTPS ici pour que les redirections Google/OIDC soient correctes
+            APP_URL: "https://auth.valab.top"
+            
+            # --- Provider 1 : Google ---
+            PROVIDERS_GOOGLE_TYPE: "google"
+            PROVIDERS_GOOGLE_NAME: "Google (Famille)"
+            PROVIDERS_GOOGLE_CLIENT_ID:
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: google-client-id
+            PROVIDERS_GOOGLE_CLIENT_SECRET:
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: google-client-secret
+            
+            # --- Provider 2 : Pocket ID ---
+            PROVIDERS_POCKET_TYPE: "oidc"
+            PROVIDERS_POCKET_NAME: "Passkey (Admin)"
+            PROVIDERS_POCKET_ISSUER_URL: "https://auth-id.valab.top"
+            PROVIDERS_POCKET_SCOPES: "openid profile email"
+            PROVIDERS_POCKET_CLIENT_ID:
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: pocket-client-id
+            PROVIDERS_POCKET_CLIENT_SECRET:
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: pocket-client-secret
+            
+            # --- Sécurité ---
+            SECRET:
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: tinyauth-secret
+            OAUTH_WHITELIST: "abugeia@gmail.com,admin@pocketid"
+
+  service:
+    main:
+      ports:
+        http:
+          port: 3000
+  ingress:
+    main:
+      enabled: true
+      className: traefik
+      hosts:
+        - host: auth.valab.top
+          paths:
+            - path: /
+              service:
+                name: main
+                port: http
