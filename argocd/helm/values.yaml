@@ -24,3 +24,11 @@ configs:
     server.insecure: true
   cm:
     kustomize.buildOptions: "--enable-helm"
+    # fix du problème "Progressing" des Ingress dans ArgoCD quand on a pas de loadbalancer
+    resource.customizations: |
+      networking.k8s.io/Ingress:
+        health.lua: |
+          hs = {}
+          hs.status = "Healthy"
+          hs.message = "Ingress is healthy (ignored loadBalancer status)"
+          return hs
