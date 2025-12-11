@@ -3,11 +3,13 @@
 
 set -e
 
-CERT="./sealed-secrets.pem"
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+
+CERT="${SCRIPT_DIR}/clear/sealed-secrets.pem"
 CONTROLLER_NAME="sealed-secrets"
 CONTROLLER_NAMESPACE="security"
-CLEAR_DIR="./clear"
-SEALED_DIR="./sealed"
+CLEAR_DIR="${SCRIPT_DIR}/clear"
+SEALED_DIR="${SCRIPT_DIR}/sealed"
 
 mkdir -p "$SEALED_DIR"
 
