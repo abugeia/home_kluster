@@ -2,6 +2,7 @@
 # 1. POCKET ID (L'Annuaire)
 # ==========================================================
 pocket-id:
+  fullnameOverride: pocket-id
   controllers:
     main:
       containers:
@@ -35,6 +36,7 @@ pocket-id:
 # 2. TINYAUTH (Le Portail Unique)
 # ==========================================================
 tinyauth:
+  fullnameOverride: tinyauth
   controllers:
     main:
       containers:

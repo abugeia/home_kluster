@@ -7,7 +7,7 @@ spec:
   forwardAuth:
     # On utilise l'adresse interne du cluster (Service K8s)
     # Syntaxe : http://<nom-service>.<namespace>.svc.cluster.local:<port>
-    address: "http://auth-stack-tinyauth.security.svc.cluster.local:3000"
+    address: "http://tinyauth.security.svc.cluster.local:3000"
     trustForwardHeader: true
     authResponseHeaders:
       - Remote-User
