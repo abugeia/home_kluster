@@ -7,11 +7,11 @@ dependencies:
   # 1. Pocket ID (L'annuaire Passkey)
   - name: app-template
     version: 3.2.1
-    repository: https://bjw-s.github.io/helm-charts/
+    repository: https://bjw-s-labs.github.io/helm-charts/
     alias: pocket-id
   
   # 2. TinyAuth (Le portail d'accès unique)
   - name: app-template
     version: 3.2.1
-    repository: https://bjw-s.github.io/helm-charts/
+    repository: https://bjw-s-labs.github.io/helm-charts/
     alias: tinyauth
