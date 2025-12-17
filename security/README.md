@@ -20,6 +20,11 @@ kubectl create secret generic testsecret \
   -o yaml --dry-run=client > secrets/clear/secret.yaml
 ```
 Création d'un sealedsecret à partir de secret.yaml :
+simplement avec le script `seal_all.sh` :
+```
+./secrets/seal_all.sh
+```
+ou
 ```
 kubeseal \
 --controller-name=sealed-secrets \
@@ -29,9 +34,6 @@ kubeseal \
 < secrets/clear/secret.yaml >> secrets/sealedsecret.yaml
 
 ```
-flag pour le cert
-`--cert=secrets/clear/sealed-secret.pem`
-
 
 ## Harbor
 
@@ -49,7 +51,7 @@ Le secret `pg-harbor` contient les credentials pour la base de données PostgreS
 Le secret `registry-secret` permet aux pods Kubernetes de télécharger des images depuis Harbor :
 
 #### 1. Créer un compte robot dans Harbor
-1. Se connecter à Harbor (`https://harbor.cagou.ovh`)
+1. Se connecter à Harbor (`https://harbor.valab.top`)
 2. Aller dans **Administration** → **Robot Accounts**
 3. Créer un nouveau robot avec :
    - **Name** : `cluster-sa`
@@ -89,7 +91,7 @@ kubectl apply -f sealed/registry-secret.yaml
 ```bash
 # Exemple pour le namespace 'datalab'
 kubectl create secret docker-registry harbor-creds \
-  --docker-server=harbor.cagou.ovh \
+  --docker-server=harbor.valab.top \
   --docker-username=robot$cluster-sa \
   --docker-password=VOTRE_TOKEN_ROBOT \
   --namespace=datalab \
