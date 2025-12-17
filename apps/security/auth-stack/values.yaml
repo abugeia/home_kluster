@@ -14,6 +14,7 @@ pocket-id:
             PUBLIC_APP_URL: "https://auth-id.valab.top"
   service:
     main:
+      controller: main
       ports:
         http:
           port: 80
@@ -27,8 +28,8 @@ pocket-id:
           paths:
             - path: /
               service:
-                name: main
-                port: http
+                identifier: main
+                port: 80
 
 # ==========================================================
 # 2. TINYAUTH (Le Portail Unique)
@@ -85,6 +86,7 @@ tinyauth:
 
   service:
     main:
+      controller: main
       ports:
         http:
           port: 3000
@@ -97,5 +99,5 @@ tinyauth:
           paths:
             - path: /
               service:
-                name: main
-                port: http
+                identifier: main
+                port: 3000
