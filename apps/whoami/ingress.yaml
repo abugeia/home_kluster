@@ -4,7 +4,7 @@ metadata:
   name: whoami
   namespace: whoami
   annotations:
-    traefik.ingress.kubernetes.io/router.middlewares: whoami-tinyauth-protect@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: tinyauth-protect@kubernetescrd
 spec:
   ingressClassName: traefik
   rules:
