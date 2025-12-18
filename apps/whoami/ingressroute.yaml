@@ -5,6 +5,7 @@ metadata:
   namespace: whoami
 spec:
   entryPoints:
+    - web
     - websecure
   routes:
     - match: Host(`whoami.valab.top`) && PathPrefix(`/`)
@@ -14,6 +15,4 @@ spec:
           port: 80
       middlewares:
         - name: tinyauth-protect
-          namespace: whoami
-  tls:
-    secretName: whoami-tls # Traefik l'utilisera si présent, sinon le défaut (certificat Cloudflare/Wildcard)
+  tls: {}
