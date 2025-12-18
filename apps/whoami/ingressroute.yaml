@@ -4,9 +4,6 @@ metadata:
   name: whoami
   namespace: whoami
 spec:
-  entryPoints:
-    - web
-    - websecure
   routes:
     - match: Host(`whoami.valab.top`) && PathPrefix(`/`)
       kind: Rule
@@ -15,4 +12,3 @@ spec:
           port: 80
       middlewares:
         - name: tinyauth-protect
-  tls: {}
