@@ -65,11 +65,11 @@ spec:
               value: "abugeia@gmail.com,admin@pocketid"
           livenessProbe:
             httpGet:
-              path: /api/healthcheck
+              path: /api/healthz
               port: 3000
           readinessProbe:
             httpGet:
-              path: /api/healthcheck
+              path: /api/healthz
               port: 3000
 ---
 apiVersion: v1
