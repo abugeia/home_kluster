@@ -1,0 +1,105 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tinyauth
+  namespace: security
+  labels:
+    app: tinyauth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tinyauth
+  template:
+    metadata:
+      labels:
+        app: tinyauth
+    spec:
+      containers:
+        - name: tinyauth
+          image: ghcr.io/steveiliop56/tinyauth:v4
+          ports:
+            - containerPort: 3000
+          env:
+            - name: APP_URL
+              value: "https://auth.valab.top"
+            - name: PROVIDERS_GOOGLE_TYPE
+              value: "google"
+            - name: PROVIDERS_GOOGLE_NAME
+              value: "Google"
+            - name: PROVIDERS_GOOGLE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: google-client-id
+            - name: PROVIDERS_GOOGLE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: google-client-secret
+            - name: PROVIDERS_POCKET_TYPE
+              value: "oidc"
+            - name: PROVIDERS_POCKET_NAME
+              value: "Passkey"
+            - name: PROVIDERS_POCKET_ISSUER_URL
+              value: "https://auth-id.valab.top"
+            - name: PROVIDERS_POCKET_SCOPES
+              value: "openid profile email"
+            - name: PROVIDERS_POCKET_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: pocket-client-id
+            - name: PROVIDERS_POCKET_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: pocket-client-secret
+            - name: SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: tinyauth-secret
+            - name: OAUTH_WHITELIST
+              value: "abugeia@gmail.com,admin@pocketid"
+          livenessProbe:
+            httpGet:
+              path: /api/healthcheck
+              port: 3000
+          readinessProbe:
+            httpGet:
+              path: /api/healthcheck
+              port: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tinyauth
+  namespace: security
+spec:
+  selector:
+    app: tinyauth
+  ports:
+    - port: 3000
+      targetPort: 3000
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tinyauth
+  namespace: security
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: auth.valab.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: tinyauth
+                port:
+                  number: 3000
