@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: 'https://github.com/abugeia/home_kluster.git'
-    targetRevision: HEAD
+    targetRevision: main
     path: apps/security/auth-stack
   destination:
     server: 'https://kubernetes.default.svc'
