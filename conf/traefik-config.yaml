@@ -5,6 +5,5 @@ metadata:
   namespace: kube-system
 spec:
   valuesContent: |-
-    providers:
-      kubernetesCRD:
-        allowCrossNamespace: true
+    additionalArguments:
+      - "--providers.kubernetescrd.allowCrossNamespace=true"
