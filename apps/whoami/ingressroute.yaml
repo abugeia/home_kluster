@@ -16,3 +16,4 @@ spec:
       middlewares:
         - name: tinyauth-protect
           namespace: security
+  tls: {}
