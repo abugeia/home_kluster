@@ -16,5 +16,4 @@ spec:
       middlewares:
         - name: tinyauth-protect
           namespace: security
-        - name: debug-header
-          namespace: security
+        - name: debug-header-local
