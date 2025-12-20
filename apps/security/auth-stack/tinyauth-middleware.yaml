@@ -5,7 +5,7 @@ metadata:
   namespace: security
 spec:
   forwardAuth:
-    address: http://tinyauth.security.svc.cluster.local:3000/api/authz
+    address: http://tinyauth.security.svc.cluster.local:3000/api/auth/traefik
     trustForwardHeader: true
     authResponseHeaders:
       - Authorization
