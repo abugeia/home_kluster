@@ -5,7 +5,7 @@ metadata:
   namespace: whoami
 spec:
   forwardAuth:
-    address: "http://auth-stack-tinyauth.security.svc.cluster.local:3000"
+    address: "http://tinyauth.security.svc.cluster.local:3000"
     trustForwardHeader: true
     authResponseHeaders:
       - Remote-User
