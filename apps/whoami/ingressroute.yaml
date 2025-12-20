@@ -6,6 +6,7 @@ metadata:
 spec:
   entryPoints:
     - web
+    - websecure
   routes:
     - match: Host(`whoami.valab.top`) && PathPrefix(`/`)
       kind: Rule
@@ -15,3 +16,4 @@ spec:
       middlewares:
         - name: tinyauth-protect
           namespace: security
+          kind: Middleware
