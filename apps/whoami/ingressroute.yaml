@@ -15,5 +15,3 @@ spec:
           port: 80
       middlewares:
         - name: tinyauth-protect
-          namespace: security
-          kind: Middleware
