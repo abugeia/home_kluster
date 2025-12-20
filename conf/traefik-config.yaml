@@ -7,3 +7,5 @@ spec:
   valuesContent: |-
     additionalArguments:
       - "--providers.kubernetescrd.allowCrossNamespace=true"
+      - "--entryPoints.web.forwardedHeaders.insecure=true"
+      - "--entryPoints.websecure.forwardedHeaders.insecure=true"
