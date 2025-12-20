@@ -9,4 +9,6 @@ spec:
     trustForwardHeader: true
     authResponseHeaders:
       - Authorization
-      - X-Forwarded-User
+      - Remote-User
+      - Remote-Email
+      - Remote-Name
