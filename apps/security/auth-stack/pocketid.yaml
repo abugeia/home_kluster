@@ -39,6 +39,8 @@ spec:
           env:
             - name: APP_URL
               value: "https://auth-id.valab.top"
+            - name: PUBLIC_REGISTRATION
+              value: "false"
             - name: TRUST_PROXY
               value: "true"
             - name: PUID
