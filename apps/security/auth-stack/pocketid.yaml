@@ -28,14 +28,27 @@ spec:
       labels:
         app: pocketid
     spec:
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
       containers:
         - name: pocketid
           image: ghcr.io/pocket-id/pocket-id:latest
           ports:
             - containerPort: 1411
           env:
-            - name: PUBLIC_APP_URL
+            - name: APP_URL
               value: "https://auth-id.valab.top"
+            - name: TRUST_PROXY
+              value: "true"
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: DEBUG
+              value: "false"
+            - name: GIN_MODE
+              value: "release"
           volumeMounts:
             - name: data
               mountPath: /app/data
