@@ -1,4 +1,15 @@
 server:
+  env:
+    - name: POCKET_ARGOCD_CLIENT_ID
+      valueFrom:
+        secretKeyRef:
+          name: auth-secrets
+          key: pocket-argocd-client-id
+    - name: POCKET_ARGOCD_CLIENT_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: auth-secrets
+          key: pocket-argocd-client-secret
   ingress:
     enabled: true
     hostname: argocd.valab.top
@@ -32,3 +43,9 @@ configs:
           hs.status = "Healthy"
           hs.message = "Ingress is healthy (ignored loadBalancer status)"
           return hs
+    oidc.config: |
+      name: PocketID
+      issuer: https://auth-id.valab.top
+      clientID: $POCKET_ARGOCD_CLIENT_ID
+      clientSecret: $POCKET_ARGOCD_CLIENT_SECRET
+      requestedScopes: ["openid", "profile", "email", "groups"]
