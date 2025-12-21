@@ -32,7 +32,7 @@ spec:
         - name: pocketid
           image: ghcr.io/pocket-id/pocket-id:latest
           ports:
-            - containerPort: 80
+            - containerPort: 1411
           env:
             - name: PUBLIC_APP_URL
               value: "https://auth-id.valab.top"
@@ -54,7 +54,7 @@ spec:
     app: pocketid
   ports:
     - port: 80
-      targetPort: 80
+      targetPort: 1411
   type: ClusterIP
 ---
 apiVersion: networking.k8s.io/v1
