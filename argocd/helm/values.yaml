@@ -49,3 +49,7 @@ configs:
       clientID: $auth-secrets:pocket-argocd-client-id
       clientSecret: $auth-secrets:pocket-argocd-client-secret
       requestedScopes: ["openid", "profile", "email", "groups"]
+  rbac:
+    policy.csv: |
+      g, abugeia@gmail.com, role:admin
+    scopes: "[groups, email]"
