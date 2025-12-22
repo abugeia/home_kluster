@@ -1,15 +1,15 @@
 server:
-  env:
-    - name: POCKET_ARGOCD_CLIENT_ID
-      valueFrom:
-        secretKeyRef:
-          name: auth-secrets
-          key: pocket-argocd-client-id
-    - name: POCKET_ARGOCD_CLIENT_SECRET
-      valueFrom:
-        secretKeyRef:
-          name: auth-secrets
-          key: pocket-argocd-client-secret
+  # env:
+  #   - name: POCKET_ARGOCD_CLIENT_ID
+  #     valueFrom:
+  #       secretKeyRef:
+  #         name: auth-secrets
+  #         key: pocket-argocd-client-id
+  #   - name: POCKET_ARGOCD_CLIENT_SECRET
+  #     valueFrom:
+  #       secretKeyRef:
+  #         name: auth-secrets
+  #         key: pocket-argocd-client-secret
   ingress:
     enabled: true
     hostname: argocd.valab.top
@@ -46,6 +46,6 @@ configs:
     oidc.config: |
       name: PocketID
       issuer: https://auth-id.valab.top
-      clientID: $POCKET_ARGOCD_CLIENT_ID
-      clientSecret: $POCKET_ARGOCD_CLIENT_SECRET
+      clientID: $auth-secrets:pocket-argocd-client-id
+      clientSecret: $auth-secrets:pocket-argocd-client-secret
       requestedScopes: ["openid", "profile", "email", "groups"]
