@@ -1,0 +1,25 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nfs-csi-nvme
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "false" # Keep local-path default for now? Or switch? The user implies this is for data.
+provisioner: nfs.csi.k8s.io
+parameters:
+  server: 10.0.0.10
+  share: /mnt/nfs
+  # subDir: "${pvc.metadata.namespace}-${pvc.metadata.name}" # useful if we want dynamic subdirs, the driver handles this.
+  # The driver supports dynamic provisioning by creating subdirectories under the share.
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+mountOptions:
+  - nfsvers=4.1
+  - hard
+---
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshotClass
+metadata:
+  name: nfs-csi-nvme
+driver: nfs.csi.k8s.io
+deletionPolicy: Delete
+parameters:
