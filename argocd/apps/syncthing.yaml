@@ -10,10 +10,10 @@ spec:
   source:
     repoURL: https://github.com/abugeia/home_kluster.git
     targetRevision: main
-    path: apps/storage/syncthing
+    path: apps/downloads/syncthing
   destination:
     server: https://kubernetes.default.svc
-    namespace: storage
+    namespace: downloads
   syncPolicy:
     automated:
       prune: true

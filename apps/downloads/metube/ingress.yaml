@@ -1,21 +1,20 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: syncthing
-  namespace: storage
+  name: metube
+  namespace: downloads
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    kubernetes.io/ingress.class: traefik
     traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
 spec:
-  ingressClassName: traefik
   rules:
-    - host: syncthing.valab.top
+    - host: metube.valab.top
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: syncthing
+                name: metube
                 port:
-                  number: 8384
+                  number: 8081
