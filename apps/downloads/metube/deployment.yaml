@@ -17,6 +17,10 @@ spec:
       labels:
         app: metube
     spec:
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "1" # Fix potential DNS resolution issues with external domains (avoiding search domain overhead)
       initContainers:
         - name: create-dirs
           image: busybox
