@@ -33,9 +33,11 @@ spec:
             - name: ND_BASEURL
               value: ""
             - name: ND_REVERSEPROXYUSERHEADER
-              value: "Remote-User"
+              value: "Remote-Email"
             - name: ND_REVERSEPROXYWHITELIST
               value: "0.0.0.0/0"
+            - name: ND_LOGLEVEL
+              value: "debug"
           volumeMounts:
             - name: data
               mountPath: /data
