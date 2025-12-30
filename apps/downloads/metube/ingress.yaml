@@ -8,6 +8,16 @@ metadata:
     traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
 spec:
   rules:
+    - host: tb.valab.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: metube
+                port:
+                  number: 8081
     - host: metube.valab.top
       http:
         paths:
