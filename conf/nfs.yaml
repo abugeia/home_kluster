@@ -11,6 +11,7 @@ parameters:
   # subDir: "${pvc.metadata.namespace}-${pvc.metadata.name}" # useful if we want dynamic subdirs, the driver handles this.
   # The driver supports dynamic provisioning by creating subdirectories under the share.
 reclaimPolicy: Delete
+allowVolumeExpansion: true
 volumeBindingMode: Immediate
 mountOptions:
   - nfsvers=4.1
