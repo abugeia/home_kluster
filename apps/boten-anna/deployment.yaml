@@ -20,6 +20,7 @@ spec:
       containers:
         - name: boten-anna 
           image: harbor.valab.top/prod/boten-anna:main 
+          imagePullPolicy: Always
           ports:
             - containerPort: 5000 
           readinessProbe:
