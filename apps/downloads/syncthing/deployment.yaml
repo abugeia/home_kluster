@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: syncthing
-  namespace: storage
+  namespace: downloads
   labels:
     app: syncthing
 spec:
@@ -46,9 +46,6 @@ spec:
             - name: data
               mountPath: /data1
           resources:
-            # requests:
-            #   memory: "256Mi"
-            #   cpu: "100m"
             limits:
               memory: "512Mi"
               cpu: "1000m"

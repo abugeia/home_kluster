@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metube
+  namespace: downloads
+  labels:
+    app: metube
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: metube
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: metube
+    spec:
+      containers:
+        - name: metube
+          image: ghcr.io/alexta69/metube:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: UID
+              value: "1000"
+            - name: GID
+              value: "1000"
+            - name: DOWNLOAD_DIR
+              value: "/downloads"
+            - name: AUDIO_DOWNLOAD_DIR
+              value: "/downloads/music"
+            - name: STATE_DIR
+              value: "/data"
+          ports:
+            - name: http
+              containerPort: 8081
+          volumeMounts:
+            - name: downloads
+              mountPath: /downloads
+            - name: state
+              mountPath: /data
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "1000m"
+      volumes:
+        - name: downloads
+          persistentVolumeClaim:
+            claimName: syncthing-data
+        - name: state
+          persistentVolumeClaim:
+            claimName: metube-state

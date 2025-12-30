@@ -2,7 +2,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: syncthing-config
-  namespace: storage
+  namespace: downloads
 spec:
   accessModes:
     - ReadWriteOnce
@@ -15,10 +15,10 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: syncthing-data
-  namespace: storage
+  namespace: downloads
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   storageClassName: nfs-csi-nvme
   resources:
     requests:
