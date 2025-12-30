@@ -10,3 +10,16 @@ spec:
   resources:
     requests:
       storage: 30Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: filebrowser-db
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-csi-nvme
+  resources:
+    requests:
+      storage: 100Mi
