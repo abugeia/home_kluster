@@ -32,6 +32,10 @@ spec:
               value: "/data"
             - name: ND_BASEURL
               value: ""
+            - name: ND_REVERSEPROXYUSERHEADER
+              value: "Remote-User"
+            - name: ND_REVERSEPROXYWHITELIST
+              value: "0.0.0.0/0"
           volumeMounts:
             - name: data
               mountPath: /data
