@@ -44,6 +44,9 @@ portal:
   resources:
     limits:
       memory: 128Mi
+    requests:
+      memory: 64Mi
+      cpu: 10m
 
 core:
   startupProbe:
@@ -51,21 +54,33 @@ core:
   resources:
     limits:
       memory: 256Mi
+    requests:
+      memory: 128Mi
+      cpu: 20m
 
 jobservice:
   resources:
     limits:
       memory: 256Mi
+    requests:
+      memory: 128Mi
+      cpu: 20m
 
 registry:
   registry:
     resources:
       limits:
         memory: 256Mi
+      requests:
+        memory: 128Mi
+        cpu: 20m
   controller:
     resources:
       limits:
         memory: 128Mi
+      requests:
+        memory: 64Mi
+        cpu: 10m
 
 trivy:
   enabled: false
@@ -86,8 +101,14 @@ redis:
     resources:
       limits:
         memory: 128Mi
+      requests:
+        memory: 64Mi
+        cpu: 10m
 
 exporter:
   resources:
     limits:
       memory: 128Mi
+    requests:
+      memory: 64Mi
+      cpu: 10m
