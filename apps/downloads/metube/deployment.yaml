@@ -17,6 +17,13 @@ spec:
       labels:
         app: metube
     spec:
+      initContainers:
+        - name: create-dirs
+          image: busybox
+          command: ['sh', '-c', 'mkdir -p /downloads/music && chown -R 1000:1000 /downloads']
+          volumeMounts:
+            - name: downloads
+              mountPath: /downloads
       containers:
         - name: metube
           image: ghcr.io/alexta69/metube:latest
