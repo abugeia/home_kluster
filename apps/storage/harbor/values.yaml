@@ -24,6 +24,21 @@ existingSecretAdminPassword: harbor-admin-secret
 existingSecretAdminPasswordKey: HARBOR_ADMIN_PASSWORD
 # harborAdminPassword: Harbor12345
 
+persistence:
+  enabled: true
+  resourcePolicy: "keep"
+  persistentVolumeClaim:
+    registry:
+      storageClass: "nfs-csi-nvme"
+      size: 50Gi
+    jobservice:
+      jobLog:
+        storageClass: "nfs-csi-nvme"
+        size: 256Mi
+    redis:
+      storageClass: "nfs-csi-nvme"
+      size: 512Mi
+
 # Components configuration
 portal:
   resources:

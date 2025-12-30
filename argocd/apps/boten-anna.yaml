@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: boten-anna
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/abugeia/home_kluster.git
+    targetRevision: main
+    path: apps/boten-anna
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: boten-anna
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true

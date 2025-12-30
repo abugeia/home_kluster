@@ -5,7 +5,7 @@ set -e
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
-CERT="${SCRIPT_DIR}/clear/clear/sealed-secrets.pem"
+CERT="${SCRIPT_DIR}/clear/sealed-secrets.pem"
 CONTROLLER_NAME="sealed-secrets"
 CONTROLLER_NAMESPACE="security"
 CLEAR_DIR="${SCRIPT_DIR}/clear"

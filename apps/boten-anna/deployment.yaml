@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: boten-anna
+  namespace: boten-anna
+  labels:
+    app: boten-anna 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: boten-anna
+  template:
+    metadata:
+      labels:
+        app: boten-anna 
+    spec:
+      imagePullSecrets: 
+        - name: harbor-cicd-secret # Le secret répliqué par Reflector
+      containers:
+        - name: boten-anna 
+          image: harbor.valab.top/prod/boten-anna:main 
+          ports:
+            - containerPort: 5000 
+          readinessProbe:
+            httpGet:
+              path: / 
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 60
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 60

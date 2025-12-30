@@ -13,6 +13,8 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: boten-anna
+  labels:
+    replicate-harbor-cicd: "true"
 ---
 # initialement créé par ansible
 apiVersion: v1
