@@ -14,7 +14,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: filebrowser-db
+  name: filebrowser-config
   namespace: media
 spec:
   accessModes:
