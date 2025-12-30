@@ -17,6 +17,10 @@ spec:
       labels:
         app: syncthing
     spec:
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "1" # Fix potential DNS resolution issues with external domains (avoiding search domain overhead)
       containers:
         - name: syncthing
           image: lscr.io/linuxserver/syncthing:latest
