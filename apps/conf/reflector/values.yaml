@@ -1,0 +1,7 @@
+# Reflector Helm Values
+# On reste sur les valeurs par défaut pour le moment
+replicaCount: 1
+configuration:
+  # On peut restreindre si besoin, mais par défaut il surveille tout
+  watcher:
+    namespaces: []

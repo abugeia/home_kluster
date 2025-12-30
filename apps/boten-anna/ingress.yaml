@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: boten-anna
+  namespace: boten-anna
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
+spec:
+  rules:
+    - host: ba.valab.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: boten-anna
+                port:
+                  number: 80

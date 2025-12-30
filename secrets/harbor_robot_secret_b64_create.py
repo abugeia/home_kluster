@@ -8,14 +8,6 @@ def generate_dockerconfig_base64(robot_file_path, registry_url):
     Lit un fichier JSON contenant les informations d'un compte robot Harbor,
     et génère la chaîne encodée en Base64 pour un secret Kubernetes
     de type kubernetes.io/dockerconfigjson.
-
-    Args:
-        robot_file_path (str): Le chemin vers le fichier robot.json.
-        registry_url (str): L'URL du registre Harbor.
-
-    Returns:
-        str: La chaîne encodée en Base64 pour le champ .dockerconfigjson,
-             ou None en cas d'erreur.
     """
     try:
         # --- 1. Lire et parser le fichier JSON d'entrée ---
@@ -52,7 +44,6 @@ def generate_dockerconfig_base64(robot_file_path, registry_url):
         }
 
         # --- 5. Convertir le dictionnaire en chaîne JSON compacte ---
-        # Utiliser separators pour éviter les espaces inutiles
         docker_config_json_string = json.dumps(docker_config_dict, separators=(',', ':'))
 
         # --- 6. Encoder la chaîne JSON complète en Base64 ---
@@ -72,20 +63,50 @@ def generate_dockerconfig_base64(robot_file_path, registry_url):
         print(f"Une erreur inattendue est survenue : {e}", file=sys.stderr)
         return None
 
-if __name__ == "__main__":
+def generate_secret_yaml(b64_content, secret_name, namespace):
+    """Génère le contenu YAML d'un secret Kubernetes avec annotations Reflector."""
+    yaml_template = f"""apiVersion: v1
+kind: Secret
+metadata:
+  name: {secret_name}
+  namespace: {namespace}
+  annotations:
+    reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+    reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: ""
+    reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+    reflector.v1.k8s.emberstack.com/reflection-auto-namespaces-selector: "replicate-harbor-cicd=true"
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: {b64_content}
+"""
+    return yaml_template
 
-    robot_file = "secrets/clear/robot$cluster-cd.json"
-    harbor_registry = "harbor.cagou.ovh" 
+if __name__ == "__main__":
+    # Paramètres par défaut
+    robot_file = "secrets/clear/robot$sa-harbor-cicd.json"
+    harbor_registry = "harbor.valab.top"
+    secret_name = "harbor-cicd-secret"
+    target_namespace = "storage" # Par défaut
+    output_file = "secrets/clear/harbor-cicd-secret.yaml"
 
     print(f"Lecture du fichier : {robot_file}")
     print(f"Utilisation du registre : {harbor_registry}")
 
     dockerconfig_b64 = generate_dockerconfig_base64(robot_file, harbor_registry)
 
-    # --- Affichage du résultat ---
     if dockerconfig_b64:
-        print("\n--- Secret .dockerconfigjson encodé en Base64 ---")
-        print(dockerconfig_b64)
-        print("\nCopiez cette chaîne et collez-la dans le champ 'data/.dockerconfigjson' de votre Secret Kubernetes (ou SealedSecret).")
+        # Générer le YAML
+        secret_yaml = generate_secret_yaml(dockerconfig_b64, secret_name, target_namespace)
+        
+        # Écrire le fichier dans secrets/clear/
+        try:
+            with open(output_file, 'w') as f:
+                f.write(secret_yaml)
+            print(f"\n✅ Secret YAML généré : {output_file}")
+            print(f"   Namespace : {target_namespace} | Nom : {secret_name}")
+            print(f"\nVous pouvez maintenant le 'sceller' avec kubeseal.")
+        except Exception as e:
+            print(f"Erreur lors de l'écriture : {e}", file=sys.stderr)
+            sys.exit(1)
     else:
-        sys.exit(1) 
+        sys.exit(1)

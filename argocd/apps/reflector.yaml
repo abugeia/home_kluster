@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: reflector
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: https://emberstack.github.io/helm-charts
+      targetRevision: 9.2.0-develop.18
+      chart: reflector
+      helm:
+        valueFiles:
+          - $values/apps/conf/reflector/values.yaml
+    - repoURL: 'https://github.com/abugeia/home_kluster.git'
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system # On l'installe dans kube-system ou security
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
