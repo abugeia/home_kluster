@@ -36,6 +36,12 @@ spec:
               value: "Remote-User"
             - name: ND_REVERSEPROXYWHITELIST
               value: "0.0.0.0/0"
+            - name: ND_EXTAUTH_ENABLED
+              value: "true"
+            - name: ND_EXTAUTH_USERHEADER
+              value: "Remote-User"
+            - name: ND_EXTAUTH_TRUSTEDSOURCES
+              value: "0.0.0.0/0"
             - name: ND_LOGLEVEL
               value: "trace"
           volumeMounts:
