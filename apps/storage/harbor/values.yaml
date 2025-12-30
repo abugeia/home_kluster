@@ -63,7 +63,7 @@ jobservice:
     limits:
       memory: 256Mi
     requests:
-      memory: 128Mi
+      memory: 64Mi
       cpu: 20m
 
 registry:
@@ -72,14 +72,14 @@ registry:
       limits:
         memory: 256Mi
       requests:
-        memory: 128Mi
+        memory: 64Mi
         cpu: 20m
   controller:
     resources:
       limits:
         memory: 128Mi
       requests:
-        memory: 64Mi
+        memory: 32Mi
         cpu: 10m
 
 trivy:
@@ -102,7 +102,7 @@ redis:
       limits:
         memory: 128Mi
       requests:
-        memory: 64Mi
+        memory: 32Mi
         cpu: 10m
 
 exporter:
