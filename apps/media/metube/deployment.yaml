@@ -43,6 +43,10 @@ spec:
               value: "/media/metube_music"
             - name: STATE_DIR
               value: "/data"
+            - name: DEFAULT_OPTION_PLAYLIST_STRICT_MODE
+              value: "true"
+            - name: DEFAULT_OPTION_PLAYLIST_ITEM_LIMIT
+              value: "50"
           ports:
             - name: http
               containerPort: 8081
