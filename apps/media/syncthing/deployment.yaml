@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: syncthing
-  namespace: downloads
+  namespace: media
   labels:
     app: syncthing
 spec:
@@ -48,7 +48,7 @@ spec:
             - name: config
               mountPath: /config
             - name: data
-              mountPath: /data1
+              mountPath: /data
           resources:
             requests:
               memory: "256Mi"
@@ -69,4 +69,4 @@ spec:
             claimName: syncthing-config
         - name: data
           persistentVolumeClaim:
-            claimName: syncthing-data
+            claimName: media-data

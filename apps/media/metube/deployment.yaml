@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: metube
-  namespace: downloads
+  namespace: media
   labels:
     app: metube
 spec:
@@ -24,10 +24,10 @@ spec:
       initContainers:
         - name: create-dirs
           image: busybox
-          command: ['sh', '-c', 'mkdir -p /downloads/music && chown -R 1000:1000 /downloads']
+          command: ['sh', '-c', 'mkdir -p /media/metube_dl /media/metube_music && chown -R 1000:1000 /media']
           volumeMounts:
-            - name: downloads
-              mountPath: /downloads
+            - name: media
+              mountPath: /media
       containers:
         - name: metube
           image: ghcr.io/alexta69/metube:latest
@@ -38,17 +38,17 @@ spec:
             - name: GID
               value: "1000"
             - name: DOWNLOAD_DIR
-              value: "/downloads"
+              value: "/media/metube_dl"
             - name: AUDIO_DOWNLOAD_DIR
-              value: "/downloads/music"
+              value: "/media/metube_music"
             - name: STATE_DIR
               value: "/data"
           ports:
             - name: http
               containerPort: 8081
           volumeMounts:
-            - name: downloads
-              mountPath: /downloads
+            - name: media
+              mountPath: /media
             - name: state
               mountPath: /data
           resources:
@@ -59,9 +59,9 @@ spec:
               memory: "512Mi"
               cpu: "1000m"
       volumes:
-        - name: downloads
+        - name: media
           persistentVolumeClaim:
-            claimName: syncthing-data
+            claimName: media-data
         - name: state
           persistentVolumeClaim:
             claimName: metube-state
