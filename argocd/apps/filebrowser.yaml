@@ -10,10 +10,10 @@ spec:
   source:
     repoURL: https://github.com/abugeia/home_kluster.git
     targetRevision: main
-    path: apps/downloads/filebrowser
+    path: apps/media/filebrowser
   destination:
     server: https://kubernetes.default.svc
-    namespace: downloads
+    namespace: media
   syncPolicy:
     automated:
       prune: true

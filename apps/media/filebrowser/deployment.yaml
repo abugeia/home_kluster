@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: filebrowser
-  namespace: downloads
+  namespace: media
   labels:
     app: filebrowser
 spec:
@@ -49,7 +49,7 @@ spec:
       volumes:
         - name: data
           persistentVolumeClaim:
-            claimName: syncthing-data
+            claimName: media-data
         - name: config
           persistentVolumeClaim:
             claimName: filebrowser-config
