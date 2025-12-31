@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: immich
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    # Source 1: PVC from Git repo
+    - repoURL: 'https://github.com/abugeia/home_kluster.git'
+      targetRevision: HEAD
+      path: apps/media/immich
+      directory:
+        include: 'pvc.yaml'
+    # Source 2: Helm chart with values from Git
+    - repoURL: https://immich-app.github.io/immich-charts
+      targetRevision: 0.10.3
+      chart: immich
+      helm:
+        valueFiles:
+          - $values/apps/media/immich/values.yaml
+    # Source 3: Git repo for values reference
+    - repoURL: 'https://github.com/abugeia/home_kluster.git'
+      targetRevision: HEAD
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: media
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false

@@ -1,0 +1,106 @@
+# Immich Helm Values pour Home Kluster
+# Chart: immich/immich (https://immich-app.github.io/immich-charts)
+# Note: L'image tag suit la version du chart par défaut
+
+# Configuration principale
+controllers:
+  main:
+    containers:
+      main:
+        env:
+          REDIS_HOSTNAME: '{{ printf "%s-valkey" .Release.Name }}'
+          IMMICH_MACHINE_LEARNING_URL: '{{ printf "http://%s-machine-learning:3003" .Release.Name }}'
+          # PostgreSQL externe
+          DB_HOSTNAME: "10.0.0.12"
+          DB_PORT: "5432"
+          DB_DATABASE_NAME: "immich"
+          DB_USERNAME: "immich"
+          # Le mot de passe sera passé via un secret
+          DB_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: immich-pg-secret  # Créé par Ansible via postgresql_databases
+                key: password
+
+immich:
+  persistence:
+    library:
+      existingClaim: immich-library
+  # Configuration OIDC PocketID
+  configuration:
+    oauth:
+      enabled: true
+      issuerUrl: "https://auth-id.valab.top"
+      # clientId et clientSecret à configurer via l'UI Immich après déploiement:
+      autoRegister: true
+      autoLaunch: false
+      buttonText: "Se connecter avec PocketID"
+      mobileOverrideEnabled: true
+      mobileRedirectUri: "app.immich:///oauth-callback"
+
+# Désactiver PostgreSQL interne (on utilise l'externe)
+postgresql:
+  enabled: false
+
+# Valkey (Redis) - activé pour la gestion des jobs
+valkey:
+  enabled: true
+  persistence:
+    data:
+      enabled: true
+      type: persistentVolumeClaim
+      size: 1Gi
+      storageClass: nfs-csi-nvme
+      accessMode: ReadWriteOnce
+
+# Server
+server:
+  enabled: true
+  controllers:
+    main:
+      containers:
+        main:
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+  ingress:
+    main:
+      enabled: true
+      ingressClassName: traefik
+      hosts:
+        - host: immich.valab.top
+          paths:
+            - path: "/"
+              service:
+                identifier: main
+        - host: photos.valab.top
+          paths:
+            - path: "/"
+              service:
+                identifier: main
+
+# Machine Learning
+machine-learning:
+  enabled: true
+  controllers:
+    main:
+      containers:
+        main:
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "4Gi"
+              cpu: "2000m"
+  persistence:
+    cache:
+      enabled: true
+      type: persistentVolumeClaim
+      size: 10Gi
+      storageClass: nfs-csi-nvme
+      accessMode: ReadWriteOnce
