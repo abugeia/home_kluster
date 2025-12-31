@@ -28,15 +28,22 @@ immich:
       existingClaim: immich-library
   # Configuration OIDC PocketID
   configuration:
-    oauth:
-      enabled: true
-      issuerUrl: "https://auth-id.valab.top"
-      # clientId et clientSecret à configurer via l'UI Immich après déploiement:
-      autoRegister: true
-      autoLaunch: false
-      buttonText: "Se connecter avec PocketID"
-      mobileOverrideEnabled: true
-      mobileRedirectUri: "app.immich:///oauth-callback"
+    # oauth:
+      # NOTE: Configuration OAuth désactivée en mode déclaratif pour deux raisons :
+      # 1. Gestion des Secrets : Immich ne supporte pas de lire le ClientSecret via une variable d'environnement ou Secret K8s.
+      #    Il faudrait le mettre en clair ici, ce qui n'est pas sécurisé dans Git.
+      # 2. Validation Stricte : Le validateur du chart rejette certaines URIs custom (mobileRedirectUri) nécessaires.
+      #
+      # -> La configuration doit être faite via l'interface web (Administration -> Settings -> OAuth Authentication)
+      #    Cela stockera la config en base de données de manière persistante.
+      #
+      # enabled: false
+      # issuerUrl: "https://auth-id.valab.top"
+      # autoRegister: true
+      # autoLaunch: false
+      # buttonText: "Se connecter avec PocketID"
+      # mobileOverrideEnabled: true
+      # mobileRedirectUri: "app.immich:///oauth-callback"
 
 # Désactiver PostgreSQL interne (supprimé dans v0.10.3+)
 # La configuration externe est gérée via les variables d'environnement DB_*
