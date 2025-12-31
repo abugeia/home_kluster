@@ -43,6 +43,7 @@ kind: Namespace
 metadata:
   name: whoami
 ---
+# initialement créé par ansible
 apiVersion: v1
 kind: Namespace
 metadata:

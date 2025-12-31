@@ -39,6 +39,8 @@ spec:
               mountPath: /srv
             - name: config
               mountPath: /database
+            - name: immich-library
+              mountPath: /srv/immich-media
           resources:
             requests:
               memory: "64Mi"
@@ -53,3 +55,6 @@ spec:
         - name: config
           persistentVolumeClaim:
             claimName: filebrowser-config
+        - name: immich-library
+          persistentVolumeClaim:
+            claimName: immich-library
