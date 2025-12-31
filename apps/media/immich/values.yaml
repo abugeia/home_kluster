@@ -13,7 +13,7 @@ controllers:
           # PostgreSQL externe
           DB_HOSTNAME: "10.0.0.12"
           DB_PORT: "5432"
-          DB_DATABASE_NAME: "immich"
+          DB_DATABASE_NAME: "immich_db"
           DB_USERNAME: "immich"
           # Le mot de passe sera passé via un secret
           DB_PASSWORD:
