@@ -19,9 +19,9 @@ spec:
         args:
           # Syntaxe -s : "Nom;Chemin;Visible;LectureSeule;Invite;Utilisateurs"
           - "-s"
-          - "Data_ZFS;/share/zfs;yes;no;no;data"
+          - "Data_ZFS;/share/zfs;yes;no;no;user"
           - "-s"
-          - "Data_NVMe;/share/nvme;yes;no;no;data"
+          - "Data_NVMe;/share/nvme;yes;no;no;user"
           # Syntaxe -u : "Utilisateur;MotDePasse"
           - "-u"
           - "user;$(SAMBA_PASSWORD)"
