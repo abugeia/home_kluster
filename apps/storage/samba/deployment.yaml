@@ -18,6 +18,8 @@ spec:
         image: dperson/samba
         args:
           - "-p"
+          - "-g"
+          - "force user = root"
           # Syntaxe -s : "Nom;Chemin;Visible;LectureSeule;Invite;Utilisateurs"
           - "-s"
           - "Data_ZFS;/share/zfs;yes;no;no;user"
