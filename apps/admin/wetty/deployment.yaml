@@ -19,17 +19,14 @@ spec:
       containers:
         - name: wetty
           image: wettyoss/wetty:latest
-          args: ["--ssh-host", "$(SSHHOST)", "--ssh-port", "$(SSHPORT)", "--ssh-user", "$(SSHUSER)", "--base", "/"]
+          args:
+            - "--base"
+            - "/"
+            - "--command"
+            - "ssh -o StrictHostKeyChecking=no -p 22 root@10.0.0.10"
           ports:
             - containerPort: 3000
               name: http
-          env:
-            - name: SSHHOST
-              value: "10.0.0.10"
-            - name: SSHPORT
-              value: "22"
-            - name: SSHUSER
-              value: "root"
           resources:
             requests:
               cpu: "10m"
