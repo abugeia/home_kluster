@@ -1,0 +1,87 @@
+# Pourquoi des PV statiques ? On mappe directement les datasets ZFS de Proxmox (video, immich, etc.) 
+# pour garder la structure et les prestations (ex: recordsize).
+# Pourquoi 10Ti ? C'est une valeur virtuelle. NFS n'appliquant pas de quota, 
+# la taille réelle est celle du pool ZFS sur l'hôte.
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-hdd-video
+spec:
+  capacity:
+    storage: 10Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs-csi-hdd
+  mountOptions:
+    - nfsvers=4.1
+    - hard
+  csi:
+    driver: nfs.csi.k8s.io
+    volumeHandle: pve-hdd-video
+    volumeAttributes:
+      server: 10.0.0.10
+      share: /tank_data/video
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-hdd-data
+spec:
+  capacity:
+    storage: 10Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs-csi-hdd
+  mountOptions:
+    - nfsvers=4.1
+    - hard
+  csi:
+    driver: nfs.csi.k8s.io
+    volumeHandle: pve-hdd-data
+    volumeAttributes:
+      server: 10.0.0.10
+      share: /tank_data/data
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-hdd-immich
+spec:
+  capacity:
+    storage: 10Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs-csi-hdd
+  mountOptions:
+    - nfsvers=4.1
+    - hard
+  csi:
+    driver: nfs.csi.k8s.io
+    volumeHandle: pve-hdd-immich
+    volumeAttributes:
+      server: 10.0.0.10
+      share: /tank_data/immich
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-hdd-import
+spec:
+  capacity:
+    storage: 10Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs-csi-hdd
+  mountOptions:
+    - nfsvers=4.1
+    - hard
+  csi:
+    driver: nfs.csi.k8s.io
+    volumeHandle: pve-hdd-import
+    volumeAttributes:
+      server: 10.0.0.10
+      share: /tank_data/import

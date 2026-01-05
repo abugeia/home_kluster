@@ -33,7 +33,7 @@ spec:
         runAsUser: 1000
       containers:
         - name: pocketid
-          image: ghcr.io/pocket-id/pocket-id:latest
+          image: ghcr.io/pocket-id/pocket-id:v2.0.2
           ports:
             - containerPort: 1411
           env:
@@ -51,6 +51,11 @@ spec:
               value: "false"
             - name: GIN_MODE
               value: "release"
+            - name: ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: pocketid-encryption-key
           volumeMounts:
             - name: data
               mountPath: /app/data

@@ -25,3 +25,18 @@ mountOptions:
 # deletionPolicy: Delete
 # parameters:
 # 
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nfs-csi-hdd
+provisioner: nfs.csi.k8s.io
+parameters:
+  server: 10.0.0.10
+  share: /tank_data
+reclaimPolicy: Retain # Retain for safety on HDD pool
+allowVolumeExpansion: true
+volumeBindingMode: Immediate
+mountOptions:
+  - nfsvers=4.1
+  - hard
