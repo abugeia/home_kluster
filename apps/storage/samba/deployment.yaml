@@ -27,6 +27,10 @@ spec:
           - "-u"
           - "user;$(SAMBA_PASSWORD)"
         env:
+        - name: USERID
+          value: "0"
+        - name: GROUPID
+          value: "0"
         - name: SAMBA_PASSWORD
           valueFrom:
             secretKeyRef:
