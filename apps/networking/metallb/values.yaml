@@ -1,29 +1,33 @@
 # Values for MetalLB chart 0.15.3
 # Custom L2 configuration is handled separately in conf/metallb.yaml
 
+prometheus:
+  enabled: false
+  serviceMonitor:
+    enabled: false
+    # namespace: observability # Si Prometheus est là
+
 controller:
-  # Permet d'avoir des logs plus verbeux si besoin de debug
   logLevel: info
   resources:
     limits:
-      cpu: 100m
-      memory: 128Mi
+      cpu: 200m
+      memory: 256Mi
     requests:
-      cpu: 10m
-      memory: 64Mi
+      cpu: 50m
+      memory: 128Mi
 
 speaker:
   logLevel: info
   resources:
     limits:
-      cpu: 100m
-      memory: 128Mi
+      cpu: 200m
+      memory: 256Mi
     requests:
-      cpu: 10m
-      memory: 64Mi
-  # Désactivation de FRR car nous sommes en mode L2
+      cpu: 50m
+      memory: 128Mi
   frr:
     enabled: false
-
-prometheus:
-  enabled: false # Désactivé par défaut, peut être activé si Prometheus est présent
+  # Permet au speaker d'envoyer des ARP même si Cilium est là
+  # (Cilium peut bloquer les ARP non autorisés)
+  # Mais ici on part du principe que Cilium ne fait pas d'annonces L2.
