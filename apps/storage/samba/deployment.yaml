@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: samba
+  namespace: storage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: samba
+  template:
+    metadata:
+      labels:
+        app: samba
+    spec:
+      containers:
+      - name: samba
+        image: dperson/samba
+        args:
+          # Syntaxe -s : "Nom;Chemin;Visible;LectureSeule;Invite;Utilisateurs"
+          - "-s"
+          - "Data_ZFS;/share/zfs;yes;no;no;data"
+          - "-s"
+          - "Data_NVMe;/share/nvme;yes;no;no;data"
+          # Syntaxe -u : "Utilisateur;MotDePasse"
+          - "-u"
+          - "data;$(SAMBA_PASSWORD)"
+        env:
+        - name: SAMBA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: samba-secret
+              key: password
+        ports:
+        - containerPort: 445
+          name: smb
+        volumeMounts:
+        - name: video
+          mountPath: /share/zfs/video
+        - name: data
+          mountPath: /share/zfs/data
+        - name: immich
+          mountPath: /share/zfs/immich
+        - name: import
+          mountPath: /share/zfs/import
+        - name: nvme
+          mountPath: /share/nvme
+      volumes:
+      - name: video
+        persistentVolumeClaim:
+          claimName: pvc-samba-video
+      - name: data
+        persistentVolumeClaim:
+          claimName: pvc-samba-data
+      - name: immich
+        persistentVolumeClaim:
+          claimName: pvc-samba-immich
+      - name: import
+        persistentVolumeClaim:
+          claimName: pvc-samba-import
+      - name: nvme
+        persistentVolumeClaim:
+          claimName: pvc-samba-nvme

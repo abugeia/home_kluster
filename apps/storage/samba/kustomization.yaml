@@ -1,0 +1,12 @@
+# Pourquoi ce fichier ? Kustomize sert d'index pour ArgoCD : seuls les fichiers listés ici sont déployés.
+# Il permet aussi d'appliquer des transformations globales (labels, namespace) sans modifier les manifests.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - pv.yaml
+  - pvc-zfs.yaml
+  - pvc-nvme.yaml
+  - deployment.yaml
+  - service.yaml
+
