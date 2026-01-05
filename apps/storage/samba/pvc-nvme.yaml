@@ -7,6 +7,7 @@ spec:
   accessModes:
     - ReadWriteMany
   storageClassName: nfs-csi-nvme
+  volumeName: pv-nvme-root
   resources:
     requests:
-      storage: 10Gi
+      storage: 1Ti
