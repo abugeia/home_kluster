@@ -17,6 +17,7 @@ spec:
       - name: samba
         image: dperson/samba
         args:
+          - "-p"
           # Syntaxe -s : "Nom;Chemin;Visible;LectureSeule;Invite;Utilisateurs"
           - "-s"
           - "Data_ZFS;/share/zfs;yes;no;no;user"
@@ -26,10 +27,6 @@ spec:
           - "-u"
           - "user;$(SAMBA_PASSWORD)"
         env:
-        - name: USERID
-          value: "0"
-        - name: GROUPID
-          value: "0"
         - name: SAMBA_PASSWORD
           valueFrom:
             secretKeyRef:
