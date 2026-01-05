@@ -19,7 +19,7 @@ spec:
       containers:
         - name: wetty
           image: wettyoss/wetty:latest
-          args: ["--ssh-host", "$(SSHHOST)", "--ssh-port", "$(SSHPORT)", "--ssh-user", "$(SSHUSER)"]
+          args: ["--ssh-host", "$(SSHHOST)", "--ssh-port", "$(SSHPORT)", "--ssh-user", "$(SSHUSER)", "--base", "/"]
           ports:
             - containerPort: 3000
               name: http
