@@ -85,3 +85,24 @@ spec:
     volumeAttributes:
       server: 10.0.0.10
       share: /tank_data/import
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-nvme-root
+spec:
+  capacity:
+    storage: 1Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs-csi-nvme
+  mountOptions:
+    - nfsvers=4.1
+    - hard
+  csi:
+    driver: nfs.csi.k8s.io
+    volumeHandle: pve-nvme-root
+    volumeAttributes:
+      server: 10.0.0.10
+      share: /mnt/nfs
