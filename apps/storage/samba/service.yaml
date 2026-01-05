@@ -3,6 +3,8 @@ kind: Service
 metadata:
   name: samba
   namespace: storage
+  annotations:
+    metallb.io/load-balancer-ip: 10.0.0.100
 spec:
   type: LoadBalancer
   ports:

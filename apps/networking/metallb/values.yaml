@@ -1,0 +1,2 @@
+# Values for MetalLB chart 0.15.3
+# Custom L2 configuration is handled separately in conf/metallb.yaml

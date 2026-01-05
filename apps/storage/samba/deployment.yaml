@@ -24,7 +24,7 @@ spec:
           - "Data_NVMe;/share/nvme;yes;no;no;data"
           # Syntaxe -u : "Utilisateur;MotDePasse"
           - "-u"
-          - "data;$(SAMBA_PASSWORD)"
+          - "user;$(SAMBA_PASSWORD)"
         env:
         - name: SAMBA_PASSWORD
           valueFrom:
