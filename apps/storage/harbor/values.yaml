@@ -104,6 +104,15 @@ redis:
       requests:
         memory: 32Mi
         cpu: 10m
+    initContainers:
+      - name: fix-permissions
+        image: busybox
+        command: ["sh", "-c", "chown -R 999:999 /var/lib/redis"]
+        securityContext:
+          runAsUser: 0
+        volumeMounts:
+          - name: data
+            mountPath: /var/lib/redis
 
 exporter:
   resources:
