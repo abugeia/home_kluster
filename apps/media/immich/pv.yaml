@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: immich-app-library-pv
+spec:
+  capacity:
+    storage: 100Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs-csi-hdd
+  nfs:
+    server: 10.0.0.10
+    path: /tank_data/immich
+  mountOptions:
+    - nfsvers=4.1
+    - hard
