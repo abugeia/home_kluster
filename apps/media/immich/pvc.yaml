@@ -8,7 +8,7 @@ spec:
   accessModes:
     - ReadWriteMany  # Nécessaire pour le serveur et machine-learning
   storageClassName: nfs-csi-hdd
-  volumeName: immich-app-library-pv
+  volumeName: pv-hdd-immich
   resources:
     requests:
       storage: 100Gi
