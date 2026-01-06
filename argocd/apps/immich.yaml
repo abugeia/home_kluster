@@ -11,7 +11,7 @@ spec:
       targetRevision: HEAD
       path: apps/media/immich
       directory:
-        include: 'pvc.yaml'
+        include: '{pv,pvc}.yaml'
     # Source 2: Helm chart with values from Git
     - repoURL: https://immich-app.github.io/immich-charts
       targetRevision: 0.10.3
