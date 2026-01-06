@@ -37,9 +37,9 @@ persistence:
         storageClass: "nfs-csi-nvme"
         size: 256Mi
     redis:
-      # Désactiver la persistance Redis car NFS a des problèmes avec les snapshots RDB
-      # Redis est utilisé comme cache, pas besoin de persistance
-      storageClass: "-"
+      # Utilisation de local-path pour Redis (cache) pour éviter tout problème avec NFS
+      # Les données ne seront pas répliquées si le pod change de nœud, mais c'est un cache.
+      storageClass: "local-path"
       size: 512Mi
 
 # Components configuration
