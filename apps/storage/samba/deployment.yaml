@@ -46,8 +46,8 @@ spec:
           mountPath: /share/zfs/video
         - name: data
           mountPath: /share/zfs/data
-        - name: immich
-          mountPath: /share/zfs/immich
+        # - name: immich
+        #   mountPath: /share/zfs/immich
         - name: import
           mountPath: /share/zfs/import
         - name: nvme
@@ -59,9 +59,9 @@ spec:
       - name: data
         persistentVolumeClaim:
           claimName: pvc-samba-data
-      - name: immich
-        persistentVolumeClaim:
-          claimName: pvc-samba-immich
+      # - name: immich
+      #   persistentVolumeClaim:
+      #     claimName: pvc-samba-immich
       - name: import
         persistentVolumeClaim:
           claimName: pvc-samba-import

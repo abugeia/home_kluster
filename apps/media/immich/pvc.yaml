@@ -7,7 +7,8 @@ metadata:
 spec:
   accessModes:
     - ReadWriteMany  # Nécessaire pour le serveur et machine-learning
-  storageClassName: nfs-csi-nvme
+  storageClassName: nfs-csi-hdd
+  volumeName: immich-app-library-pv
   resources:
     requests:
       storage: 100Gi
