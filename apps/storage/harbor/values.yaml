@@ -29,14 +29,17 @@ persistence:
   resourcePolicy: "keep"
   persistentVolumeClaim:
     registry:
-      storageClass: "nfs-csi-nvme"
+      # Stockage bulk sur ZFS tank_data (HDD) - plus de capacité
+      storageClass: "nfs-csi-hdd"
       size: 50Gi
     jobservice:
       jobLog:
         storageClass: "nfs-csi-nvme"
         size: 256Mi
     redis:
-      storageClass: "nfs-csi-nvme"
+      # Désactiver la persistance Redis car NFS a des problèmes avec les snapshots RDB
+      # Redis est utilisé comme cache, pas besoin de persistance
+      storageClass: "-"
       size: 512Mi
 
 # Components configuration
@@ -95,7 +98,7 @@ database:
     coreDatabase: harbor_db
     username: harbor_user
 
-# Redis interne
+# Redis interne (pas de persistance - cache seulement)
 redis:
   internal:
     resources:
@@ -104,15 +107,6 @@ redis:
       requests:
         memory: 32Mi
         cpu: 10m
-    initContainers:
-      - name: fix-permissions
-        image: busybox
-        command: ["sh", "-c", "chown -R 999:999 /var/lib/redis"]
-        securityContext:
-          runAsUser: 0
-        volumeMounts:
-          - name: data
-            mountPath: /var/lib/redis
 
 exporter:
   resources:

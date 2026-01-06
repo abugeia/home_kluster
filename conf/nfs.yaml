@@ -34,6 +34,8 @@ provisioner: nfs.csi.k8s.io
 parameters:
   server: 10.0.0.10
   share: /tank_data
+  # Créer les PVCs dans un sous-dossier dédié pour ne pas mélanger avec les données perso
+  subDir: k8s/${pvc.metadata.namespace}/${pvc.metadata.name}
 reclaimPolicy: Retain # Retain for safety on HDD pool
 allowVolumeExpansion: true
 volumeBindingMode: Immediate
