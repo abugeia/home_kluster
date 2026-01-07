@@ -59,13 +59,17 @@ config:
 
   # Widgets affichés en haut de la page
   widgets:
-    - kubernetes:
-        cluster:
-          show: true
-          cpu: true
-          memory: true
-          showLabel: true
-          label: "Home Kluster"
+    - resources:
+        cpu: true
+        memory: true
+        disk: /
+    # - kubernetes:
+    #     cluster:
+    #       show: true
+    #       cpu: true
+    #       memory: true
+    #       showLabel: true
+    #       label: "Home Kluster"
     - search:
         provider: google
         target: _blank
@@ -74,7 +78,7 @@ config:
   services:
     - Admin:
         - ArgoCD:
-            icon: argocd.png
+            icon: si-argocd
             href: https://argocd.valab.top
             description: GitOps Deployment
             # Widget ArgoCD natif (Nécessite un token API)
@@ -83,6 +87,6 @@ config:
             #   url: http://argocd-server.argocd.svc.cluster.local
     - Storage:
         - Samba:
-            icon: samba.png
+            icon: si-samba
             href: https://samba.valab.top
             description: Network Storage
