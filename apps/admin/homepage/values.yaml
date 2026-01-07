@@ -20,14 +20,6 @@ serviceAccount:
 
 rbac:
   create: true
-  # Force ClusterRole creation to read all resources cross-namespace
-  rules:
-    - apiGroups: [""]
-      resources: ["pods", "nodes", "services", "endpoints", "namespaces"]
-      verbs: ["get", "list", "watch"]
-    - apiGroups: ["networking.k8s.io", "extensions"]
-      resources: ["ingresses"]
-      verbs: ["get", "list", "watch"]
   
 # Ingress pour accès externe
 ingress:
