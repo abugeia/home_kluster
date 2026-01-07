@@ -1,0 +1,27 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: homepage-cluster-reader
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "nodes", "services", "namespaces", "endpoints"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["networking.k8s.io", "extensions"]
+    resources: ["ingresses"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["traefik.containo.us", "traefik.io"]
+    resources: ["ingressroutes"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: homepage-cluster-reader-binding
+subjects:
+  - kind: ServiceAccount
+    name: homepage
+    namespace: admin
+roleRef:
+  kind: ClusterRole
+  name: homepage-cluster-reader
+  apiGroup: rbac.authorization.k8s.io

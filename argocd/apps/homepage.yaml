@@ -18,6 +18,13 @@ spec:
     - repoURL: 'https://github.com/abugeia/home_kluster.git'
       targetRevision: HEAD
       ref: values
+    
+    # Source 3: Manifests RBAC manuels (car le chart ne gère pas bien le cross-namespace)
+    - repoURL: 'https://github.com/abugeia/home_kluster.git'
+      targetRevision: HEAD
+      path: apps/admin/homepage
+      directory:
+        include: 'rbac-manual.yaml'
   
   destination:
     server: https://kubernetes.default.svc
