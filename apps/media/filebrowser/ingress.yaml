@@ -6,6 +6,12 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: traefik
     traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/description: "Web File Manager"
+    gethomepage.dev/group: "Storage"
+    gethomepage.dev/icon: "si-filebrowser"
+    gethomepage.dev/name: "Files"
+    gethomepage.dev/href: "https://files.valab.top"
 spec:
   rules:
     - host: files.valab.top

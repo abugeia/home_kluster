@@ -15,7 +15,13 @@ expose:
       core: harbor.valab.top
     controller: default
     className: "traefik"
-    annotations: {}
+    annotations:
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/description: "Docker Registry"
+      gethomepage.dev/group: "Admin"
+      gethomepage.dev/icon: "si-harbor"
+      gethomepage.dev/name: "Harbor"
+      # gethomepage.dev/widget.type: "harbor" # Requires API key
 
 externalURL: https://harbor.valab.top
 
