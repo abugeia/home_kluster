@@ -39,6 +39,10 @@ spec:
           env:
             - name: APP_URL
               value: "https://auth-id.valab.top"
+            - name: SESSION_DURATION
+              value: "10080"
+            - name: UI_CONFIG_DISABLED
+              value: "true"
             - name: PUBLIC_REGISTRATION
               value: "false"
             - name: TRUST_PROXY
