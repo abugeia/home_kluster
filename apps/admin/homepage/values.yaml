@@ -6,6 +6,11 @@ image:
   tag: v1.8.0
   pullPolicy: IfNotPresent
 
+# Environment variables
+env:
+  - name: HOMEPAGE_VAR_ALLOWED_HOSTS
+    value: "home.valab.top,homepage.admin.svc.cluster.local"
+
 # Activer le RBAC pour que Homepage puisse scanner le cluster (Pods/Ingress/etc)
 serviceAccount:
   create: true
