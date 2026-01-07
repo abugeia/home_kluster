@@ -6,6 +6,12 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: traefik
     traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/description: "Youtube Downloader"
+    gethomepage.dev/group: "Media"
+    gethomepage.dev/icon: "si-youtube"
+    gethomepage.dev/name: "MeTube"
+    gethomepage.dev/href: "https://metube.valab.top"
 spec:
   rules:
     - host: tb.valab.top

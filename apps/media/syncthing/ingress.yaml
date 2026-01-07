@@ -6,6 +6,12 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: traefik
     traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/description: "File Synchronization"
+    gethomepage.dev/group: "Storage"
+    gethomepage.dev/icon: "si-syncthing"
+    gethomepage.dev/name: "Syncthing"
+    gethomepage.dev/href: "https://syncthing.valab.top"
 spec:
   rules:
     - host: syncthing.valab.top

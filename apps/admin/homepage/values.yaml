@@ -75,18 +75,4 @@ config:
         target: _blank
 
   # Groupes de services (exemple initial, sera enrichi via annotations sur les autres apps)
-  services:
-    - Admin:
-        - ArgoCD:
-            icon: si-argocd
-            href: https://argocd.valab.top
-            description: GitOps Deployment
-            # Widget ArgoCD natif (Nécessite un token API)
-            # widget:
-            #   type: argocd
-            #   url: http://argocd-server.argocd.svc.cluster.local
-    - Storage:
-        - Samba:
-            icon: si-samba
-            href: https://samba.valab.top
-            description: Network Storage
+  services: []

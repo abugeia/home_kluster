@@ -6,6 +6,12 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: traefik
     traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/description: "Music Server"
+    gethomepage.dev/group: "Media"
+    gethomepage.dev/icon: "navidrome.png"
+    gethomepage.dev/name: "Navidrome"
+    gethomepage.dev/href: "https://music.valab.top"
 spec:
   rules:
     - host: music.valab.top

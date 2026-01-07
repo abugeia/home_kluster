@@ -6,6 +6,12 @@ metadata:
   namespace: admin
   annotations:
     traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/description: "Web Terminal"
+    gethomepage.dev/group: "Admin"
+    gethomepage.dev/icon: "si-linux"
+    gethomepage.dev/name: "Terminal"
+    gethomepage.dev/href: "https://sh.valab.top"
 spec:
   ingressClassName: traefik
   rules:

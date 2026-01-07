@@ -79,6 +79,13 @@ server:
     main:
       enabled: true
       ingressClassName: traefik
+      annotations:
+        gethomepage.dev/enabled: "true"
+        gethomepage.dev/description: "Photo Management"
+        gethomepage.dev/group: "Media"
+        gethomepage.dev/icon: "immich.png"
+        gethomepage.dev/name: "Immich"
+        # gethomepage.dev/widget.type: "immich" # Requires API key
       hosts:
         - host: immich.valab.top
           paths:
