@@ -1,0 +1,90 @@
+# Homepage Helm Values
+# Chart: jameswynn/homepage (https://jameswynn.github.io/helm-charts)
+
+image:
+  repository: ghcr.io/gethomepage/homepage
+  tag: v1.8.0
+  pullPolicy: IfNotPresent
+
+# Activer le RBAC pour que Homepage puisse scanner le cluster (Pods/Ingress/etc)
+serviceAccount:
+  create: true
+  name: homepage
+
+rbac:
+  create: true
+  
+# Ingress pour accès externe
+ingress:
+  main:
+    enabled: true
+    ingressClassName: traefik
+    annotations:
+      # Protection via TinyAuth existant
+      traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
+    hosts:
+      - host: home.valab.top
+        paths:
+          - path: /
+            pathType: Prefix
+
+# Configuration de l'application
+config:
+  settings:
+    title: Home Kluster
+    background:
+      image: https://images.unsplash.com/photo-1502657877623-f66bf489d236?auto=format&fit=crop&w=2000&q=80
+      opacity: 0.5
+    theme: dark
+    color: slate
+    layout:
+      Media:
+        style: row
+        columns: 4
+      Storage:
+        style: row
+        columns: 4
+      Admin:
+        style: row
+        columns: 4
+    
+    # Activation du service discovery Kubernetes
+    kubernetes:
+      mode: cluster
+
+  # Widgets affichés en haut de la page
+  widgets:
+    - kubernetes:
+        cluster:
+          show: true
+          cpu: true
+          memory: true
+          showLabel: true
+          label: "Home Kluster"
+    - resources:
+        cpu: true
+        memory: true
+        disk: /
+    - search:
+        provider: google
+        target: _blank
+
+  # Groupes de services (exemple initial, sera enrichi via annotations sur les autres apps)
+  services:
+    - Admin:
+        - ArgoCD:
+            icon: argocd.png
+            href: https://argocd.valab.top
+            description: GitOps Deployment
+            # Widget ArgoCD natif
+            widget:
+              type: argocd
+              url: http://argocd-server.argocd.svc.cluster.local
+    - Storage:
+        - Samba:
+            icon: samba.png
+            href: https://samba.valab.top
+            description: Network Storage
+            widget:
+              type: glances
+              url: http://glances.storage.svc.cluster.local:61208
