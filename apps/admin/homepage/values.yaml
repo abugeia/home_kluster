@@ -8,7 +8,7 @@ image:
 
 # Environment variables
 env:
-  - name: HOMEPAGE_VAR_ALLOWED_HOSTS
+  - name: HOMEPAGE_ALLOWED_HOSTS
     value: "home.valab.top,homepage.admin.svc.cluster.local"
 
 # Activer le RBAC pour que Homepage puisse scanner le cluster (Pods/Ingress/etc)
