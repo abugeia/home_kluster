@@ -66,10 +66,6 @@ config:
           memory: true
           showLabel: true
           label: "Home Kluster"
-    - resources:
-        cpu: true
-        memory: true
-        disk: /
     - search:
         provider: google
         target: _blank
@@ -81,15 +77,12 @@ config:
             icon: argocd.png
             href: https://argocd.valab.top
             description: GitOps Deployment
-            # Widget ArgoCD natif
-            widget:
-              type: argocd
-              url: http://argocd-server.argocd.svc.cluster.local
+            # Widget ArgoCD natif (Nécessite un token API)
+            # widget:
+            #   type: argocd
+            #   url: http://argocd-server.argocd.svc.cluster.local
     - Storage:
         - Samba:
             icon: samba.png
             href: https://samba.valab.top
             description: Network Storage
-            widget:
-              type: glances
-              url: http://glances.storage.svc.cluster.local:61208
