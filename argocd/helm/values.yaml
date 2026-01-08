@@ -24,6 +24,7 @@ server:
       gethomepage.dev/name: "ArgoCD"
       gethomepage.dev/widget.type: "argocd"
       gethomepage.dev/widget.url: "http://argocd-server.argocd.svc.cluster.local"
+      gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_ARGOCD_TOKEN}}"
       # gethomepage.dev/widget.key: "API_KEY" # A définir si on veut le widget
       # cert-manager.io/cluster-issuer: letsencrypt
   certificate:
@@ -43,6 +44,8 @@ configs:
     server.insecure: true
   cm:
     kustomize.buildOptions: "--enable-helm"
+    # User pour le widget Homepage
+    accounts.homepage: apiKey
     # fix du problème "Progressing" des Ingress dans ArgoCD quand on a pas de loadbalancer cf TROUBLESHOOTING.md
     resource.customizations: |
       networking.k8s.io/Ingress:
@@ -60,4 +63,6 @@ configs:
   rbac:
     policy.csv: |
       g, abugeia@gmail.com, role:admin
+      p, role:homepage, applications, get, */*, allow
+      g, homepage, role:homepage
     scopes: "[groups, email]"

@@ -12,6 +12,11 @@ env:
     value: "home.valab.top,homepage.admin.svc.cluster.local"
   - name: LOG_LEVEL
     value: "debug"
+  - name: HOMEPAGE_VAR_ARGOCD_TOKEN
+    valueFrom:
+      secretKeyRef:
+        name: homepage-secrets
+        key: argocd-token
 
 # Activer le RBAC pour que Homepage puisse scanner le cluster (Pods/Ingress/etc)
 serviceAccount:
