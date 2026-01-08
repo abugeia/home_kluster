@@ -2,19 +2,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: wetty
+  name: wetty-k3s
   namespace: admin
   labels:
-    app: wetty
+    app: wetty-k3s
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: wetty
+      app: wetty-k3s
   template:
     metadata:
       labels:
-        app: wetty
+        app: wetty-k3s
     spec:
       containers:
         - name: wetty
@@ -23,14 +23,23 @@ spec:
             - "--base"
             - "/"
             - "--command"
-            - "ssh -o StrictHostKeyChecking=no -p 22 root@10.0.0.10"
+            - "ssh -o StrictHostKeyChecking=no -i /mnt/ssh/id_rsa -p 22 ubuntu@10.0.0.11"
           ports:
             - containerPort: 3000
               name: http
+          volumeMounts:
+            - name: ssh-key
+              mountPath: "/mnt/ssh"
+              readOnly: true
           resources:
             requests:
               cpu: "10m"
-              memory: "32Mi"
+              memory: "16Mi"
             limits:
               cpu: "200m"
               memory: "128Mi"
+      volumes:
+        - name: ssh-key
+          secret:
+            secretName: wetty-k3s-ssh-key
+            optional: false

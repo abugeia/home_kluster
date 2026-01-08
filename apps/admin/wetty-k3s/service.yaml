@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wetty-k3s
+  namespace: admin
+  labels:
+    app: wetty-k3s
+spec:
+  ports:
+    - port: 3000
+      targetPort: 3000
+      protocol: TCP
+      name: http
+  selector:
+    app: wetty-k3s
+  type: ClusterIP
