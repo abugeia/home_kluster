@@ -42,4 +42,5 @@ spec:
         - name: ssh-key
           secret:
             secretName: wetty-k3s-ssh-key
+            defaultMode: 0400
             optional: false
