@@ -55,11 +55,11 @@ config:
         style: row
         columns: 4
     
-    # Activation du service discovery Kubernetes
-    kubernetes:
-      mode: cluster
-      ingress:
-        enabled: true
+  # Kubernetes configuration (creates kubernetes.yaml)
+  kubernetes:
+    mode: cluster
+    ingress:
+      enabled: true
 
   # Widgets affichés en haut de la page
   widgets:
@@ -67,13 +67,13 @@ config:
         cpu: true
         memory: true
         disk: /
-    - kubernetes:
-        cluster:
-          show: true
-          cpu: true
-          memory: true
-          showLabel: true
-          label: "Home Kluster"
+    # - kubernetes:
+    #     cluster:
+    #       show: true
+    #       cpu: true
+    #       memory: true
+    #       showLabel: true
+    #       label: "Home Kluster"
     - search:
         provider: google
         target: _blank
