@@ -9,6 +9,7 @@ spec:
       - "--providers.kubernetescrd.allowCrossNamespace=true"
       - "--entryPoints.web.forwardedHeaders.insecure=true"
       - "--entryPoints.websecure.forwardedHeaders.insecure=true"
+      - "--accesslog=true"
     service:
       spec:
         externalTrafficPolicy: Local

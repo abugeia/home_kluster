@@ -32,6 +32,17 @@ spec:
               value: "1000"
             - name: TZ
               value: "Pacific/Noumea"
+            - name: STNOUPNP
+              value: "1"
+          initContainers:
+            - name: fix-permissions
+              image: busybox
+              command: ["sh", "-c", "chown -R 1000:1000 /config /data"]
+              volumeMounts:
+                - name: config
+                  mountPath: /config
+                - name: data
+                  mountPath: /data
           ports:
             - name: http
               containerPort: 8384
