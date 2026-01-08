@@ -11,11 +11,11 @@ metadata:
     gethomepage.dev/group: "Admin"
     gethomepage.dev/icon: "si-linux"
     gethomepage.dev/name: "Terminal"
-    gethomepage.dev/href: "https://sh.valab.top"
+    gethomepage.dev/href: "https://px.valab.top"
 spec:
   ingressClassName: traefik
   rules:
-    - host: sh.valab.top
+    - host: px.valab.top
       http:
         paths:
           - path: /

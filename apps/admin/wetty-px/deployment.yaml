@@ -1,0 +1,36 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wetty
+  namespace: admin
+  labels:
+    app: wetty
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wetty
+  template:
+    metadata:
+      labels:
+        app: wetty
+    spec:
+      containers:
+        - name: wetty
+          image: wettyoss/wetty:latest
+          args:
+            - "--base"
+            - "/"
+            - "--command"
+            - "ssh -o StrictHostKeyChecking=no -p 22 root@10.0.0.10"
+          ports:
+            - containerPort: 3000
+              name: http
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "16Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"

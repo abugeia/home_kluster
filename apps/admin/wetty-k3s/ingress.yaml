@@ -1,0 +1,27 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: wetty-k3s
+  namespace: admin
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/description: "Web Terminal K3s"
+    gethomepage.dev/group: "Admin"
+    gethomepage.dev/icon: "si-kubernetes"
+    gethomepage.dev/name: "Terminal K3s"
+    gethomepage.dev/href: "https://k3s.valab.top"
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: k3s.valab.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: wetty-k3s
+                port:
+                  number: 3000

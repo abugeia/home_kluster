@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: wetty
+  name: wetty-stack
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -10,10 +10,13 @@ spec:
     server: https://kubernetes.default.svc
     namespace: admin
   project: default
-  source:
-    path: apps/admin/wetty
-    repoURL: https://github.com/abugeia/home_kluster.git
-    targetRevision: HEAD
+  sources:
+    - repoURL: https://github.com/abugeia/home_kluster.git
+      path: apps/admin/wetty-px
+      targetRevision: HEAD
+    - repoURL: https://github.com/abugeia/home_kluster.git
+      path: apps/admin/wetty-k3s
+      targetRevision: HEAD
   syncPolicy:
     automated:
       prune: true
