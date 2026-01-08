@@ -10,7 +10,7 @@ metadata:
     gethomepage.dev/description: "Web Terminal"
     gethomepage.dev/group: "Admin"
     gethomepage.dev/icon: "si-linux"
-    gethomepage.dev/name: "Terminal"
+    gethomepage.dev/name: "Terminal proxmox"
     gethomepage.dev/href: "https://px.valab.top"
 spec:
   ingressClassName: traefik
