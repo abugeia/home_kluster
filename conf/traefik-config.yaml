@@ -9,3 +9,6 @@ spec:
       - "--providers.kubernetescrd.allowCrossNamespace=true"
       - "--entryPoints.web.forwardedHeaders.insecure=true"
       - "--entryPoints.websecure.forwardedHeaders.insecure=true"
+    service:
+      annotations:
+        metallb.io/load-balancer-ip: 10.0.0.101
