@@ -16,6 +16,7 @@ metadata:
 spec:
   tls:
     - hosts:
+        - tb.valab.top
         - metube.valab.top
       secretName: metube-tls
   rules:
