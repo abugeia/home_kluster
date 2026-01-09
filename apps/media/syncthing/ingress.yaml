@@ -5,7 +5,8 @@ metadata:
   namespace: media
   annotations:
     kubernetes.io/ingress.class: traefik
-    # traefik.ingress.kubernetes.io/router.middlewares: security-local-ip-allowlist@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: security-local-ip-allowlist@kubernetescrd
+    traefik.ingress.kubernetes.io/router.tls.certresolver: cloudflare
     gethomepage.dev/enabled: "true"
     gethomepage.dev/description: "File Synchronization"
     gethomepage.dev/group: "Storage"
