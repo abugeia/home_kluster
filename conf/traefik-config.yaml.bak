@@ -10,6 +10,16 @@ spec:
       - "--entryPoints.web.forwardedHeaders.insecure=true"
       - "--entryPoints.websecure.forwardedHeaders.insecure=true"
       - "--accesslog=true"
+      - "--certificatesresolvers.cloudflare.acme.dnschallenge=true"
+      - "--certificatesresolvers.cloudflare.acme.dnschallenge.provider=cloudflare"
+      - "--certificatesresolvers.cloudflare.acme.email=antoine.bugeia@gouv.nc"
+      - "--certificatesresolvers.cloudflare.acme.storage=/data/acme.json"
+    env:
+      - name: CF_API_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: cloudflare-api-token
+            key: api-token
     service:
       spec:
         externalTrafficPolicy: Local

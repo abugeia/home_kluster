@@ -1,0 +1,82 @@
+# Configuration officielle du chart Traefik
+# Référence: https://github.com/traefik/traefik-helm-chart
+
+additionalArguments:
+  # Permet aux Ingress d'autres namespaces d'être vus par Traefik
+  - "--providers.kubernetescrd.allowCrossNamespace=true"
+
+deployment:
+  podAnnotations:
+    prometheus.io/port: "8082"
+    prometheus.io/scrape: "true"
+  priorityClassName: "system-cluster-critical"
+  initContainers:
+    # INDISPENSABLE POUR ACME (SSL) :
+    # Le fichier acme.json DOIT avoir des droits 600. 
+    # Sur un partage NFS, on force ces droits au démarrage pour éviter que Traefik refuse de se lancer.
+    - name: volume-permissions
+      image: busybox:latest
+      command: ["sh", "-c", "touch /data/acme.json; chmod -v 600 /data/acme.json"]
+      volumeMounts:
+        - mountPath: /data
+          name: data
+
+tolerations:
+  - key: "CriticalAddonsOnly"
+    operator: "Exists"
+  - key: "node-role.kubernetes.io/control-plane"
+    operator: "Exists"
+    effect: "NoSchedule"
+
+providers:
+  kubernetesIngress:
+    publishedService:
+      enabled: true
+
+env:
+  # Token API Cloudflare (différent du Tunnel Token)
+  # Ce token doit avoir la permission "DNS:Edit" sur ta zone valab.top
+  - name: CF_API_TOKEN
+    valueFrom:
+      secretKeyRef:
+        name: cloudflare-api-token
+        key: api-token
+
+logs:
+  access:
+    enabled: true
+
+persistence:
+  # Stockage des certificats sur le serveur NFS (10.0.0.10)
+  # Pour qu'ils ne soient pas régénérés à chaque redémarrage (quid des quotas Let's Encrypt).
+  enabled: true
+  storageClass: nfs-csi-nvme
+  size: 128Mi
+  path: /data
+
+certificatesResolvers:
+  cloudflare:
+    acme:
+      # L'autorité qui DELIVRE le certificat : Let's Encrypt
+      # L'email sert à recevoir les alertes d'expiration
+      email: abugeia@gmail.com
+      storage: /data/acme.json
+      # DNS CHALLENGE :
+      # Pour prouver qu'on possède le domaine, Traefik va écrire un jeton temporaire 
+      # dans ton DNS Cloudflare (via l'API) puis Let's Encrypt viendra le lire.
+      dnsChallenge:
+        provider: cloudflare
+
+ports:
+  web:
+    forwardedHeaders:
+      insecure: true
+  websecure:
+    forwardedHeaders:
+      insecure: true
+
+service:
+  spec:
+    externalTrafficPolicy: Local
+  annotations:
+    metallb.io/load-balancer-ip: 10.0.0.101
