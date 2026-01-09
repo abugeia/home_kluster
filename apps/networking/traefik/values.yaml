@@ -36,6 +36,8 @@ ports:
     forwardedHeaders:
       insecure: true
   websecure:
+    tls:
+      enabled: true
     forwardedHeaders:
       insecure: true
 
