@@ -15,6 +15,10 @@ spec:
       valuesObject:
         crds:
           enabled: true
+        # Force cert-manager à utiliser des serveurs DNS externes pour vérifier les challenges DNS-01
+        # Nécessaire car AdGuard a un wildcard *.valab.top qui bloque la résolution des records TXT ACME
+        dns01RecursiveNameservers: "8.8.8.8:53,1.1.1.1:53"
+        dns01RecursiveNameserversOnly: true
   destination:
     server: https://kubernetes.default.svc
     namespace: cert-manager
