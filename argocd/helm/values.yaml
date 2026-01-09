@@ -14,7 +14,10 @@ server:
     enabled: true
     hostname: argocd.valab.top
     ingressClassName: traefik
-    tls: false
+    tls:
+      - secretName: argocd-server-tls
+        hosts:
+          - argocd.valab.top
     annotations:
       traefik.ingress.kubernetes.io/max-body-size: "128Mi"
       gethomepage.dev/enabled: "true"
@@ -27,7 +30,7 @@ server:
       # Note: Syntax Helm pour échapper les accolades doubles et permettre à Homepage d'interpréter la variable
       gethomepage.dev/widget.key: '{{ "{{" }}HOMEPAGE_VAR_ARGOCD_TOKEN}}'
       # gethomepage.dev/widget.key: "API_KEY" # A définir si on veut le widget
-      # cert-manager.io/cluster-issuer: letsencrypt
+      cert-manager.io/cluster-issuer: letsencrypt
   certificate:
     enabled: false
     # issuer: 

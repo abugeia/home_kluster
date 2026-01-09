@@ -86,6 +86,12 @@ server:
         gethomepage.dev/icon: "immich.png"
         gethomepage.dev/name: "Immich"
         # gethomepage.dev/widget.type: "immich" # Requires API key
+        cert-manager.io/cluster-issuer: letsencrypt
+      tls:
+        - hosts:
+            - immich.valab.top
+            - photos.valab.top
+          secretName: immich-tls
       hosts:
         - host: immich.valab.top
           paths:
