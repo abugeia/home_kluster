@@ -33,7 +33,13 @@ ingress:
     ingressClassName: traefik
     annotations:
       # Protection via TinyAuth existant
+      # Protection via TinyAuth existant
       traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
+      cert-manager.io/cluster-issuer: letsencrypt
+    tls:
+      - hosts:
+          - home.valab.top
+        secretName: homepage-tls
     hosts:
       - host: home.valab.top
         paths:

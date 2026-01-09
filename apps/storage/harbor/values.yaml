@@ -9,13 +9,17 @@ ipFamily:
 expose:
   type: ingress
   tls:
-    enabled: false
+    enabled: true
+    certSource: secret
+    secret:
+      secretName: harbor-tls
   ingress:
     hosts:
       core: harbor.valab.top
     controller: default
     className: "traefik"
     annotations:
+      cert-manager.io/cluster-issuer: letsencrypt
       gethomepage.dev/enabled: "true"
       gethomepage.dev/description: "Docker Registry"
       gethomepage.dev/group: "Admin"
