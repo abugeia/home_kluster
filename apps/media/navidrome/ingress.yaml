@@ -12,7 +12,13 @@ metadata:
     gethomepage.dev/icon: "navidrome.png"
     gethomepage.dev/name: "Navidrome"
     gethomepage.dev/href: "https://music.valab.top"
+    cert-manager.io/cluster-issuer: letsencrypt
 spec:
+  tls:
+    - hosts:
+        - music.valab.top
+        - navidrome.valab.top
+      secretName: navidrome-tls
   rules:
     - host: music.valab.top
       http:

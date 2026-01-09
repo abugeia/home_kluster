@@ -12,8 +12,13 @@ metadata:
     gethomepage.dev/icon: "si-linux"
     gethomepage.dev/name: "Terminal proxmox"
     gethomepage.dev/href: "https://px.valab.top"
+    cert-manager.io/cluster-issuer: letsencrypt
 spec:
   ingressClassName: traefik
+  tls:
+    - hosts:
+        - px.valab.top
+      secretName: wetty-px-tls
   rules:
     - host: px.valab.top
       http:
