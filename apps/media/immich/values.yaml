@@ -28,6 +28,12 @@ immich:
   persistence:
     library:
       existingClaim: immich-library
+    import:
+      enabled: true
+      type: persistentVolumeClaim
+      existingClaim: immich-import
+      mountPath: /mnt/import
+      readOnly: true
   # Configuration OIDC PocketID
   configuration:
     # oauth:
