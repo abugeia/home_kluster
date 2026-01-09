@@ -21,6 +21,15 @@ spec:
         options:
           - name: ndots
             value: "1" # Fix potential DNS resolution issues with external domains (avoiding search domain overhead)
+      initContainers:
+        - name: fix-permissions
+          image: busybox
+          command: ["sh", "-c", "chown -R 1000:1000 /config /data"]
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: data
+              mountPath: /data
       containers:
         - name: syncthing
           image: lscr.io/linuxserver/syncthing:latest
@@ -34,15 +43,6 @@ spec:
               value: "Pacific/Noumea"
             - name: STNOUPNP
               value: "1"
-          initContainers:
-            - name: fix-permissions
-              image: busybox
-              command: ["sh", "-c", "chown -R 1000:1000 /config /data"]
-              volumeMounts:
-                - name: config
-                  mountPath: /config
-                - name: data
-                  mountPath: /data
           ports:
             - name: http
               containerPort: 8384
