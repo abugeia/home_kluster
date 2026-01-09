@@ -12,8 +12,13 @@ metadata:
     gethomepage.dev/icon: "si-kubernetes"
     gethomepage.dev/name: "Terminal K3s"
     gethomepage.dev/href: "https://k3s.valab.top"
+    cert-manager.io/cluster-issuer: letsencrypt
 spec:
   ingressClassName: traefik
+  tls:
+    - hosts:
+        - k3s.valab.top
+      secretName: wetty-k3s-tls
   rules:
     - host: k3s.valab.top
       http:

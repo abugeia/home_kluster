@@ -12,7 +12,12 @@ metadata:
     gethomepage.dev/icon: "si-filebrowser"
     gethomepage.dev/name: "Files"
     gethomepage.dev/href: "https://files.valab.top"
+    cert-manager.io/cluster-issuer: letsencrypt
 spec:
+  tls:
+    - hosts:
+        - files.valab.top
+      secretName: filebrowser-tls
   rules:
     - host: files.valab.top
       http:
