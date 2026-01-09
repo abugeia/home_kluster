@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: immich-import
+  namespace: media
+spec:
+  accessModes:
+    - ReadOnlyMany
+  storageClassName: nfs-csi-hdd
+  volumeName: pv-nas-import
+  resources:
+    requests:
+      storage: 500Gi
