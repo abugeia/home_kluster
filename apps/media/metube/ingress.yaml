@@ -4,6 +4,7 @@ metadata:
   name: metube
   namespace: media
   annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
     kubernetes.io/ingress.class: traefik
     traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
     gethomepage.dev/enabled: "true"
@@ -13,6 +14,10 @@ metadata:
     gethomepage.dev/name: "MeTube"
     gethomepage.dev/href: "https://metube.valab.top"
 spec:
+  tls:
+    - hosts:
+        - metube.valab.top
+      secretName: metube-tls
   rules:
     - host: tb.valab.top
       http:
