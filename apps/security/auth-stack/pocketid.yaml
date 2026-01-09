@@ -85,9 +85,14 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: pocketid
-  namespace: security
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
 spec:
   ingressClassName: traefik
+  tls:
+    - hosts:
+        - auth-id.valab.top
+      secretName: pocketid-tls
   rules:
     - host: auth-id.valab.top
       http:

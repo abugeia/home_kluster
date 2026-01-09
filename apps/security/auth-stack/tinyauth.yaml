@@ -98,8 +98,14 @@ kind: Ingress
 metadata:
   name: tinyauth
   namespace: security
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
 spec:
   ingressClassName: traefik
+  tls:
+    - hosts:
+        - auth.valab.top
+      secretName: tinyauth-tls
   rules:
     - host: auth.valab.top
       http:
