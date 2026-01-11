@@ -1,3 +1,4 @@
 # Values for csi-driver-nfs
 feature:
-  enableFSGroupPolicy: false
+  enableFSGroupPolicy: true
+  fsGroupPolicy: None
