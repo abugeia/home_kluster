@@ -24,12 +24,10 @@ spec:
       initContainers:
         - name: fix-permissions
           image: busybox
-          command: ["sh", "-c", "chown -R 1000:1000 /config /data"]
+          command: ["sh", "-c", "chown -R 1000:1000 /config"]
           volumeMounts:
             - name: config
               mountPath: /config
-            - name: data
-              mountPath: /data
       containers:
         - name: syncthing
           image: lscr.io/linuxserver/syncthing:latest
