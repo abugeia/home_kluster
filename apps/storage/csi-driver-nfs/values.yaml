@@ -1,2 +1,5 @@
 # Values for csi-driver-nfs
 # Default values are sufficient for Home Lab
+
+feature:
+  enableFSGroupPolicy: false
