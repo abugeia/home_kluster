@@ -24,7 +24,7 @@ spec:
       initContainers:
         - name: create-dirs
           image: busybox
-          command: ['sh', '-c', 'mkdir -p /mnt/video/Download /mnt/data/Musique_sync && chown -R 1000:1000 /mnt/video /mnt/data']
+          command: ['sh', '-c', 'mkdir -p /mnt/video/Download /mnt/data/Musique_sync']
           volumeMounts:
             - name: video-vol
               mountPath: /mnt/video
