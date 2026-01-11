@@ -35,8 +35,10 @@ spec:
             - containerPort: 80
               name: http
           volumeMounts:
-            - name: data
-              mountPath: /srv
+            - name: vol-data
+              mountPath: /srv/data
+            - name: vol-video
+              mountPath: /srv/video
             - name: config
               mountPath: /database
             - name: immich-library
@@ -49,9 +51,12 @@ spec:
               memory: "128Mi"
               cpu: "500m"
       volumes:
-        - name: data
+        - name: vol-data
           persistentVolumeClaim:
-            claimName: media-data
+            claimName: pvc-media-data
+        - name: vol-video
+          persistentVolumeClaim:
+            claimName: pvc-media-video
         - name: config
           persistentVolumeClaim:
             claimName: filebrowser-config

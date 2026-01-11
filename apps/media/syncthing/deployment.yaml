@@ -80,4 +80,4 @@ spec:
             claimName: syncthing-config
         - name: data
           persistentVolumeClaim:
-            claimName: media-data
+            claimName: pvc-media-data

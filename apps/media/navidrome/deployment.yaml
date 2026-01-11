@@ -27,7 +27,7 @@ spec:
             - name: ND_SCANTYPES
               value: "m4a,mp3,flac,ogg"
             - name: ND_MUSICFOLDER
-              value: "/music/metube_music"
+              value: "/music"
             - name: ND_DATAFOLDER
               value: "/data"
             - name: ND_BASEURL
@@ -48,7 +48,11 @@ spec:
             - name: data
               mountPath: /data
             - name: music
-              mountPath: /music
+              mountPath: /music/Musique_sync
+              subPath: Musique_sync
+            - name: music
+              mountPath: /music/Music
+              subPath: Music
           resources:
             requests:
               memory: "100Mi"
@@ -62,4 +66,4 @@ spec:
             claimName: navidrome-data
         - name: music
           persistentVolumeClaim:
-            claimName: media-data
+            claimName: pvc-media-data

@@ -24,10 +24,12 @@ spec:
       initContainers:
         - name: create-dirs
           image: busybox
-          command: ['sh', '-c', 'mkdir -p /media/metube_dl /media/metube_music && chown -R 1000:1000 /media']
+          command: ['sh', '-c', 'mkdir -p /mnt/video/Download /mnt/data/Musique_sync && chown -R 1000:1000 /mnt/video /mnt/data']
           volumeMounts:
-            - name: media
-              mountPath: /media
+            - name: video-vol
+              mountPath: /mnt/video
+            - name: data-vol
+              mountPath: /mnt/data
       containers:
         - name: metube
           image: ghcr.io/alexta69/metube:latest
@@ -38,9 +40,9 @@ spec:
             - name: GID
               value: "1000"
             - name: DOWNLOAD_DIR
-              value: "/media/metube_dl"
+              value: "/mnt/video/Download"
             - name: AUDIO_DOWNLOAD_DIR
-              value: "/media/metube_music"
+              value: "/mnt/data/Musique_sync"
             - name: STATE_DIR
               value: "/data"
             - name: DEFAULT_OPTION_PLAYLIST_STRICT_MODE
@@ -51,8 +53,10 @@ spec:
             - name: http
               containerPort: 8081
           volumeMounts:
-            - name: media
-              mountPath: /media
+            - name: video-vol
+              mountPath: /mnt/video
+            - name: data-vol
+              mountPath: /mnt/data
             - name: state
               mountPath: /data
           resources:
@@ -63,9 +67,12 @@ spec:
               memory: "1Gi"
               cpu: "1000m"
       volumes:
-        - name: media
+        - name: video-vol
           persistentVolumeClaim:
-            claimName: media-data
+            claimName: pvc-media-video
+        - name: data-vol
+          persistentVolumeClaim:
+            claimName: pvc-media-data
         - name: state
           persistentVolumeClaim:
             claimName: metube-state
