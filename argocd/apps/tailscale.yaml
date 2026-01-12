@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tailscale
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    - chart: tailscale-operator
+      repoURL: https://pkgs.tailscale.com/helmcharts
+      targetRevision: 1.92.5
+      helm:
+        releaseName: tailscale-operator
+        valueFiles:
+          - $values/apps/networking/tailscale/values.yaml
+    # Manifestes additionnels via Kustomize (Connector, etc.)
+    - repoURL: https://github.com/abugeia/home_kluster.git
+      path: apps/networking/tailscale
+      targetRevision: main
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: tailscale
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

@@ -1,0 +1,14 @@
+# Configuration pour l'opérateur Tailscale
+operator:
+  # L'opérateur peut utiliser un PVC pour son état global
+  state:
+    pvc:
+      enabled: true
+      storageClass: nfs-csi-nvme
+      size: 100Mi
+
+# On utilise un secret externe pour l'authentification (TS_AUTHKEY)
+# ou l'on renseigne les infos OAuth ici.
+#oauth:
+#  clientId: ""
+#  clientSecret: ""
