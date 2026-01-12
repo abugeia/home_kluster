@@ -19,6 +19,7 @@ spec:
     - repoURL: https://github.com/abugeia/home_kluster.git
       path: apps/networking/tailscale
       targetRevision: main
+      ref: values
   destination:
     server: https://kubernetes.default.svc
     namespace: tailscale
