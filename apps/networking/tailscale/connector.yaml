@@ -1,0 +1,9 @@
+apiVersion: tailscale.com/v1alpha1
+kind: Connector
+metadata:
+  name: home-kluster-vpn
+  namespace: tailscale
+spec:
+  # Activer le mode Exit Node
+  exitNode: true
+  hostname: home-kluster-vpn
