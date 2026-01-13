@@ -1,15 +1,17 @@
-# Configuration pour le chart Altinity Clickhouse
+# Configuration GitOps pour le chart Altinity Clickhouse
 # Ce chart installe l'opérateur ET le cluster via une ressource ClickHouseInstallation (CHI)
 
-# Désactivation de l'installation de l'opérateur par le chart (déjà installé manuellement)
 operator:
-  enabled: false
+  enabled: true
+  # ArgoCD gère les CRD par défaut si le chart les inclut. 
+  # L'opérateur sera déployé par ArgoCD dans le namespace 'data'.
 
 clickhouse:
   install: true
   
-  # On laisse les champs extraContainers et extraVolumes par défaut (vides) 
-  # pour éviter les conflits de types "Expected: object, given: array" dans ArgoCD
+  # Alignement sur le schéma du chart pour éviter les ComparisonError
+  extraContainers: []
+  extraVolumes: []
 
   spec:
     configuration:
