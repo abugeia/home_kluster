@@ -3,8 +3,8 @@
 
 operator:
   enabled: true
-  # ArgoCD gère les CRD par défaut si le chart les inclut. 
-  # L'opérateur sera déployé par ArgoCD dans le namespace 'data'.
+  # Forçage du namespace pour l'opérateur afin qu'il soit géré par la même Application ArgoCD (destination: data)
+  namespace: data
 
 clickhouse:
   install: true
