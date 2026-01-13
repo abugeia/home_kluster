@@ -1,12 +1,18 @@
 # Configuration pour le chart Altinity Clickhouse
 # Ce chart installe l'opérateur ET le cluster via une ressource ClickHouseInstallation (CHI)
 
+# Désactivation de l'installation de l'opérateur par le chart (déjà installé manuellement)
 operator:
-  enabled: false # Déjà installé manuellement pour débloquer les CRD
+  enabled: false
 
 clickhouse:
   install: true
-  # Définition de la ressource ClickHouseInstallation (CHI)
+  
+  # Forçage des types pour éviter l'erreur "Expected: object, given: array" dans ArgoCD
+  # Certains champs du chart Altinity sont définis comme [] par défaut mais attendus comme {} par ArgoCD
+  extraContainers: {}
+  extraVolumes: {}
+
   spec:
     configuration:
       users:
@@ -22,8 +28,6 @@ clickhouse:
         podTemplate: pod-template
 
     templates:
-      # Note: Le chart Altinity attend 'templates' et non 'tpls' dans certains contextes, 
-      # et les éléments peuvent être des listes ou des objets selon la version.
       dataVolumeClaimTemplates:
         - name: data-volume
           spec:
