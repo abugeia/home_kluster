@@ -1,66 +1,39 @@
-# Configuration GitOps pour le chart Altinity Clickhouse
-# Ce chart installe l'opérateur ET le cluster via une ressource ClickHouseInstallation (CHI)
+# Configuration GitOps pour le chart Altinity Clickhouse v0.3.8
+# Ce chart gère l'installation de l'opérateur et du cluster via des paramètres plats.
 
 operator:
   enabled: true
-  # ArgoCD appliquera le namespace 'data' configuré dans l'Application à tous les objets du chart.
+  # L'opérateur sera installé dans le namespace de destination (data) fixé par ArgoCD.
 
 clickhouse:
-  install: true
+  # Nombre de réplicas pour le cluster Clickhouse
+  replicasCount: 1
   
-  # Alignement sur le schéma du chart pour éviter les ComparisonError
-  extraContainers: []
-  extraVolumes: []
+  # Configuration de l'image (utilisant ECR pour éviter les quotas Docker Hub)
+  image:
+    repository: public.ecr.aws/altinity/clickhouse-server
+    tag: "23.8.9.54-altinity"
 
-  spec:
-    configuration:
-      users:
-        admin/password: "admin"
-      settings:
-        logger/level: "information"
-        max_connections: 1024
+  # Configuration de la persistence
+  persistence:
+    enabled: true
+    size: 20Gi
+    storageClass: "nfs-csi-nvme"
+    accessMode: ReadWriteOnce
+    logs:
+      enabled: true
+      size: 5Gi
+      storageClass: "nfs-csi-nvme"
+      accessMode: ReadWriteOnce
+
+  # Paramètres de configuration Clickhouse (format dictionnaire)
+  settings:
+    logger/level: "information"
+    max_connections: 1024
     
-    defaults:
-      templates:
-        dataVolumeClaimTemplate: data-volume
-        logVolumeClaimTemplate: log-volume
-        podTemplate: pod-template
+  # Identifiants par défaut (Admin)
+  defaultUser:
+    password: "admin"
 
-    templates:
-      dataVolumeClaimTemplates:
-        - name: data-volume
-          spec:
-            storageClassName: nfs-csi-nvme
-            accessModes:
-              - ReadWriteOnce
-            resources:
-              requests:
-                storage: 20Gi
-      
-      logVolumeClaimTemplates:
-        - name: log-volume
-          spec:
-            storageClassName: nfs-csi-nvme
-            accessModes:
-              - ReadWriteOnce
-            resources:
-              requests:
-                storage: 5Gi
-
-      podTemplates:
-        - name: pod-template
-          spec:
-            containers:
-              - name: clickhouse
-                image: public.ecr.aws/altinity/clickhouse-server:23.8.9.54-altinity
-                resources:
-                  requests:
-                    memory: "1Gi"
-                    cpu: "500m"
-                  limits:
-                    memory: "2Gi"
-                    cpu: "1"
-
-    layout:
-      shardsCount: 1
-      replicasCount: 1
+  # Pour éviter les ComparisonError dans ArgoCD, on ne définit pas extraContainers/Volumes
+  # s'ils ne sont pas nécessaires. Le chart utilisera ses défauts [].
