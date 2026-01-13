@@ -8,6 +8,8 @@ image:
 
 global:
   defaultStorageClass: "nfs-csi-nvme" # Using the NVMe StorageClass
+  security:
+    allowInsecureImages: true
 
 auth:
   username: admin
