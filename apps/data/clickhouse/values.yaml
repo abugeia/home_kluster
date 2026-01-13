@@ -10,6 +10,14 @@ global:
   defaultStorageClass: "nfs-csi-nvme" # Using the NVMe StorageClass
   security:
     allowInsecureImages: true
+  
+defaultInitContainers:
+  volumePermissions:
+    enabled: true
+    image:
+      registry: public.ecr.aws
+      repository: bitnami/bitnami-shell
+      tag: 11-debian-11-r102
 
 auth:
   username: admin
