@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: nc-data-loader
+  namespace: data-jobs # Assuming a namespace, or default
+spec:
+  schedule: "0 19 * * *" # Runs at 06:00 NC Time (UTC+11) -> 19:00 UTC previous day
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: loader
+            image: harbor.valab.top/prod/dlt-dataloader:latest
+            imagePullPolicy: Always
+            env:
+            - name: DESTINATION__CLICKHOUSE__CREDENTIALS__HOST
+              value: "clickhouse.data.svc.cluster.local" # Adjust based on actual service name/namespace
+            - name: DESTINATION__CLICKHOUSE__CREDENTIALS__PORT
+              value: "8123" # HTTP Interface for ClickHouse
+            - name: DESTINATION__CLICKHOUSE__CREDENTIALS__USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: clickhouse-credentials
+                  key: username
+            - name: DESTINATION__CLICKHOUSE__CREDENTIALS__PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: clickhouse-credentials
+                  key: password
+            - name: DESTINATION__CLICKHOUSE__CREDENTIALS__DATABASE
+              value: "default"
+          restartPolicy: OnFailure
+          imagePullSecrets:
+          - name: harbor-registry-secret
