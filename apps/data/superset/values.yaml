@@ -50,6 +50,8 @@ redis:
     persistence:
       enabled: true
       storageClass: "nfs-csi-nvme"
+  volumePermissions:
+    enabled: true
 
 configOverrides:
   secret: |
