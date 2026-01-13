@@ -51,11 +51,7 @@ redis:
       enabled: true
       storageClass: "nfs-csi-nvme"
   volumePermissions:
-    enabled: true
-    image:
-      registry: public.ecr.aws
-      repository: bitnami/os-shell
-      tag: 12-debian-12-r31
+    enabled: false
 
 configOverrides:
   secret: |
