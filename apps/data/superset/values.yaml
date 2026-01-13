@@ -42,7 +42,7 @@ redis:
   image:
     registry: docker.io
     repository: library/redis
-    tag: 7.2.4-alpine
+    tag: 7.2.4
   auth:
     enabled: false
   architecture: standalone
