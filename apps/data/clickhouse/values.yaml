@@ -1,6 +1,11 @@
 # Bitnami ClickHouse Values
 # Optimized for "Home Lab" with NVMe Storage and ClickHouse Keeper
 
+image:
+  registry: public.ecr.aws
+  repository: bitnami/clickhouse
+  tag: 25.7.5-debian-12-r0
+
 global:
   defaultStorageClass: "nfs-csi-nvme" # Using the NVMe StorageClass
 
@@ -16,6 +21,10 @@ zookeeper:
 
 keeper:
   enabled: true
+  image:
+    registry: public.ecr.aws
+    repository: bitnami/clickhouse-keeper
+    tag: 25.7.5-debian-12-r0
   persistence:
     enabled: true
     size: 1Gi # Keeper logs are small
