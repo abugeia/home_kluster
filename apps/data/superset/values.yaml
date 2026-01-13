@@ -1,4 +1,3 @@
-# Apache Superset Values
 # External DB (PostgreSQL) + OIDC Auth
 
 ingress:
@@ -7,22 +6,28 @@ ingress:
   hosts:
     - superset.valab.top
   annotations:
-    # No Auth Middleware needed if OIDC is configured in Superset itself?
-    # Actually, OIDC is cleaner. Removing middleware to let Superset handle login.
-    # traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd 
-    # But user asked for "remember to put tinyauth in front" - however he also asked "Is there no direct OIDC?".
-    # I will stick to OIDC *inside* Superset as it's better for role mapping.
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/description: "Data Visualization"
+    gethomepage.dev/group: "Data"
+    gethomepage.dev/icon: "si-apachesuperset"
+    gethomepage.dev/name: "Superset"
+    gethomepage.dev/href: "https://superset.valab.top"
+    # User asked for "tinyauth in front" - adding middleware annotation just in case it's needed here
+    traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
 
 # Database (External PostgreSQL via Ansible)
 postgresql:
-  enabled: false
+  enabled: false # External DB is used, but if needed for internal, set storageClass here
+  primary:
+    persistence:
+      storageClass: "nfs-csi-nvme"
 
 supersetNode:
   connections:
     db_host: "pg-db" # Matches Immich DB Host (LXC container)
     db_port: 5432
     db_user: superset
-    db_pass: superset # Should be loaded from Secret
+    db_pass: "$DB_PASS"
     db_name: superset_db
     redis_host: superset-redis-master
     redis_port: 6379
@@ -33,25 +38,61 @@ redis:
   auth:
     enabled: false
   architecture: standalone
+  master:
+    persistence:
+      enabled: true
+      storageClass: "nfs-csi-nvme"
 
 configOverrides:
   secret: |
-    SECRET_KEY = 'CHANGE_ME_TO_A_REAL_RANDOM_STRING'
+    import os
+    SECRET_KEY = os.environ.get('SUPERSET_SECRET_KEY')
     PREFERRED_DATABASES = ['ClickHouse', 'PostgreSQL', 'MySQL']
   
-  # OIDC Configuration (Example - Needs actual Client ID/Secret)
-  # See: https://superset.apache.org/docs/installation/configuring-superset/#custom-oauth2-configuration
   oidc: |
-    from flask_appbuilder.security.manager import AUTH_OID
-    AUTH_TYPE = AUTH_OID
-    OIDC_CLIENT_SECRETS = '/app/pythonpath/oidc_client_secret.json' # Needs a secret mount
-    OIDC_OPENID_REALM = 'https://auth.valab.top/realms/master' # Example
-    # This requires specific OIDC setup. For now, sticking to clean Values.
-    # To keep it simple for this turn:
-    # 1. We start with Standard DB Auth.
-    # 2. We put TinyAuth in front as originally requested (Simpler for Home Lab).
-    # OIDC is complex to provision without knowing the IdP details (PocketID).
+    import os
+    from flask_appbuilder.security.manager import AUTH_OAUTH
+    AUTH_TYPE = AUTH_OAUTH
+    OAUTH_PROVIDERS = [
+        {
+            "name": "pocketid",
+            "icon": "fa-address-card",
+            "token_key": "access_token",
+            "remote_app": {
+                "client_id": os.environ.get('POCKETID_CLIENT_ID'),
+                "client_secret": os.environ.get('POCKETID_CLIENT_SECRET'),
+                "server_metadata_url": "https://auth-id.valab.top/.well-known/openid-configuration",
+                "client_kwargs": {"scope": "openid profile email"},
+            }
+        }
+    ]
+    # Auto-registration
+    AUTH_USER_REGISTRATION = True
+    AUTH_USER_REGISTRATION_ROLE = "Admin"
 
-# Drivers
-extraPyPIPackages:
-  - clickhouse-connect
+bootstrapScript: |
+  #!/bin/bash
+  pip install clickhouse-connect Authlib
+  if [ ! -f ~/bootstrap ]; then echo "Running Superset with uid {{ .Values.runAsUser }}" > ~/bootstrap; fi
+
+extraEnvRaw:
+  - name: DB_PASS
+    valueFrom:
+      secretKeyRef:
+        name: superset-pg-secret
+        key: password
+  - name: SUPERSET_SECRET_KEY
+    valueFrom:
+      secretKeyRef:
+        name: superset-secrets
+        key: SECRET_KEY
+  - name: POCKETID_CLIENT_ID
+    valueFrom:
+      secretKeyRef:
+        name: superset-secrets
+        key: POCKETID_CLIENT_ID
+  - name: POCKETID_CLIENT_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: superset-secrets
+        key: POCKETID_CLIENT_SECRET
