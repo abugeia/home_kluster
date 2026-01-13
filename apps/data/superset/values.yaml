@@ -6,14 +6,18 @@ ingress:
   hosts:
     - superset.valab.top
   annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
     gethomepage.dev/enabled: "true"
     gethomepage.dev/description: "Data Visualization"
     gethomepage.dev/group: "Data"
     gethomepage.dev/icon: "si-apachesuperset"
     gethomepage.dev/name: "Superset"
     gethomepage.dev/href: "https://superset.valab.top"
-    # User asked for "tinyauth in front" - adding middleware annotation just in case it's needed here
     traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
+  tls:
+    - hosts:
+        - superset.valab.top
+      secretName: superset-tls
 
 # Database (External PostgreSQL via Ansible)
 postgresql:
@@ -47,6 +51,7 @@ configOverrides:
   secret: |
     import os
     SECRET_KEY = os.environ.get('SUPERSET_SECRET_KEY')
+    ENABLE_PROXY_FIX = True
     PREFERRED_DATABASES = ['ClickHouse', 'PostgreSQL', 'MySQL']
   
   oidc: |
