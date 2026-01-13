@@ -6,8 +6,8 @@ metadata:
 spec:
   project: default
   sources:
-    - repoURL: https://charts.bitnami.com/bitnami
-      targetRevision: 9.4.4 # Verified Stable
+    - repoURL: https://helm.altinity.com
+      targetRevision: 0.3.5
       chart: clickhouse
 
       helm:

@@ -1,109 +1,67 @@
-# Bitnami ClickHouse Values
-# Optimized for "Home Lab" with NVMe Storage and ClickHouse Keeper
+# Configuration pour le chart Altinity Clickhouse
+# Ce chart installe l'opérateur ET le cluster via une ressource ClickHouseInstallation (CHI)
 
-image:
-  registry: public.ecr.aws
-  repository: bitnami/clickhouse
-  tag: 25.7.5-debian-12-r0
-
-global:
-  defaultStorageClass: "nfs-csi-nvme" # Using the NVMe StorageClass
-  security:
-    allowInsecureImages: true
-  
-defaultInitContainers:
-  volumePermissions:
-    enabled: true
-    image:
-      registry: public.ecr.aws
-      repository: bitnami/bitnami-shell
-      tag: 11-debian-11-r102
-
-auth:
-  username: admin
-  # password comes from secret 'clickhouse-credentials' (managed by ExternalSecret or sealed-secret)
-  existingSecret: "clickhouse-credentials"
-  existingSecretKey: "password"
-
-# Architecture: Use ClickHouse Keeper (Embedded) instead of ZooKeeper
-zookeeper:
-  enabled: false
-
-keeper:
+operator:
   enabled: true
-  image:
-    registry: public.ecr.aws
-    repository: bitnami/clickhouse-keeper
-    tag: 25.7.5-debian-12-r0
-  persistence:
-    enabled: true
-    size: 1Gi # Keeper logs are small
+  # L'opérateur sera installé dans le même namespace par défaut (data)
 
-shards: 1
-replicaCount: 1
-
-# Init Scripts: To create Users and Databases automatically
-initdbScripts:
-  create_users.sql: |
-    -- User for Superset (Read-Only on data, mostly)
-    CREATE USER IF NOT EXISTS superset IDENTIFIED WITH sha256_password BY 'superset'; 
-    GRANT SELECT ON *.* TO superset;
+clickhouse:
+  install: true
+  # Définition de la ressource ClickHouseInstallation
+  spec:
+    configuration:
+      users:
+        # Configuration utilisateur si nécessaire, sinon utilise les défauts
+        admin/password: "admin" # À changer en prod
+      settings:
+        # Paramètres globaux Clickhouse
+        logger/level: "information"
+        max_connections: 1024
     
-    -- User for Data Loader (Write access)
-    CREATE USER IF NOT EXISTS loader IDENTIFIED WITH sha256_password BY 'loader';
-    GRANT ALL ON *.* TO loader;
-    
-    -- Ensure Database exists (if not default)
-    CREATE DATABASE IF NOT EXISTS raw_data;
+    defaults:
+      templates:
+        dataVolumeClaimTemplate: data-volume
+        logVolumeClaimTemplate: log-volume
+        podTemplate: pod-template
 
-# Server Resources: Tuned for Low RAM usage
-resources: 
-  limits:
-    memory: 3Gi # Increased for better caching
-  requests:
-    memory: 512Mi # Low baseline request
+    tpls:
+      # Template pour les volumes de données
+      dataVolumeClaimTemplates:
+        - name: data-volume
+          spec:
+            storageClassName: nfs-csi-nvme
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 20Gi
+      
+      # Template pour les logs
+      logVolumeClaimTemplates:
+        - name: log-volume
+          spec:
+            storageClassName: nfs-csi-nvme
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 5Gi
 
-persistence:
-  enabled: true
-  size: 20Gi # Adjust based on data volume need
+      # Template pour les Pods
+      podTemplates:
+        - name: pod-template
+          spec:
+            containers:
+              - name: clickhouse
+                image: public.ecr.aws/altinity/clickhouse-server:23.8.9.54-altinity
+                resources:
+                  requests:
+                    memory: "1Gi"
+                    cpu: "500m"
+                  limits:
+                    memory: "2Gi"
+                    cpu: "1"
 
-# Custom Configuration via config.d
-configdFiles:
-  tuning.xml: |
-    <clickhouse>
-        <max_server_memory_usage_to_ram_ratio>0.7</max_server_memory_usage_to_ram_ratio>
-        <max_memory_usage>2147483648</max_memory_usage> <!-- 2GB limit before spilling to disk, leaves 1GB for OS/Caches -->
-        
-        <!-- Reduce cache sizes significantly to free up RAM when idle -->
-        <mark_cache_size>53687091</mark_cache_size> <!-- 50MB (was 100MB) -->
-        <uncompressed_cache_size>53687091</uncompressed_cache_size> <!-- 50MB (New: limit uncompressed cache) -->
-        <compiled_expression_cache_size>10485760</compiled_expression_cache_size> <!-- 10MB -->
-        
-        <logger>
-            <level>warning</level>
-        </logger>
-    </clickhouse>
-
-# Ingress: Enabled for convenience (DataGrip/DBeaver)
-ingress:
-  enabled: true
-  ingressClassName: traefik
-  hostname: clickhouse.valab.top
-  annotations:
-    traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
-    gethomepage.dev/enabled: "true"
-    gethomepage.dev/description: "OLAP Database"
-    gethomepage.dev/group: "Data"
-    gethomepage.dev/icon: "si-clickhouse"
-    gethomepage.dev/name: "ClickHouse"
-    gethomepage.dev/href: "https://clickhouse.valab.top"
-
-service:
-  type: ClusterIP
-  ports:
-    http: 8123
-    tcp: 9000
-
-# TLS: Disabled for internal use as agreed
-tls:
-  enabled: false
+    layout:
+      shardsCount: 1
+      replicasCount: 1
