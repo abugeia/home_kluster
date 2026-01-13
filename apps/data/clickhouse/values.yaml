@@ -2,23 +2,26 @@
 # Optimized for "Home Lab" with NVMe Storage and ClickHouse Keeper
 
 global:
-  storageClass: "nfs-csi-nvme" # Using the NVMe StorageClass
+  defaultStorageClass: "nfs-csi-nvme" # Using the NVMe StorageClass
 
 auth:
   username: admin
   # password comes from secret 'clickhouse-credentials' (managed by ExternalSecret or sealed-secret)
   existingSecret: "clickhouse-credentials"
+  existingSecretKey: "password"
 
 # Architecture: Use ClickHouse Keeper (Embedded) instead of ZooKeeper
 zookeeper:
   enabled: false
 
-clickhouse:
-  keeper:
+keeper:
+  enabled: true
+  persistence:
     enabled: true
-    persistence:
-      enabled: true
-      size: 1Gi # Keeper logs are small
+    size: 1Gi # Keeper logs are small
+
+shards: 1
+replicaCount: 1
 
 # Init Scripts: To create Users and Databases automatically
 initdbScripts:
@@ -37,7 +40,7 @@ initdbScripts:
 # Server Resources: Tuned for Low RAM usage
 resources: 
   limits:
-    memory: 2Gi # Allow peaking
+    memory: 3Gi # Increased for better caching
   requests:
     memory: 512Mi # Low baseline request
 
@@ -50,7 +53,7 @@ configuration: |
   <!-- Tuned for Low Memory & Aggressive Cleanup -->
   <clickhouse>
       <max_server_memory_usage_to_ram_ratio>0.7</max_server_memory_usage_to_ram_ratio>
-      <max_memory_usage>1610612736</max_memory_usage> <!-- 1.5GB limit before spilling to disk -->
+      <max_memory_usage>2147483648</max_memory_usage> <!-- 2GB limit before spilling to disk, leaves 1GB for OS/Caches -->
       
       <!-- Reduce cache sizes significantly to free up RAM when idle -->
       <mark_cache_size>53687091</mark_cache_size> <!-- 50MB (was 100MB) -->
@@ -69,9 +72,19 @@ ingress:
   hostname: clickhouse.valab.top
   annotations:
     traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/description: "OLAP Database"
+    gethomepage.dev/group: "Data"
+    gethomepage.dev/icon: "si-clickhouse"
+    gethomepage.dev/name: "ClickHouse"
+    gethomepage.dev/href: "https://clickhouse.valab.top"
 
 service:
   type: ClusterIP
   ports:
     http: 8123
     tcp: 9000
+
+# TLS: Disabled for internal use as agreed
+tls:
+  enabled: false
