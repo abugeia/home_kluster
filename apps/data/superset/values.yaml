@@ -39,6 +39,10 @@ supersetNode:
 # Caching (Redis) - Keep internal or move external too? Keep internal for now.
 redis:
   enabled: true
+  image:
+    registry: docker.io
+    repository: library/redis
+    tag: 7.2.4-alpine
   auth:
     enabled: false
   architecture: standalone
