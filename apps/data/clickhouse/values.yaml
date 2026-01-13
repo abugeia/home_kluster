@@ -3,8 +3,7 @@
 
 operator:
   enabled: true
-  # Forçage du namespace pour l'opérateur afin qu'il soit géré par la même Application ArgoCD (destination: data)
-  namespace: data
+  # ArgoCD appliquera le namespace 'data' configuré dans l'Application à tous les objets du chart.
 
 clickhouse:
   install: true
