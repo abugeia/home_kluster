@@ -48,22 +48,22 @@ persistence:
   enabled: true
   size: 20Gi # Adjust based on data volume need
 
-# Custom Configuration to limit RAM & Cache
-configuration: |
-  <!-- Tuned for Low Memory & Aggressive Cleanup -->
-  <clickhouse>
-      <max_server_memory_usage_to_ram_ratio>0.7</max_server_memory_usage_to_ram_ratio>
-      <max_memory_usage>2147483648</max_memory_usage> <!-- 2GB limit before spilling to disk, leaves 1GB for OS/Caches -->
-      
-      <!-- Reduce cache sizes significantly to free up RAM when idle -->
-      <mark_cache_size>53687091</mark_cache_size> <!-- 50MB (was 100MB) -->
-      <uncompressed_cache_size>53687091</uncompressed_cache_size> <!-- 50MB (New: limit uncompressed cache) -->
-      <compiled_expression_cache_size>10485760</compiled_expression_cache_size> <!-- 10MB -->
-      
-      <logger>
-          <level>warning</level>
-      </logger>
-  </clickhouse>
+# Custom Configuration via config.d
+configdFiles:
+  tuning.xml: |
+    <clickhouse>
+        <max_server_memory_usage_to_ram_ratio>0.7</max_server_memory_usage_to_ram_ratio>
+        <max_memory_usage>2147483648</max_memory_usage> <!-- 2GB limit before spilling to disk, leaves 1GB for OS/Caches -->
+        
+        <!-- Reduce cache sizes significantly to free up RAM when idle -->
+        <mark_cache_size>53687091</mark_cache_size> <!-- 50MB (was 100MB) -->
+        <uncompressed_cache_size>53687091</uncompressed_cache_size> <!-- 50MB (New: limit uncompressed cache) -->
+        <compiled_expression_cache_size>10485760</compiled_expression_cache_size> <!-- 10MB -->
+        
+        <logger>
+            <level>warning</level>
+        </logger>
+    </clickhouse>
 
 # Ingress: Enabled for convenience (DataGrip/DBeaver)
 ingress:
