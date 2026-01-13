@@ -2,19 +2,16 @@
 # Ce chart installe l'opérateur ET le cluster via une ressource ClickHouseInstallation (CHI)
 
 operator:
-  enabled: true
-  # L'opérateur sera installé dans le même namespace par défaut (data)
+  enabled: false # Déjà installé manuellement pour débloquer les CRD
 
 clickhouse:
   install: true
-  # Définition de la ressource ClickHouseInstallation
+  # Définition de la ressource ClickHouseInstallation (CHI)
   spec:
     configuration:
       users:
-        # Configuration utilisateur si nécessaire, sinon utilise les défauts
-        admin/password: "admin" # À changer en prod
+        admin/password: "admin"
       settings:
-        # Paramètres globaux Clickhouse
         logger/level: "information"
         max_connections: 1024
     
@@ -24,8 +21,9 @@ clickhouse:
         logVolumeClaimTemplate: log-volume
         podTemplate: pod-template
 
-    tpls:
-      # Template pour les volumes de données
+    templates:
+      # Note: Le chart Altinity attend 'templates' et non 'tpls' dans certains contextes, 
+      # et les éléments peuvent être des listes ou des objets selon la version.
       dataVolumeClaimTemplates:
         - name: data-volume
           spec:
@@ -36,7 +34,6 @@ clickhouse:
               requests:
                 storage: 20Gi
       
-      # Template pour les logs
       logVolumeClaimTemplates:
         - name: log-volume
           spec:
@@ -47,7 +44,6 @@ clickhouse:
               requests:
                 storage: 5Gi
 
-      # Template pour les Pods
       podTemplates:
         - name: pod-template
           spec:
