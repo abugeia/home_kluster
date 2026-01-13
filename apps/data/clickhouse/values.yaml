@@ -8,10 +8,9 @@ operator:
 clickhouse:
   install: true
   
-  # Forçage des types pour éviter l'erreur "Expected: object, given: array" dans ArgoCD
-  # Certains champs du chart Altinity sont définis comme [] par défaut mais attendus comme {} par ArgoCD
-  extraContainers: {}
-  extraVolumes: {}
+  # Alignement sur le schéma du chart (Tableaux attendus)
+  extraContainers: []
+  extraVolumes: []
 
   spec:
     configuration:
