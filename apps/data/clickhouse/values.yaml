@@ -8,9 +8,8 @@ operator:
 clickhouse:
   install: true
   
-  # Alignement sur le schéma du chart (Tableaux attendus)
-  extraContainers: []
-  extraVolumes: []
+  # On laisse les champs extraContainers et extraVolumes par défaut (vides) 
+  # pour éviter les conflits de types "Expected: object, given: array" dans ArgoCD
 
   spec:
     configuration:
