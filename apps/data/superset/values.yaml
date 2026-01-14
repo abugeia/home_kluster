@@ -150,9 +150,8 @@ configOverrides:
 # Script de démarrage : Installation des drivers
 bootstrapScript: |
   #!/bin/bash
-  # ⚠️ Ajout de --user car le conteneur tourne en 'superset' (non-root)
-  # clickhouse-connect est le driver moderne recommandé
-  pip install --user --no-cache-dir clickhouse-connect Authlib
+  # psycopg2-binary est requis car l'URI est postgresql://
+  pip install --user --no-cache-dir clickhouse-connect Authlib psycopg2-binary
   
   if [ ! -f ~/bootstrap ]; then echo "Running Superset with uid {{ .Values.runAsUser }}" > ~/bootstrap; fi
 
