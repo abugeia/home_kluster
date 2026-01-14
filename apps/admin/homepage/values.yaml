@@ -67,6 +67,9 @@ config:
       Data:
         style: row
         columns: 4
+      Tools:
+        style: row
+        columns: 4
     
   # Kubernetes configuration (creates kubernetes.yaml)
   kubernetes:

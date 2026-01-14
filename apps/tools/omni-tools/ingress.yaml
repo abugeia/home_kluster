@@ -1,0 +1,32 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: omni-tools
+  namespace: tools
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
+    cert-manager.io/cluster-issuer: letsencrypt
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/description: "Developer Tools"
+    gethomepage.dev/group: "Tools"
+    gethomepage.dev/icon: "mdi-toolbox"
+    gethomepage.dev/name: "Omni Tools"
+    gethomepage.dev/href: "https://omni.valab.top"
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - omni.valab.top
+      secretName: omni-tools-tls
+  rules:
+    - host: omni.valab.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: omni-tools
+                port:
+                  number: 80
