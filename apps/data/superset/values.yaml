@@ -1,5 +1,13 @@
-# External DB (PostgreSQL) + OIDC Auth
+# ==========================================================
+# 1. IMAGE & VERSION
+# ==========================================================
+image:
+  tag: 6.0.0
+  pullPolicy: IfNotPresent
 
+# ==========================================================
+# 2. INGRESS & RESEAU
+# ==========================================================
 ingress:
   enabled: true
   ingressClassName: traefik
@@ -13,61 +21,105 @@ ingress:
     gethomepage.dev/icon: "si-apachesuperset"
     gethomepage.dev/name: "Superset"
     gethomepage.dev/href: "https://superset.valab.top"
-    traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
+    # ⚠️ RETIRÉ : TinyAuth entrerait en conflit avec l'OIDC interne de Superset
+    # traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
   tls:
     - hosts:
         - superset.valab.top
       secretName: superset-tls
 
-# Database (External PostgreSQL via Ansible)
+# ==========================================================
+# 3. BASE DE DONNÉES (EXTERNE)
+# ==========================================================
 postgresql:
-  enabled: false # External DB is used, but if needed for internal, set storageClass here
-  primary:
-    persistence:
-      storageClass: "nfs-csi-nvme"
+  enabled: false # On désactive car tu as ta propre DB
 
-supersetNode:
-  connections:
-    db_host: "pg-db" # Matches Immich DB Host (LXC container)
-    db_port: 5432
-    db_user: superset
-    db_pass: "$DB_PASS"
-    db_name: superset_db
-    redis_host: superset-redis-master
-    redis_port: 6379
-
-# Caching (Redis) - Keep internal or move external too? Keep internal for now.
+# ==========================================================
+# 4. REDIS (CACHE + CELERY BROKER)
+# ==========================================================
 redis:
   enabled: true
+  # ✅ Validé : Utiliser ECR est recommandé pour éviter les rate-limits Docker Hub
   image:
     registry: public.ecr.aws
     repository: bitnami/redis
     tag: 7.2.4-debian-12-r9
   auth:
-    enabled: false
+    enabled: false # OK pour un homelab interne
   architecture: standalone
   master:
     persistence:
       enabled: true
       storageClass: "nfs-csi-nvme"
-  volumePermissions:
-    enabled: true
-    image:
-      registry: public.ecr.aws
-      repository: bitnami/bitnami-shell
-      tag: 11-debian-11-r102
+      size: 8Gi
 
+# ==========================================================
+# 5. WORKERS (OBLIGATOIRE POUR CLICKHOUSE/ASYNC)
+# ==========================================================
+# Le "beat" lance les tâches planifiées (alertes, emails, cleanup)
+supersetCeleryBeat:
+  enabled: true
+
+# Le "worker" exécute les requêtes SQL lourdes en arrière-plan
+supersetWorker:
+  enabled: true
+  replicaCount: 1
+  command:
+    - "/bin/sh"
+    - "-c"
+    - ". /app/pythonpath/superset_config.py && celery --app=superset.tasks.celery_app:app worker -O fair -l INFO"
+
+# ==========================================================
+# 6. CONFIGURATION PYTHON & DRIVERS
+# ==========================================================
 configOverrides:
   secret: |
     import os
     SECRET_KEY = os.environ.get('SUPERSET_SECRET_KEY')
+    
+  # Configuration DB Externe & Celery
+  database: |
+    import os
+    # Construction de l'URI Postgres avec le mot de passe injecté
+    SQLALCHEMY_DATABASE_URI = f"postgresql://superset:{os.environ.get('DB_PASS')}@pg-db:5432/superset_db"
+    
+    # Configuration Celery (Redis interne via le nom du service K8s)
+    class CeleryConfig(object):
+        BROKER_URL = 'redis://superset-redis-master:6379/0'
+        CELERY_IMPORTS = ('superset.sql_lab', 'superset.tasks',)
+        CELERY_RESULT_BACKEND = 'redis://superset-redis-master:6379/1'
+    CELERY_CONFIG = CeleryConfig
+
+    # Cache Configuration (Indispensable pour la rapidité)
+    CACHE_CONFIG = {
+        'CACHE_TYPE': 'RedisCache',
+        'CACHE_DEFAULT_TIMEOUT': 86400,
+        'CACHE_KEY_PREFIX': 'superset_results',
+        'CACHE_REDIS_URL': 'redis://superset-redis-master:6379/2',
+    }
+    DATA_CACHE_CONFIG = CACHE_CONFIG
+
+  # Feature Flags & Réseau
+  network: |
     ENABLE_PROXY_FIX = True
-    PREFERRED_DATABASES = ['ClickHouse', 'PostgreSQL', 'MySQL']
-  
+    TALISMAN_ENABLED = False # Superset pense être en HTTP (derrière Traefik), donc on désactive le force-HTTPS interne
+    
+    # Permet d'upload des CSV/Excel pour croiser avec tes données ClickHouse
+    CSV_EXTENSIONS = {"csv", "tsv", "txt"}
+    EXCEL_EXTENSIONS = {"xls", "xlsx"}
+    ALLOWED_EXTENSIONS = set(CSV_EXTENSIONS.union(EXCEL_EXTENSIONS))
+
+  # Configuration OIDC (PocketID)
   oidc: |
     import os
     from flask_appbuilder.security.manager import AUTH_OAUTH
     AUTH_TYPE = AUTH_OAUTH
+    
+    # "Admin" est OK si tu es le seul utilisateur du Homelab.
+    # Sinon change pour "Gamma" (Lecture seule par défaut)
+    AUTH_USER_REGISTRATION = True
+    AUTH_USER_REGISTRATION_ROLE = "Admin" 
+
     OAUTH_PROVIDERS = [
         {
             "name": "pocketid",
@@ -81,15 +133,17 @@ configOverrides:
             }
         }
     ]
-    # Auto-registration
-    AUTH_USER_REGISTRATION = True
-    AUTH_USER_REGISTRATION_ROLE = "Admin"
 
+# Script de démarrage : Installation des drivers
 bootstrapScript: |
   #!/bin/bash
-  pip install clickhouse-connect Authlib
+  # ⚠️ Ajout de --user car le conteneur tourne en 'superset' (non-root)
+  # clickhouse-connect est le driver moderne recommandé
+  pip install --user --no-cache-dir clickhouse-connect Authlib
+  
   if [ ! -f ~/bootstrap ]; then echo "Running Superset with uid {{ .Values.runAsUser }}" > ~/bootstrap; fi
 
+# Injection des variables sensibles (Secrets K8s)
 extraEnvRaw:
   - name: DB_PASS
     valueFrom:
