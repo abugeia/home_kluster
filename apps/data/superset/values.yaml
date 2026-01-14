@@ -150,10 +150,14 @@ configOverrides:
 # Script de démarrage : Installation des drivers
 bootstrapScript: |
   #!/bin/bash
-  # ⚠️ Correction : On cible le pip du venv (/app/.venv/bin/pip)
-  # et on retire le flag --user qui isolait les paquets
-  /app/.venv/bin/pip install --no-cache-dir clickhouse-connect Authlib psycopg2-binary
   
+  # On suit la doc officielle avec 'uv' (le nouveau gestionnaire v6).
+  # 1. .[postgres] : Installe le driver Postgres validé par l'équipe Superset
+  # 2. clickhouse-connect : Pour vos données
+  # 3. Authlib : Pour l'OIDC
+  
+  uv pip install .[postgres] clickhouse-connect Authlib
+
   if [ ! -f ~/bootstrap ]; then echo "Running Superset with uid {{ .Values.runAsUser }}" > ~/bootstrap; fi
 
 extraEnvRaw:
