@@ -143,8 +143,13 @@ bootstrapScript: |
   
   if [ ! -f ~/bootstrap ]; then echo "Running Superset with uid {{ .Values.runAsUser }}" > ~/bootstrap; fi
 
-# Injection des variables sensibles (Secrets K8s)
 extraEnvRaw:
+  - name: DB_HOST
+    value: "10.0.0.12"
+  - name: DB_PORT
+    value: "5432"
+  - name: DB_USER
+    value: "superset"
   - name: DB_PASS
     valueFrom:
       secretKeyRef:
