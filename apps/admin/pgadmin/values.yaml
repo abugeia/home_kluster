@@ -72,17 +72,20 @@ resources:
   requests:
     cpu: 50m
     memory: 64Mi
+# VolumePermissions pour préparer les répertoires PVC
+VolumePermissions:
+  enabled: false
+
 # InitContainer pour préparer les répertoires avec permissions
 extraInitContainers: |
   - name: init-pgadmin-dirs
-    image: busybox
-    command:
-      - sh
-      - -c
-      - mkdir -p /var/lib/pgadmin/sessions /var/lib/pgadmin/storage && chmod 700 /var/lib/pgadmin/sessions /var/lib/pgadmin/storage && chown -R 5050:5050 /var/lib/pgadmin
+    image: "dpage/pgadmin4:9.11"
+    command: ["/bin/sh", "-c", "mkdir -p /var/lib/pgadmin/sessions /var/lib/pgadmin/storage && chmod 700 /var/lib/pgadmin/sessions /var/lib/pgadmin/storage"]
     volumeMounts:
-      - name: pgadmin-volume
+      - name: pgadmin-data
         mountPath: /var/lib/pgadmin
+    securityContext:
+      runAsUser: 5050
 # Health checks
 livenessProbe:
   initialDelaySeconds: 30
