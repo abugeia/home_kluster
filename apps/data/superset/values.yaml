@@ -1,3 +1,16 @@
+supersetNode:
+  connections:
+    # ✅ C'est CE champ qui configure le script wait-for-postgres
+    db_host: "10.0.0.12"
+    db_port: "5432"
+    db_user: "superset"
+    # On met un password bidon ici car on l'écrase plus bas avec le vrai secret
+    db_pass: "placeholder" 
+    db_name: "superset_db" 
+    # Redis
+    redis_host: "superset-redis-master"
+    redis_port: "6379"
+
 # ==========================================================
 # 1. IMAGE & VERSION
 # ==========================================================
@@ -81,7 +94,7 @@ configOverrides:
   database: |
     import os
     # Construction de l'URI Postgres avec le mot de passe injecté
-    SQLALCHEMY_DATABASE_URI = f"postgresql://superset:{os.environ.get('DB_PASS')}@pg-db:5432/superset_db"
+    SQLALCHEMY_DATABASE_URI = f"postgresql://superset:{os.environ.get('DB_PASS')}@10.0.0.12:5432/superset_db"
     
     # Configuration Celery (Redis interne via le nom du service K8s)
     class CeleryConfig(object):
