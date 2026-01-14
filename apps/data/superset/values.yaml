@@ -158,23 +158,30 @@ configOverrides:
     
     class PocketIDSecurityManager(SupersetSecurityManager):
         def oauth_user_info(self, provider, response=None):
-            if provider != "pocketid":
+            if provider == 'pocketid':
+                client = self.appbuilder.sm.oauth_remotes[provider]
+                
+                # Au lieu de deviner l'URL (.get('userinfo')), on prend celle fournie par le serveur
+                # via le fichier .well-known chargé automatiquement.
+                endpoint = client.server_metadata.get('userinfo_endpoint')
+                
+                if endpoint:
+                    me = client.get(endpoint).json()
+                else:
+                    # Fallback de secours : on utilise l'info contenue dans le token lui-même
+                    me = client.parse_id_token(response)
+                
+                logging.info(f"POCKETID RESPONSE: {me}")
+                
+                return {
+                    "username": me.get("preferred_username", me.get("email")),
+                    "email": me.get("email"),
+                    "first_name": me.get("given_name", "Superset"),
+                    "last_name": me.get("family_name", "User"),
+                    "role_keys": me.get("groups", []),
+                }
+            else:
                 return {}
-
-            # Flask-AppBuilder met déjà le token dans response
-            userinfo = self.oauth_remotes[provider].get(
-                "userinfo",
-                token=response["access_token"],
-            ).json()
-
-            logging.warning(f"POCKETID USERINFO: {userinfo}")
-
-            return {
-                "username": userinfo.get("preferred_username") or userinfo.get("email"),
-                "email": userinfo.get("email"),
-                "first_name": userinfo.get("given_name", "Superset"),
-                "last_name": userinfo.get("family_name", "User"),
-            }
 
     # On injecte notre manager personnalisé
     CUSTOM_SECURITY_MANAGER = PocketIDSecurityManager
