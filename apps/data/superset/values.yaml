@@ -121,7 +121,7 @@ configOverrides:
   enable_oauth: |
     import os
     from flask_appbuilder.security.manager import (AUTH_DB, AUTH_OAUTH)
-    from flask_appbuilder.security.manager import BaseSecurityManager
+    from superset.security import SupersetSecurityManager
     AUTH_TYPE = AUTH_OAUTH
     
     # "Admin" est OK si tu es le seul utilisateur du Homelab.
@@ -148,7 +148,8 @@ configOverrides:
     # 3. LE GLUE CODE (Indispensable pour PocketID)
     # Superset refuse de créer un user s'il n'a pas username + email + first_name + last_name
     # PocketID envoie souvent juste 'name', donc on doit le découper nous-mêmes.
-    class PocketIDSecurityManager(BaseSecurityManager):
+    
+    class PocketIDSecurityManager(SupersetSecurityManager):
         def oauth_user_info(self, provider, response=None):
             if provider == 'pocketid':
                 # Récupération des infos brutes
