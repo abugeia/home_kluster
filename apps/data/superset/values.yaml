@@ -118,15 +118,18 @@ configOverrides:
     ALLOWED_EXTENSIONS = set(CSV_EXTENSIONS.union(EXCEL_EXTENSIONS))
 
   # Configuration OIDC (PocketID)
-  oidc: |
+  enable_oauth: |
     import os
-    from flask_appbuilder.security.manager import AUTH_OAUTH
+    from flask_appbuilder.security.manager import (AUTH_DB, AUTH_OAUTH)
+    from flask_appbuilder.security.manager import BaseSecurityManager
     AUTH_TYPE = AUTH_OAUTH
     
     # "Admin" est OK si tu es le seul utilisateur du Homelab.
     # Sinon change pour "Gamma" (Lecture seule par défaut)
     AUTH_USER_REGISTRATION = True
     AUTH_USER_REGISTRATION_ROLE = "Admin" 
+    AUTH_ROLE_ADMIN = 'Admin'
+    AUTH_ROLE_PUBLIC = 'Public'
 
     OAUTH_PROVIDERS = [
         {
@@ -141,6 +144,35 @@ configOverrides:
             }
         }
     ]
+
+    # 3. LE GLUE CODE (Indispensable pour PocketID)
+    # Superset refuse de créer un user s'il n'a pas username + email + first_name + last_name
+    # PocketID envoie souvent juste 'name', donc on doit le découper nous-mêmes.
+    class PocketIDSecurityManager(BaseSecurityManager):
+        def oauth_user_info(self, provider, response=None):
+            if provider == 'pocketid':
+                # Récupération des infos brutes
+                me = self.appbuilder.sm.oauth_remotes[provider].get('userinfo').json()
+                logging.info(f"POCKETID PAYLOAD: {me}")
+                
+                # Découpage du nom (ex: "Antoine Dupont" -> "Antoine", "Dupont")
+                # Si PocketID n'envoie pas 'name', on met "Superset User" par défaut
+                full_name = me.get("name", "Superset User").split(" ")
+                first_name = full_name[0]
+                last_name = " ".join(full_name[1:]) if len(full_name) > 1 else "User"
+
+                return {
+                    "username": me.get("preferred_username", me.get("email")),
+                    "email": me.get("email"),
+                    "first_name": me.get("given_name", first_name),
+                    "last_name": me.get("family_name", last_name),
+                    "role_keys": me.get("groups", []),
+                }
+            else:
+                return {}
+
+  # On injecte notre manager personnalisé
+  CUSTOM_SECURITY_MANAGER = PocketIDSecurityManager
 
 # Script de démarrage : Installation des drivers
 bootstrapScript: |
