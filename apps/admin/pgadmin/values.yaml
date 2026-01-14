@@ -72,7 +72,17 @@ resources:
   requests:
     cpu: 50m
     memory: 64Mi
-
+# InitContainer pour préparer les répertoires avec permissions
+extraInitContainers: |
+  - name: init-pgadmin-dirs
+    image: busybox
+    command:
+      - sh
+      - -c
+      - mkdir -p /var/lib/pgadmin/sessions /var/lib/pgadmin/storage && chmod 700 /var/lib/pgadmin/sessions /var/lib/pgadmin/storage && chown -R 5050:5050 /var/lib/pgadmin
+    volumeMounts:
+      - name: pgadmin-volume
+        mountPath: /var/lib/pgadmin
 # Health checks
 livenessProbe:
   initialDelaySeconds: 30
