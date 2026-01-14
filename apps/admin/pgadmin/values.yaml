@@ -1,0 +1,87 @@
+# pgAdmin 4 v9.11 - runix Helm Chart Values
+# Chart: runix/pgadmin4 v1.56.1 (Jan 12, 2026)
+# Image: dpage/pgadmin4:9.11
+# Repo: https://helm.runix.net
+
+replicaCount: 1
+
+image:
+  registry: docker.io
+  repository: dpage/pgadmin4
+  tag: "9.11"
+  pullPolicy: IfNotPresent
+
+# Default credentials (admin initial)
+env:
+  email: admin@valab.top
+  # password: injected via existingSecret
+  # PGADMIN_DISABLE_POSTFIX: disable email/Postfix
+  enhanced_cookie_protection: "False"
+
+# Utiliser un secret existant pour les credentials
+existingSecret: pgadmin-secret
+secretKeys:
+  pgadminPasswordKey: admin-password
+
+# Charger les env vars OIDC depuis un secret
+envVarsFromSecrets:
+  - pgadmin-oidc-secret
+
+# Persistent Volume
+persistentVolume:
+  enabled: true
+  storageClass: "nfs-csi-nvme"
+  size: 1Gi
+  accessMode: ReadWriteOnce
+
+# Service
+service:
+  type: ClusterIP
+  port: 80
+  portName: http
+  targetPort: http
+
+# Ingress
+ingress:
+  enabled: true
+  ingressClassName: traefik
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    # Metadata pour Homepage
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/description: "PostgreSQL Explorer"
+    gethomepage.dev/group: "Admin"
+    gethomepage.dev/icon: "si-postgresql"
+    gethomepage.dev/name: "pgAdmin"
+    gethomepage.dev/href: "https://pg.valab.top"
+  hosts:
+    - host: pg.valab.top
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - hosts:
+        - pg.valab.top
+      secretName: pgadmin-tls
+
+# Resources
+resources:
+  limits:
+    cpu: 500m
+    memory: 256Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
+
+# Health checks
+livenessProbe:
+  initialDelaySeconds: 30
+  periodSeconds: 30
+
+readinessProbe:
+  initialDelaySeconds: 20
+  periodSeconds: 10
+
+# Network Policy
+networkPolicy:
+  enabled: false
