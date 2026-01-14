@@ -120,8 +120,12 @@ configOverrides:
   # Configuration OIDC (PocketID)
   enable_oauth: |
     import os
+    import logging
     from flask_appbuilder.security.manager import (AUTH_DB, AUTH_OAUTH)
     from superset.security import SupersetSecurityManager
+    
+    logging.getLogger().setLevel(logging.DEBUG)
+
     AUTH_TYPE = AUTH_OAUTH
     
     # "Admin" est OK si tu es le seul utilisateur du Homelab.
