@@ -27,7 +27,15 @@ secretKeys:
 envVarsFromSecrets:
   - pgadmin-oidc-secret
 
-# Persistent Volume
+# Mount du config_local.py pour OAuth2 configuration (depuis Secret scellé)
+extraSecretMounts:
+  - name: oauth-config
+    secret: pgadmin-oauth-config
+    subPath: config_local.py
+    mountPath: /pgadmin4/config_local.py
+    readOnly: true
+
+# Additional volumes
 persistentVolume:
   enabled: true
   storageClass: "nfs-csi-nvme"
