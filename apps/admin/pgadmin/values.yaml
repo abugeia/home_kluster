@@ -75,11 +75,11 @@ ingress:
 # Resources
 resources:
   limits:
-    cpu: 500m
-    memory: 256Mi
+    cpu: 1000m
+    memory: 1Gi
   requests:
-    cpu: 50m
-    memory: 64Mi
+    cpu: 100m
+    memory: 256Mi
 # VolumePermissions pour préparer les répertoires PVC
 VolumePermissions:
   enabled: false
