@@ -135,8 +135,8 @@ configOverrides:
     # Sinon change pour "Gamma" (Lecture seule par défaut)
     AUTH_USER_REGISTRATION = True
     AUTH_USER_REGISTRATION_ROLE = "Admin" 
-    AUTH_ROLE_ADMIN = 'Admin'
-    AUTH_ROLE_PUBLIC = 'Public'
+    # AUTH_ROLE_ADMIN = 'Admin'
+    # AUTH_ROLE_PUBLIC = 'Public'
 
     OAUTH_PROVIDERS = [
         {
@@ -148,35 +148,33 @@ configOverrides:
                 "client_secret": os.environ.get('POCKETID_CLIENT_SECRET'),
                 "server_metadata_url": "https://auth-id.valab.top/.well-known/openid-configuration",
                 "client_kwargs": {
-                    "scope": "openid profile email groups",
-                    "tls_client_cert": None, 
-                    "verify": False
-                },
+                    "scope": "openid profile email groups"},
             }
         }
     ]
 
-    # 3. LE GLUE CODE (Indispensable pour PocketID)
     # Superset refuse de créer un user s'il n'a pas username + email + first_name + last_name
     # PocketID envoie souvent juste 'name', donc on doit le découper nous-mêmes.
     
     class PocketIDSecurityManager(SupersetSecurityManager):
         def oauth_user_info(self, provider, response=None):
-            if provider == 'pocketid':
-                me = self.appbuilder.sm.oauth_remotes[provider].get('userinfo').json()
-                logging.info(f"POCKETID RESPONSE: {me}")
-                
-                # Votre JSON montre que PocketID supporte 'given_name' et 'family_name'
-                # On les utilise en priorité
-                return {
-                    "username": me.get("preferred_username", me.get("email")),
-                    "email": me.get("email"),
-                    "first_name": me.get("given_name", "Superset"),
-                    "last_name": me.get("family_name", "User"),
-                    "role_keys": me.get("groups", []),
-                }
-            else:
+            if provider != "pocketid":
                 return {}
+
+            # Flask-AppBuilder met déjà le token dans response
+            userinfo = self.oauth_remotes[provider].get(
+                "userinfo",
+                token=response["access_token"],
+            ).json()
+
+            logging.warning(f"POCKETID USERINFO: {userinfo}")
+
+            return {
+                "username": userinfo.get("preferred_username") or userinfo.get("email"),
+                "email": userinfo.get("email"),
+                "first_name": userinfo.get("given_name", "Superset"),
+                "last_name": userinfo.get("family_name", "User"),
+            }
 
     # On injecte notre manager personnalisé
     CUSTOM_SECURITY_MANAGER = PocketIDSecurityManager
