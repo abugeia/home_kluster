@@ -76,11 +76,6 @@ supersetCeleryBeat:
 # Le "worker" exécute les requêtes SQL lourdes en arrière-plan
 supersetWorker:
   enabled: true
-  replicaCount: 1
-  command:
-    - "/bin/sh"
-    - "-c"
-    - ". /app/pythonpath/superset_config.py && celery --app=superset.tasks.celery_app:app worker -O fair -l INFO"
 
 # ==========================================================
 # 6. CONFIGURATION PYTHON & DRIVERS
