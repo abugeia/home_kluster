@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: pgadmin
+  namespace: argocd
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  
+  sources:
+    - repoURL: https://helm.runix.net
+      chart: pgadmin4
+      targetRevision: "1.56.1"
+      helm:
+        releaseName: pgadmin
+        valueFiles:
+          - $values/apps/admin/pgadmin/values.yaml
+    - repoURL: 'https://github.com/abugeia/home_kluster.git'
+      targetRevision: HEAD
+      ref: values
+  
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: admin
+  
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+
