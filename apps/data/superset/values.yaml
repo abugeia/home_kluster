@@ -80,6 +80,9 @@ supersetWorker:
 # ==========================================================
 # 6. CONFIGURATION PYTHON & DRIVERS
 # ==========================================================
+extraEnv:
+  AUTH_DOMAIN: valab.top
+
 configOverrides:
   secret: |
     import os
@@ -144,7 +147,11 @@ configOverrides:
                 "client_id": os.environ.get('POCKETID_CLIENT_ID'),
                 "client_secret": os.environ.get('POCKETID_CLIENT_SECRET'),
                 "server_metadata_url": "https://auth-id.valab.top/.well-known/openid-configuration",
-                "client_kwargs": {"scope": "openid profile email"},
+                "client_kwargs": {
+                    "scope": "openid profile email groups",
+                    "tls_client_cert": None, 
+                    "verify": False
+                },
             }
         }
     ]
@@ -156,21 +163,16 @@ configOverrides:
     class PocketIDSecurityManager(SupersetSecurityManager):
         def oauth_user_info(self, provider, response=None):
             if provider == 'pocketid':
-                # Récupération des infos brutes
                 me = self.appbuilder.sm.oauth_remotes[provider].get('userinfo').json()
-                logging.info(f"POCKETID PAYLOAD: {me}")
+                logging.info(f"POCKETID RESPONSE: {me}")
                 
-                # Découpage du nom (ex: "Antoine Dupont" -> "Antoine", "Dupont")
-                # Si PocketID n'envoie pas 'name', on met "Superset User" par défaut
-                full_name = me.get("name", "Superset User").split(" ")
-                first_name = full_name[0]
-                last_name = " ".join(full_name[1:]) if len(full_name) > 1 else "User"
-
+                # Votre JSON montre que PocketID supporte 'given_name' et 'family_name'
+                # On les utilise en priorité
                 return {
                     "username": me.get("preferred_username", me.get("email")),
                     "email": me.get("email"),
-                    "first_name": me.get("given_name", first_name),
-                    "last_name": me.get("family_name", last_name),
+                    "first_name": me.get("given_name", "Superset"),
+                    "last_name": me.get("family_name", "User"),
                     "role_keys": me.get("groups", []),
                 }
             else:
