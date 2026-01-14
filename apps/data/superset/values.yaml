@@ -171,8 +171,8 @@ configOverrides:
             else:
                 return {}
 
-  # On injecte notre manager personnalisé
-  CUSTOM_SECURITY_MANAGER = PocketIDSecurityManager
+    # On injecte notre manager personnalisé
+    CUSTOM_SECURITY_MANAGER = PocketIDSecurityManager
 
 # Script de démarrage : Installation des drivers
 bootstrapScript: |
