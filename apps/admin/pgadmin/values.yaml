@@ -80,12 +80,12 @@ VolumePermissions:
 extraInitContainers: |
   - name: init-pgadmin-dirs
     image: "dpage/pgadmin4:9.11"
-    command: ["/bin/sh", "-c", "mkdir -p /var/lib/pgadmin/sessions /var/lib/pgadmin/storage && chmod 700 /var/lib/pgadmin/sessions /var/lib/pgadmin/storage"]
+    command: ["/bin/sh", "-c", "mkdir -p /var/lib/pgadmin/sessions /var/lib/pgadmin/storage && chmod 700 /var/lib/pgadmin/sessions /var/lib/pgadmin/storage && chown -R 5050:5050 /var/lib/pgadmin"]
     volumeMounts:
       - name: pgadmin-data
         mountPath: /var/lib/pgadmin
     securityContext:
-      runAsUser: 5050
+      runAsUser: 0
 # Health checks
 livenessProbe:
   initialDelaySeconds: 30
