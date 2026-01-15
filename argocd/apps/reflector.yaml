@@ -11,7 +11,7 @@ spec:
       chart: reflector
       helm:
         valueFiles:
-          - $values/apps/conf/reflector/values.yaml
+          - $values/apps/admin/reflector/values.yaml
     - repoURL: 'https://github.com/abugeia/home_kluster.git'
       targetRevision: main
       ref: values
