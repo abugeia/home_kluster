@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: nc-data-loader-manual-test-v1
+  namespace: data
+spec:
+  template:
+    spec:
+      containers:
+      - name: loader
+        image: harbor.valab.top/prod/dlt-dataloader:latest
+        imagePullPolicy: Always
+        env:
+        - name: DESTINATION__CLICKHOUSE__CREDENTIALS__USERNAME
+          value: "dataloader"
+        - name: DESTINATION__CLICKHOUSE__CREDENTIALS__PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: clickhouse-auth
+              key: dataloader-password
+        - name: DESTINATION__CLICKHOUSE__CREDENTIALS__DATABASE
+          value: "default"
+      restartPolicy: Never
+      imagePullSecrets:
+      - name: harbor-cicd-secret
+  backoffLimit: 1

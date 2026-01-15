@@ -31,9 +31,29 @@ clickhouse:
     logger/level: "information"
     max_connections: 1024
     
-  # Identifiants par défaut (Admin)
-  defaultUser:
-    password: "admin"
+  # ==========================================
+  # Configuration des Utilisateurs
+  # ==========================================
+  users:
+    # Admin root
+    admin/k8s_secret_name: "clickhouse-auth"
+    admin/k8s_secret_key: "admin-password"
+    admin/networks/ip: "::/0" # Autoriser toutes les IPs (Cluster interne)
 
-  # Pour éviter les ComparisonError dans ArgoCD, on ne définit pas extraContainers/Volumes
-  # s'ils ne sont pas nécessaires. Le chart utilisera ses défauts [].
+    # User pour l'ingestion (DLT)
+    dataloader/k8s_secret_name: "clickhouse-auth"
+    dataloader/k8s_secret_key: "dataloader-password"
+    dataloader/networks/ip: "::/0"
+    dataloader/profile: "default"
+    dataloader/access_management: "1" # Droit de créer la DB raw_data
+
+    # User pour la visualisation (Superset)
+    superset/k8s_secret_name: "clickhouse-auth"
+    superset/k8s_secret_key: "superset-password"
+    superset/networks/ip: "::/0"
+    superset/profile: "readonly"
+
+  # Profils personnalisés
+  profiles:
+    readonly/readonly: "1"
+
