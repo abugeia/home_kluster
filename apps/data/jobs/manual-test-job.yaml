@@ -11,6 +11,10 @@ spec:
         image: harbor.valab.top/prod/dlt-dataloader:latest
         imagePullPolicy: Always
         env:
+        - name: DESTINATION__CLICKHOUSE__CREDENTIALS__HOST
+          value: "clickhouse.data.svc.cluster.local"
+        - name: DESTINATION__CLICKHOUSE__CREDENTIALS__PORT
+          value: "8123"
         - name: DESTINATION__CLICKHOUSE__CREDENTIALS__USERNAME
           value: "dataloader"
         - name: DESTINATION__CLICKHOUSE__CREDENTIALS__PASSWORD
