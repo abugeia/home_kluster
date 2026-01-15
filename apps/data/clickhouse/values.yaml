@@ -36,22 +36,28 @@ clickhouse:
   # ==========================================
   users:
     # Admin root
-    admin/k8s_secret_name: "clickhouse-auth"
-    admin/k8s_secret_key: "admin-password"
-    admin/networks/ip: "::/0" # Autoriser toutes les IPs (Cluster interne)
+    - name: admin
+      k8s_secret_name: "clickhouse-auth"
+      k8s_secret_key: "admin-password"
+      networks:
+        ip: "::/0" # Autoriser toutes les IPs (Cluster interne)
 
     # User pour l'ingestion (DLT)
-    dataloader/k8s_secret_name: "clickhouse-auth"
-    dataloader/k8s_secret_key: "dataloader-password"
-    dataloader/networks/ip: "::/0"
-    dataloader/profile: "default"
-    dataloader/access_management: "1" # Droit de créer la DB raw_data
+    - name: dataloader
+      k8s_secret_name: "clickhouse-auth"
+      k8s_secret_key: "dataloader-password"
+      networks:
+        ip: "::/0"
+      profile: "default"
+      access_management: "1" # Droit de créer la DB raw_data
 
     # User pour la visualisation (Superset)
-    superset/k8s_secret_name: "clickhouse-auth"
-    superset/k8s_secret_key: "superset-password"
-    superset/networks/ip: "::/0"
-    superset/profile: "readonly"
+    - name: superset
+      k8s_secret_name: "clickhouse-auth"
+      k8s_secret_key: "superset-password"
+      networks:
+        ip: "::/0"
+      profile: "readonly"
 
   # Profils personnalisés
   profiles:
