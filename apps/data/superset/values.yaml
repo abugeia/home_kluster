@@ -197,48 +197,48 @@ bootstrapScript: |
   
   uv pip install .[postgres] clickhouse-connect Authlib
 
-  # # Script python pour ajouter la datasource ClickHouse
-  # cat <<EOF > /app/create_datasource.py
-  # import os
-  # import sys
-  # from superset.app import create_app
-  # from superset.extensions import db
-  # from superset.models.core import Database
-  # from sqlalchemy.engine.url import make_url
+  # Script python pour ajouter la datasource ClickHouse
+  cat <<EOF > /app/create_datasource.py
+  import os
+  import sys
+  from superset.app import create_app
+  from superset.extensions import db
+  from superset.models.core import Database
+  from sqlalchemy.engine.url import make_url
 
-  # app = create_app()
-  # app.app_context().push()
+  app = create_app()
+  app.app_context().push()
 
-  # DB_NAME = "ClickHouse"
-  # # Construction de l'URI ClickHouse (clickhouse-connect driver)
-  # # clickhouse+http://user:password@host:port/database
-  # user = os.environ.get("CLICKHOUSE_USER", "default")
-  # password = os.environ.get("CLICKHOUSE_PASSWORD", "")
-  # host = os.environ.get("CLICKHOUSE_HOST", "clickhouse.data.svc.cluster.local")
-  # port = os.environ.get("CLICKHOUSE_PORT", "8123")
-  # dbname = os.environ.get("CLICKHOUSE_DB", "default")
+  DB_NAME = "ClickHouse"
+  # Construction de l'URI ClickHouse (clickhouse-connect driver)
+  # clickhouse+http://user:password@host:port/database
+  user = os.environ.get("CLICKHOUSE_USER", "default")
+  password = os.environ.get("CLICKHOUSE_PASSWORD", "")
+  host = os.environ.get("CLICKHOUSE_HOST", "clickhouse.data.svc.cluster.local")
+  port = os.environ.get("CLICKHOUSE_PORT", "8123")
+  dbname = os.environ.get("CLICKHOUSE_DB", "default")
 
-  # sqlalchemy_uri = f"clickhouse+http://{user}:{password}@{host}:{port}/{dbname}"
+  sqlalchemy_uri = f"clickhouse+http://{user}:{password}@{host}:{port}/{dbname}"
 
-  # print(f"Checking database connection for {DB_NAME}...")
+  print(f"Checking database connection for {DB_NAME}...")
 
-  # database = db.session.query(Database).filter_by(database_name=DB_NAME).first()
-  # if not database:
-  #     print(f"Database {DB_NAME} not found. Creating...")
-  #     database = Database(database_name=DB_NAME, sqlalchemy_uri=sqlalchemy_uri)
-  #     db.session.add(database)
-  #     db.session.commit()
-  #     print(f"Database {DB_NAME} created successfully.")
-  # else:
-  #     print(f"Database {DB_NAME} already exists. Updating URI...")
-  #     database.set_sqlalchemy_uri(sqlalchemy_uri)
-  #     db.session.commit()
-  #     print(f"Database {DB_NAME} updated.")
-  # EOF
+  database = db.session.query(Database).filter_by(database_name=DB_NAME).first()
+  if not database:
+      print(f"Database {DB_NAME} not found. Creating...")
+      database = Database(database_name=DB_NAME, sqlalchemy_uri=sqlalchemy_uri)
+      db.session.add(database)
+      db.session.commit()
+      print(f"Database {DB_NAME} created successfully.")
+  else:
+      print(f"Database {DB_NAME} already exists. Updating URI...")
+      database.set_sqlalchemy_uri(sqlalchemy_uri)
+      db.session.commit()
+      print(f"Database {DB_NAME} updated.")
+  EOF
 
-  # # Exécution du script dans l'environnement Superset
-  # # On utilise le python du venv ou système. Dans l'image Docker officielle, c'est 'python'.
-  # python /app/create_datasource.py
+  # Exécution du script dans l'environnement Superset
+  # On utilise le python du venv ou système. Dans l'image Docker officielle, c'est 'python'.
+  python /app/create_datasource.py
 
   if [ ! -f ~/bootstrap ]; then echo "Running Superset with uid {{ .Values.runAsUser }}" > ~/bootstrap; fi
 
@@ -269,17 +269,17 @@ extraEnvRaw:
       secretKeyRef:
         name: superset-secrets
         key: POCKETID_CLIENT_SECRET
-  # # ClickHouse Credentials
-  # - name: CLICKHOUSE_HOST
-  #   value: "clickhouse.data.svc.cluster.local"
-  # - name: CLICKHOUSE_PORT
-  #   value: "8123"
-  # - name: CLICKHOUSE_USER
-  #   value: "superset" # Le secret n'a que le password, user par défaut
-  # - name: CLICKHOUSE_PASSWORD
-  #   valueFrom:
-  #     secretKeyRef:
-  #       name: clickhouse-auth
-  #       key: superset-password
-  # - name: CLICKHOUSE_DB
-  #   value: "default"
+  # ClickHouse Credentials
+  - name: CLICKHOUSE_HOST
+    value: "clickhouse.data.svc.cluster.local"
+  - name: CLICKHOUSE_PORT
+    value: "8123"
+  - name: CLICKHOUSE_USER
+    value: "superset" # Le secret n'a que le password, user par défaut
+  - name: CLICKHOUSE_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: clickhouse-auth
+        key: superset-password
+  - name: CLICKHOUSE_DB
+    value: "default"
