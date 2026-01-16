@@ -5,6 +5,8 @@ gha-runner-scale-set-controller:
 gha-runner-scale-set:
   githubConfigUrl: "https://github.com/abugeia/dlt_dataloader_img"
   githubConfigSecret: controller-manager
+  containerMode:
+    type: "dind"
   minRunners: 0
   maxRunners: 5
   runnerScaleSetName: "homelab-runner"
