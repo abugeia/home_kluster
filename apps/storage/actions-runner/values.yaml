@@ -10,4 +10,4 @@ gha-runner-scale-set:
   runnerScaleSetName: "homelab-runner"
   controllerServiceAccount:
     namespace: storage
-    name: gha-runner-scale-set-controller
+    name: actions-runner-gha-rs-controller
