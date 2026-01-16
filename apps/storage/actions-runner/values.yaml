@@ -4,7 +4,7 @@ gha-runner-scale-set-controller:
 
 gha-runner-scale-set:
   githubConfigUrl: "https://github.com/abugeia"
-  githubConfigSecret: github-runner
+  githubConfigSecret: controller-manager
   minRunners: 0
   maxRunners: 5
   runnerScaleSetName: "homelab-runner"
