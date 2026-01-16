@@ -1,0 +1,10 @@
+gha-runner-scale-set-controller:
+  flags:
+    logLevel: info
+
+gha-runner-scale-set:
+  githubConfigUrl: "https://github.com/abugeia"
+  githubConfigSecret: github-runner
+  minRunners: 0
+  maxRunners: 5
+  runnerScaleSetName: "homelab-runner"
