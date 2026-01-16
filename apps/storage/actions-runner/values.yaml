@@ -8,3 +8,6 @@ gha-runner-scale-set:
   minRunners: 0
   maxRunners: 5
   runnerScaleSetName: "homelab-runner"
+  controllerServiceAccount:
+    namespace: storage
+    name: gha-runner-scale-set-controller
