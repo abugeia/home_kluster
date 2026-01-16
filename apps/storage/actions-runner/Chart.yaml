@@ -1,0 +1,13 @@
+apiVersion: v2
+name: actions-runner
+description: GitHub Actions Runner Scale Sets (Homelab)
+type: application
+version: 0.1.0
+dependencies:
+# même source mais 2 charts différents
+  - name: gha-runner-scale-set-controller
+    version: 0.13.0
+    repository: oci://ghcr.io/actions/actions-runner-controller-charts
+  - name: gha-runner-scale-set
+    version: 0.13.0
+    repository: oci://ghcr.io/actions/actions-runner-controller-charts

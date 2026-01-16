@@ -4,7 +4,6 @@ metadata:
   name: navidrome
   namespace: media
   annotations:
-    kubernetes.io/ingress.class: traefik
     traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
     gethomepage.dev/enabled: "true"
     gethomepage.dev/description: "Music Server"
@@ -14,6 +13,7 @@ metadata:
     gethomepage.dev/href: "https://music.valab.top"
     cert-manager.io/cluster-issuer: letsencrypt
 spec:
+  ingressClassName: traefik
   tls:
     - hosts:
         - music.valab.top
