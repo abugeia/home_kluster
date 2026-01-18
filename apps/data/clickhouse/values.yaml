@@ -40,7 +40,17 @@ clickhouse:
       k8s_secret_name: "clickhouse-auth"
       k8s_secret_key: "admin-password"
       networks:
-        ip: "::/0" # Autoriser toutes les IPs (Cluster interne)
+        ip: "::/0"
+      access_management: "1"
+
+    # User par défaut sécurisé (accès local uniquement)
+    - name: default
+      networks:
+        ip: "127.0.0.1"
+      profile: "default"
+      # On pourrait aussi lui mettre un mot de passe pour plus de sécurité
+      # k8s_secret_name: "clickhouse-auth"
+      # k8s_secret_key: "default-password"
 
     # User pour l'ingestion (DLT)
     - name: dataloader
