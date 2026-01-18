@@ -282,4 +282,4 @@ extraEnvRaw:
         name: clickhouse-auth
         key: superset-password
   - name: CLICKHOUSE_DB
-    value: "default"
+    value: "nc_vehicules"
