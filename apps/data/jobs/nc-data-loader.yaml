@@ -14,22 +14,22 @@ spec:
             image: harbor.valab.top/prod/dlt-dataloader:latest
             imagePullPolicy: Always
             env:
-            - name: DLT_DESTINATION__CLICKHOUSE__CREDENTIALS__HOST
+            - name: DESTINATION__CLICKHOUSE__CREDENTIALS__HOST
               value: "clickhouse-clickhouse.data.svc.cluster.local"
-            - name: DLT_DESTINATION__CLICKHOUSE__CREDENTIALS__PORT
+            - name: DESTINATION__CLICKHOUSE__CREDENTIALS__PORT
               value: "9000"
-            - name: DLT_DESTINATION__CLICKHOUSE__CREDENTIALS__HTTP_PORT
+            - name: DESTINATION__CLICKHOUSE__CREDENTIALS__HTTP_PORT
               value: "8123"
-            - name: DLT_DESTINATION__CLICKHOUSE__CREDENTIALS__SECURE
+            - name: DESTINATION__CLICKHOUSE__CREDENTIALS__SECURE
               value: "0"
-            - name: DLT_DESTINATION__CLICKHOUSE__CREDENTIALS__USERNAME
+            - name: DESTINATION__CLICKHOUSE__CREDENTIALS__USERNAME
               value: "dataloader"
-            - name: DLT_DESTINATION__CLICKHOUSE__CREDENTIALS__PASSWORD
+            - name: DESTINATION__CLICKHOUSE__CREDENTIALS__PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: clickhouse-auth
                   key: dataloader-password
-            - name: DLT_DESTINATION__CLICKHOUSE__CREDENTIALS__DATABASE
+            - name: DESTINATION__CLICKHOUSE__CREDENTIALS__DATABASE
               value: "nc_vehicules"
           restartPolicy: OnFailure
           imagePullSecrets:
