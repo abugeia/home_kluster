@@ -19,7 +19,7 @@ spec:
             - name: DESTINATION__CLICKHOUSE__CREDENTIALS__PORT
               value: "9000" # Native TCP Port
             - name: DESTINATION__CLICKHOUSE__CREDENTIALS__SECURE
-              value: "false"
+              value: "0"
             - name: DESTINATION__CLICKHOUSE__CREDENTIALS__USERNAME
               value: "dataloader"
             - name: DESTINATION__CLICKHOUSE__CREDENTIALS__PASSWORD
