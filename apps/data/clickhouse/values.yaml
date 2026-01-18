@@ -37,17 +37,12 @@ clickhouse:
   users:
     - name: admin
       password_secret_name: "clickhouse-auth-admin"
-      networks:
-        ip: 
-          - "::/0"
-          - "0.0.0.0/0"
-      access_management: "1"
+      hostIP: ["::/0", "0.0.0.0/0"]
+      accessManagement: 1
 
     # User par défaut sécurisé (accès local uniquement)
     - name: default
-      networks:
-        ip: "::1"
-        ip: "127.0.0.1"
+      hostIP: ["127.0.0.1/32", "::1/128"]
       profile: "default"
       # On pourrait aussi lui mettre un mot de passe pour plus de sécurité
       # k8s_secret_name: "clickhouse-auth"
@@ -56,20 +51,14 @@ clickhouse:
     # User pour l'ingestion (DLT)
     - name: dataloader
       password_secret_name: "clickhouse-auth-dataloader"
-      networks:
-        ip: 
-          - "::/0"
-          - "0.0.0.0/0"
+      hostIP: ["::/0", "0.0.0.0/0"]
       profile: "default"
-      access_management: "1" # Droit de créer la DB raw_data
+      accessManagement: 1
 
     # User pour la visualisation (Superset)
     - name: superset
       password_secret_name: "clickhouse-auth-superset"
-      networks:
-        ip: 
-          - "::/0"
-          - "0.0.0.0/0"
+      hostIP: ["::/0", "0.0.0.0/0"]
       profile: "readonly"
 
   # Profils personnalisés
