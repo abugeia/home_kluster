@@ -120,6 +120,13 @@ configOverrides:
     EXCEL_EXTENSIONS = {"xls", "xlsx"}
     ALLOWED_EXTENSIONS = set(CSV_EXTENSIONS.union(EXCEL_EXTENSIONS))
 
+  # Limites de lignes pour les gros datasets (466k records)
+  limits: |
+    SQL_MAX_ROW = 1000000
+    DISPLAY_MAX_ROW = 1000000
+    SAMPLES_ROW_LIMIT = 1000000
+    QUERY_SEARCH_LIMIT = 1000000
+
   # Configuration OIDC (PocketID)
   enable_oauth: |
     import os
@@ -279,7 +286,7 @@ extraEnvRaw:
   - name: CLICKHOUSE_PASSWORD
     valueFrom:
       secretKeyRef:
-        name: clickhouse-auth
-        key: superset-password
+        name: clickhouse-auth-superset
+        key: password
   - name: CLICKHOUSE_DB
     value: "nc_vehicules"
