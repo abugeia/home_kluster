@@ -55,7 +55,7 @@ clickhouse:
       profile: "default"
       accessManagement: 1
       grants:
-        - "ALL ON nc_vehicules.*"
+        - "ALL ON *.*"
 
     # User pour la visualisation (Superset)
     - name: superset
@@ -63,7 +63,7 @@ clickhouse:
       hostIP: ["::/0", "0.0.0.0/0"]
       profile: "readonly"
       grants:
-        - "SELECT ON nc_vehicules.*"
+        - "SELECT ON *.*"
 
   # Profils personnalisés
   profiles:
