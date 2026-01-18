@@ -214,7 +214,7 @@ bootstrapScript: |
   # clickhouse+http://user:password@host:port/database
   user = os.environ.get("CLICKHOUSE_USER", "default")
   password = os.environ.get("CLICKHOUSE_PASSWORD", "")
-  host = os.environ.get("CLICKHOUSE_HOST", "clickhouse.data.svc.cluster.local")
+  host = os.environ.get("CLICKHOUSE_HOST", "clickhouse-clickhouse.data.svc.cluster.local")
   port = os.environ.get("CLICKHOUSE_PORT", "8123")
   dbname = os.environ.get("CLICKHOUSE_DB", "default")
 
@@ -271,7 +271,7 @@ extraEnvRaw:
         key: POCKETID_CLIENT_SECRET
   # ClickHouse Credentials
   - name: CLICKHOUSE_HOST
-    value: "clickhouse.data.svc.cluster.local"
+    value: "clickhouse-clickhouse.data.svc.cluster.local"
   - name: CLICKHOUSE_PORT
     value: "8123"
   - name: CLICKHOUSE_USER
