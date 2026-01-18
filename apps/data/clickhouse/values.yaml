@@ -35,17 +35,19 @@ clickhouse:
   # Configuration des Utilisateurs
   # ==========================================
   users:
-    # Admin root
     - name: admin
       k8s_secret_name: "clickhouse-auth"
       k8s_secret_key: "admin-password"
       networks:
-        ip: "::/0"
+        ip: 
+          - "::/0"
+          - "0.0.0.0/0"
       access_management: "1"
 
     # User par défaut sécurisé (accès local uniquement)
     - name: default
       networks:
+        ip: "::1"
         ip: "127.0.0.1"
       profile: "default"
       # On pourrait aussi lui mettre un mot de passe pour plus de sécurité
@@ -57,7 +59,9 @@ clickhouse:
       k8s_secret_name: "clickhouse-auth"
       k8s_secret_key: "dataloader-password"
       networks:
-        ip: "::/0"
+        ip: 
+          - "::/0"
+          - "0.0.0.0/0"
       profile: "default"
       access_management: "1" # Droit de créer la DB raw_data
 
@@ -66,7 +70,9 @@ clickhouse:
       k8s_secret_name: "clickhouse-auth"
       k8s_secret_key: "superset-password"
       networks:
-        ip: "::/0"
+        ip: 
+          - "::/0"
+          - "0.0.0.0/0"
       profile: "readonly"
 
   # Profils personnalisés
