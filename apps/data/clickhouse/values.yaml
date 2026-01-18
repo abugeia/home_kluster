@@ -39,6 +39,8 @@ clickhouse:
       password_secret_name: "clickhouse-auth-admin"
       hostIP: ["::/0", "0.0.0.0/0"]
       accessManagement: 1
+      grants:
+        - "ALL ON *.*"
 
     # User par défaut sécurisé (accès local uniquement)
     - name: default
