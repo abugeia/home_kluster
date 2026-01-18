@@ -27,8 +27,8 @@ spec:
             - name: DESTINATION__CLICKHOUSE__CREDENTIALS__PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: clickhouse-auth
-                  key: dataloader-password
+                  name: clickhouse-auth-dataloader
+                  key: password
             - name: DESTINATION__CLICKHOUSE__CREDENTIALS__DATABASE
               value: "nc_vehicules"
           restartPolicy: OnFailure

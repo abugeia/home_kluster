@@ -36,8 +36,7 @@ clickhouse:
   # ==========================================
   users:
     - name: admin
-      k8s_secret_name: "clickhouse-auth"
-      k8s_secret_key: "admin-password"
+      password_secret_name: "clickhouse-auth-admin"
       networks:
         ip: 
           - "::/0"
@@ -56,8 +55,7 @@ clickhouse:
 
     # User pour l'ingestion (DLT)
     - name: dataloader
-      k8s_secret_name: "clickhouse-auth"
-      k8s_secret_key: "dataloader-password"
+      password_secret_name: "clickhouse-auth-dataloader"
       networks:
         ip: 
           - "::/0"
@@ -67,8 +65,7 @@ clickhouse:
 
     # User pour la visualisation (Superset)
     - name: superset
-      k8s_secret_name: "clickhouse-auth"
-      k8s_secret_key: "superset-password"
+      password_secret_name: "clickhouse-auth-superset"
       networks:
         ip: 
           - "::/0"
