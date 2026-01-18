@@ -54,12 +54,16 @@ clickhouse:
       hostIP: ["::/0", "0.0.0.0/0"]
       profile: "default"
       accessManagement: 1
+      grants:
+        - "ALL ON nc_vehicules.*"
 
     # User pour la visualisation (Superset)
     - name: superset
       password_secret_name: "clickhouse-auth-superset"
       hostIP: ["::/0", "0.0.0.0/0"]
       profile: "readonly"
+      grants:
+        - "SELECT ON nc_vehicules.*"
 
   # Profils personnalisés
   profiles:
