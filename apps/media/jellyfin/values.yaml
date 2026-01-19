@@ -1,8 +1,3 @@
-image:
-  repository: jellyfin/jellyfin
-  tag: latest
-  pullPolicy: IfNotPresent
-
 jellyfin:
   env:
     - name: DOTNET_System_Globalization_Invariant
