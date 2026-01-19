@@ -193,6 +193,14 @@ configOverrides:
     # On injecte notre manager personnalisé
     CUSTOM_SECURITY_MANAGER = PocketIDSecurityManager
 
+  # Configuration Langue & Locale
+  locale: |
+    LANGUAGES = {
+        'en': {'flag': 'us', 'name': 'English'},
+        'fr': {'flag': 'fr', 'name': 'French'},
+    }
+    BABEL_DEFAULT_LOCALE = 'fr'
+
 # Script de démarrage : Installation des drivers
 bootstrapScript: |
   #!/bin/bash
