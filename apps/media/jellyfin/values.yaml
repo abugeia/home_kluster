@@ -11,7 +11,6 @@ jellyfin:
     enabled: true
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt
-      nginx.ingress.kubernetes.io/proxy-body-size: "0"
       gethomepage.dev/enabled: "true"
       gethomepage.dev/description: "Media Server"
       gethomepage.dev/group: "Media"
