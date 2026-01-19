@@ -16,7 +16,7 @@ spec:
         include: 'pvc.yaml'
     # Source 2: Helm chart with values from Git
     - repoURL: https://jellyfin.github.io/jellyfin-helm
-      targetRevision: 19.3.0
+      targetRevision: 2.7.0
       chart: jellyfin
       helm:
         valueFiles:
