@@ -1,0 +1,60 @@
+jellyfin:
+  image:
+    repository: jellyfin/jellyfin
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  env:
+    DOTNET_System_Globalization_Invariant: "false"
+
+  ingress:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/description: "Media Server"
+      gethomepage.dev/group: "Media"
+      gethomepage.dev/icon: "jellyfin.png"
+      gethomepage.dev/name: "Jellyfin"
+      gethomepage.dev/href: "https://jellyfin.valab.top"
+      # TinyAuth middleware
+      traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
+    hosts:
+      - host: jellyfin.valab.top
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: jellyfin-tls
+        hosts:
+          - jellyfin.valab.top
+
+  persistence:
+    config:
+      enabled: true
+      existingClaim: jellyfin-config
+    extraVolumes:
+      - name: media-video
+        persistentVolumeClaim:
+          claimName: pvc-media-video
+          readOnly: true
+      - name: media-data
+        persistentVolumeClaim:
+          claimName: pvc-media-data
+          readOnly: true
+    extraMounts:
+      - name: media-video
+        mountPath: /media/video
+        readOnly: true
+      - name: media-data
+        mountPath: /media/data
+        readOnly: true
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 64Mi
+    limits:
+      cpu: 2000m
+      memory: 2Gi
