@@ -1,0 +1,75 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: jellyfin-sso-setup
+  namespace: media
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  ttlSecondsAfterFinished: 300
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: configure-sso
+          image: curlimages/curl:8.5.0
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              echo "Waiting for Jellyfin to be ready..."
+              sleep 30
+              
+              echo "Configuring SSO plugin for Pocket ID..."
+              
+              # Configuration OpenID pour Pocket ID
+              curl -v -X POST \
+                -H "Content-Type: application/json" \
+                -d '{
+                  "oidEndpoint": "https://auth-id.valab.top",
+                  "oidClientId": "'"${CLIENT_ID}"'",
+                  "oidSecret": "'"${CLIENT_SECRET}"'",
+                  "enabled": true,
+                  "enableAuthorization": false,
+                  "enableAllFolders": true,
+                  "enabledFolders": [],
+                  "adminRoles": [],
+                  "roles": [],
+                  "enableFolderRoles": false,
+                  "folderRoleMapping": [],
+                  "enableLiveTvRoles": false,
+                  "liveTvRoles": [],
+                  "liveTvManagementRoles": [],
+                  "enableLiveTv": true,
+                  "enableLiveTvManagement": false,
+                  "roleClaim": "groups",
+                  "oidScopes": ["openid", "profile", "email"],
+                  "defaultProvider": "",
+                  "defaultUsernameClaim": "preferred_username",
+                  "avatarUrlFormat": "",
+                  "disableHttps": false,
+                  "doNotValidateEndpoints": false,
+                  "doNotValidateIssuerName": false,
+                  "schemeOverride": ""
+                }' \
+                "http://jellyfin:8096/sso/OID/Add/pocketid?api_key=${API_KEY}"
+              
+              echo "SSO configuration completed successfully!"
+          env:
+            - name: CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: jellyfin-sso-credentials
+                  key: client-id
+            - name: CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: jellyfin-sso-credentials
+                  key: client-secret
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jellyfin-sso-credentials
+                  key: api-key
