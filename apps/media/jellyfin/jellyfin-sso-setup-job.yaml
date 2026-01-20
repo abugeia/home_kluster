@@ -28,7 +28,7 @@ spec:
               curl -v -X POST \
                 -H "Content-Type: application/json" \
                 -d '{
-                  "oidEndpoint": "https://auth-id.valab.top",
+                  "oidEndpoint": "https://auth-id.valab.top/.well-known/openid-configuration",
                   "oidClientId": "'"${CLIENT_ID}"'",
                   "oidSecret": "'"${CLIENT_SECRET}"'",
                   "enabled": true,
@@ -48,7 +48,7 @@ spec:
                   "oidScopes": ["openid", "profile", "email"],
                   "defaultProvider": "",
                   "defaultUsernameClaim": "preferred_username",
-                  "avatarUrlFormat": "",
+                  "avatarUrlFormat": "@{picture}",
                   "disableHttps": false,
                   "doNotValidateEndpoints": false,
                   "doNotValidateIssuerName": false,
