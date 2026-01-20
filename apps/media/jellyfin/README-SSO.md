@@ -119,6 +119,38 @@ kubectl create job --from=cronjob/jellyfin-sso-setup jellyfin-sso-setup-manual -
 # Ou faire un sync ArgoCD pour recréer le Job
 ```
 
+
+### 1. Accéder aux Paramètres de Branding
+
+1. Se connecter à Jellyfin avec un compte administrateur
+2. Aller dans **Dashboard** → **General** → **Branding**
+
+### 2. Ajouter le Bouton HTML
+
+Dans le champ **"Login disclaimer"**, ajoutez ce code :
+
+```html
+<form action="https://jellyfin.valab.top/sso/OID/start/pocketid"> 
+  <button class="raised block emby-button button-submit">Se connecter avec Pocket ID</button> 
+</form>
+```
+
+> **Note** : Remplacez `pocketid` par le nom de votre provider si différent.
+
+### 3. Ajouter le CSS Personnalisé
+
+Dans le champ **"Custom CSS code"**, ajoutez ce code :
+
+```css
+a.raised.emby-button { 
+  padding: 0.9em 1em; 
+  color: inherit !important; 
+} 
+.disclaimerContainer { 
+  display: block; 
+}
+```
+
 ## Troubleshooting
 
 ### Le bouton SSO n'apparaît pas
