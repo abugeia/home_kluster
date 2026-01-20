@@ -57,7 +57,7 @@ spec:
                       "disableHttps": false,
                       "doNotValidateEndpoints": true,
                       "doNotValidateIssuerName": true,
-                      "schemeOverride": ""
+                      "schemeOverride": "https"
                     }' \
                     "http://jellyfin:8096/sso/OID/Add/pocketid?api_key=${API_KEY}"
                   
