@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vmagent
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    # Source 1: Helm chart with values from Git
+    - repoURL: https://victoriametrics.github.io/helm-charts/
+      chart: victoria-metrics-agent
+      targetRevision: 0.29.0
+      helm:
+        valueFiles:
+          - $values/apps/tools/vmagent/values.yaml
+    # Source 2: Git repo for values reference
+    - repoURL: 'https://github.com/abugeia/home_kluster.git'
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: observability
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+
