@@ -6,10 +6,9 @@ prometheus:
     enabled: false # On n'utilise pas Prometheus Operator
 
 # Annotations pour que vmagent scrape automatiquement
-service:
-  annotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "8080"
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8080"
 
 # Optimisations ressources pour Home Lab
 resources:

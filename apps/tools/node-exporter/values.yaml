@@ -1,10 +1,9 @@
 # Node Exporter configuration for Home Kluster
 
-# Annotations pour que vmagent scrape automatiquement le Service
-service:
-  annotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "9100"
+# Annotations pour que vmagent scrape automatiquement le Pod
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "9100"
 
 # On disable RBAC PSP car déprécié
 rbac:
