@@ -1,0 +1,78 @@
+# Configuration Grafana pour home_kluster
+# Documentation: https://github.com/grafana/helm-charts/tree/main/charts/grafana
+
+# Persistence pour conserver dashboards et config
+persistence:
+  enabled: true
+  size: 1Gi
+  storageClassName: nfs-csi-nvme
+
+# Ressources adaptées à un home lab
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+
+# Ingress pour accès via Traefik
+ingress:
+  enabled: true
+  ingressClassName: traefik
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    # Homepage dashboard annotations
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Grafana"
+    gethomepage.dev/description: "Metrics Visualization"
+    gethomepage.dev/group: "Admin"
+    gethomepage.dev/icon: "si-grafana"
+    gethomepage.dev/href: "https://grafana.valab.top"
+  hosts:
+    - grafana.valab.top
+  tls:
+    - secretName: grafana-tls
+      hosts:
+        - grafana.valab.top
+
+# Datasource VictoriaMetrics (compatible Prometheus)
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: VictoriaMetrics
+        type: prometheus
+        url: http://10.0.0.13:8428
+        access: proxy
+        isDefault: true
+        editable: false
+
+# Grafana configuration
+grafana.ini:
+  server:
+    domain: grafana.valab.top
+    root_url: "https://grafana.valab.top"
+  users:
+    allow_sign_up: false
+  # Auth OIDC avec Pocket ID
+  auth.generic_oauth:
+    enabled: true
+    name: "Pocket ID"
+    allow_sign_up: true
+    auto_login: false
+    client_id: $__env{GF_AUTH_GENERIC_OAUTH_CLIENT_ID}
+    client_secret: $__env{GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET}
+    scopes: openid profile email
+    auth_url: https://auth-id.valab.top/authorize
+    token_url: https://auth-id.valab.top/api/oidc/token
+    api_url: https://auth-id.valab.top/api/oidc/userinfo
+    # Mapper les attributs OIDC
+    role_attribute_path: contains(groups[*], 'admin') && 'Admin' || 'Viewer'
+
+# Secrets OIDC via envFrom (à créer dans Pocket ID)
+envFromSecret: grafana-oidc-secret
+
+# Le mot de passe admin sera généré automatiquement
+# Récupérer avec: kubectl get secret -n observability grafana -o jsonpath="{.data.admin-password}" | base64 --decode
+

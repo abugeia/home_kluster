@@ -1,63 +1,60 @@
-# Architecture Monitoring Lightweight (Telegraf + TimescaleDB)
+# Architecture Monitoring & Data (VictoriaMetrics + TimescaleDB)
 
-Ce document décrit la recommandation pour un système de monitoring performant, durable et économe en ressources pour le **home_kluster** et l'infrastructure associée.
+Ce document décrit la nouvelle architecture pour le **home_kluster**, séparant le monitoring infrastructure des données analytiques métier.
 
-## 1. Pourquoi pas Prometheus ?
-Bien que Prometheus soit le standard Kubernetes, il consomme environ **300 Mo à 500 Mo de RAM** au repos pour maintenir sa base de données en mémoire. Pour un homelab, ce coût est élevé si l'on ne cherche qu'à monitorer les ressources de base.
+## 1. Vision Globale
+L'objectif est d'isoler le monitoring (haute fréquence d'écriture, moins critique) de la base de données de production/état de k3s.
 
-## 2. L'approche Telegraf + TimescaleDB
-Cette architecture repose sur le modèle "Push" vers une base de données PostgreSQL existante, optimisée pour les séries temporelles via l'extension **TimescaleDB**.
-
-### Avantages :
-- **Légèreté** : L'agent Telegraf consomme ~20-50 Mo de RAM.
-- **Mutualisation** : Réutilise l'instance PostgreSQL (LXC) déjà présente.
-- **Long-terme** : TimescaleDB est idéal pour conserver des données sur plusieurs années (utile pour le futur projet MLOps/Finance).
-- **SQL complet** : Permet des requêtes complexes impossibles en PromQL.
-
-## 3. Architecture Cible
+## 2. Architecture Hybride
 
 ```mermaid
 graph TD
-    subgraph "Nœuds (K8s, Pi, Proxmox)"
-        T1[Telegraf K8s]
-        T2[Telegraf Pi]
-        T3[Telegraf Proxmox]
+    subgraph "Collecteurs"
+        VMA[vmagent k3s]
+        PI[Pi0 Temperature Script]
+        PX[Proxmox Stats]
     end
 
-    subgraph "Stockage (LXC PostgreSQL)"
+    subgraph "Stockage Cloud-Native (LXC VictoriaMetrics)"
+        VM[VictoriaMetrics]
+    end
+
+    subgraph "Stockage Analytique (LXC PostgreSQL + TimescaleDB)"
         TS[TimescaleDB]
+        ML[App MLOps Finance]
     end
 
-    subgraph "Visualisation (K8s)"
+    subgraph "Visualisation (k3s)"
         G[Grafana]
     end
 
-    T1 -- Push --> TS
-    T2 -- Push --> TS
-    T3 -- Push --> TS
-    TS -- Query --> G
+    VMA -- Remote Write --> VM
+    PI -- Influx Line --> VM
+    PX -- Push --> VM
+    
+    ML -- SQL --> TS
+    
+    VM -- Prometheus API --> G
+    TS -- SQL --> G
 ```
+
+## 3. Stratégie de Stockage
+
+| Type de Donnée | Outil | Pourquoi ? |
+| --- | --- | --- |
+| **Métriques Infra** (CPU, RAM, Temp) | **VictoriaMetrics** | Très léger, stockage optimisé, compatible Prometheus. |
+| **Données Finance / ML** | **TimescaleDB** | Requêtes SQL complexes (jointures), précision critique, intégration Python/Pandas. |
 
 ## 4. Composants
 
-### Telegraf
-- **DaemonSet K8s** : Collecte les métriques des nœuds et des pods.
-- **Agent Raspberry Pi** : Collecte la température/humidité et les stats système.
-- **Agent Proxmox** : Collecte les stats de l'hôte et de l'api PVE via le plugin `proxmox`.
+### VictoriaMetrics (LXC Dédié)
+- Rejoint les métriques de k3s (via `vmagent`).
+- Rejoint les métriques du Raspberry Pi 0.
+- Sert de datasource "Prometheus" pour Grafana.
 
-### TimescaleDB
-- Extension PostgreSQL activée sur l'instance existante.
-- Organisation par schemas : `sensors`, `infra`, `finance`.
+### TimescaleDB (Extension PostgreSQL LXC)
+- Utilisé pour le stockage long-terme des indicateurs financiers.
+- Isolé des métriques de monitoring pur pour éviter les conflits d'I/O.
 
 ### Grafana
-- Connecté en tant que Datasource PostgreSQL.
-- Utilise des dashboards communautaires adaptés à Telegraf.
-
-## 5. Comparaison de Ressources
-
-| Composant | Stack Prometheus | Stack Telegraf (Cible) |
-|-----------|------------------|------------------------|
-| Collecteur | Prometheus (300MB+) | Telegraf (50MB) |
-| Base de données | Intégrée | mutualisée (PostgreSQL) |
-| Visualisation | Grafana (150MB) | Grafana (150MB) |
-| **Total RAM** | **~450-600 MB** | **~200-250 MB** |
+- Centralise la visualisation des deux sources.
