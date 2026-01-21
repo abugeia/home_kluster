@@ -21,7 +21,7 @@ ingress:
   enabled: true
   ingressClassName: traefik
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-prod
+    cert-manager.io/cluster-issuer: letsencrypt
     # Homepage dashboard annotations
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Grafana"
