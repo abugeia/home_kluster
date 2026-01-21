@@ -63,7 +63,7 @@ grafana.ini:
     auto_login: false
     client_id: $__env{GF_AUTH_GENERIC_OAUTH_CLIENT_ID}
     client_secret: $__env{GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET}
-    scopes: openid profile email
+    scopes: openid profile email groups
     auth_url: https://auth-id.valab.top/authorize
     token_url: https://auth-id.valab.top/api/oidc/token
     api_url: https://auth-id.valab.top/api/oidc/userinfo
