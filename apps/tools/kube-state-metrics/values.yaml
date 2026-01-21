@@ -1,0 +1,52 @@
+# Kube State Metrics configuration for Home Kluster
+
+# Auto-discovery by vmagent
+prometheus:
+  monitor:
+    enabled: false # On n'utilise pas Prometheus Operator
+
+# Annotations pour que vmagent scrape automatiquement
+service:
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+
+# Optimisations ressources pour Home Lab
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    cpu: 100m
+    memory: 64Mi
+
+# Collectors à activer (Basic set)
+collectors:
+  - certificatesigningrequests
+  - configmaps
+  - cronjobs
+  - daemonsets
+  - deployments
+  - endpoints
+  - horizontalpodautoscalers
+  - ingresses
+  - jobs
+  - limitranges
+  - namespaces
+  - nodes
+  - persistentvolumeclaims
+  - persistentvolumes
+  - poddisruptionbudgets
+  - pods
+  - replicasets
+  - replicationcontrollers
+  - resourcequotas
+  - secrets
+  - services
+  - statefulsets
+  - storageclasses
+  - volumeattachments
+
+# Metric allowlist pour réduire la cardinalité si besoin
+# metricLabelsAllowlist:
+#   - pods=[*]
