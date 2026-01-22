@@ -17,6 +17,7 @@ env:
   # password: injected via existingSecret
   # PGADMIN_DISABLE_POSTFIX: disable email/Postfix
   enhanced_cookie_protection: "False"
+  PGADMIN_SERVER_JSON_FILE: "/pgadmin4/servers.json"
 
 # Utiliser un secret existant pour les credentials
 existingSecret: pgadmin-secret
