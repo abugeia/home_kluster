@@ -75,11 +75,11 @@ ingress:
 # Resources
 resources:
   limits:
-    cpu: 1000m
-    memory: 1Gi
+    cpu: 500m
+    memory: 512Mi
   requests:
-    cpu: 100m
-    memory: 256Mi
+    cpu: 50m
+    memory: 128Mi
 # VolumePermissions pour préparer les répertoires PVC
 VolumePermissions:
   enabled: false
@@ -88,7 +88,7 @@ VolumePermissions:
 extraInitContainers: |
   - name: init-pgadmin-dirs
     image: "dpage/pgadmin4:9.11"
-    command: ["/bin/sh", "-c", "mkdir -p /var/lib/pgadmin/sessions /var/lib/pgadmin/storage && chmod 700 /var/lib/pgadmin/sessions /var/lib/pgadmin/storage && chown -R 5050:5050 /var/lib/pgadmin"]
+    command: ["/bin/sh", "-c", "mkdir -p /var/lib/pgadmin/sessions /var/lib/pgadmin/storage && chmod 777 /var/lib/pgadmin/sessions /var/lib/pgadmin/storage && chown -R 5050:5050 /var/lib/pgadmin"]
     volumeMounts:
       - name: pgadmin-data
         mountPath: /var/lib/pgadmin
