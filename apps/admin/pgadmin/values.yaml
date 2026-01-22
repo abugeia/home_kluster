@@ -49,6 +49,8 @@ serverDefinitions:
       Host: "10.0.0.12"
       SSLMode: "prefer"
       SavePassword: true
+      MaintenanceDB: postgres
+      Shared: true
 
 # Additional volumes
 persistentVolume:
