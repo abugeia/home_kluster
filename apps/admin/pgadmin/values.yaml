@@ -44,15 +44,11 @@ serverDefinitions:
     proxmox_postgres:
       Name: "Proxmox Postgres"
       Group: "Servers"
-      Shared: true
-      Host: "10.0.0.12"
       Port: 5432
-      MaintenanceDB: "postgres"
       Username: "postgres"
-      SharedUsername: "postgres"
+      Host: "10.0.0.12"
+      SSLMode: "prefer"
       SavePassword: true
-      ConnectionParameters:
-        sslmode: "prefer"
 
 # Additional volumes
 persistentVolume:
