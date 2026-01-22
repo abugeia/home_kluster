@@ -17,7 +17,6 @@ env:
   # password: injected via existingSecret
   # PGADMIN_DISABLE_POSTFIX: disable email/Postfix
   enhanced_cookie_protection: "False"
-  PGADMIN_SERVER_JSON_FILE: "/pgadmin4/servers.json"
 
 # Utiliser un secret existant pour les credentials
 existingSecret: pgadmin-secret
@@ -36,11 +35,24 @@ extraSecretMounts:
     mountPath: /pgadmin4/config_local.py
     readOnly: true
 
-  - name: servers-json
-    secret: pgadmin-servers
-    subPath: servers.json
-    mountPath: /pgadmin4/servers.json
-    readOnly: true
+# Pre-load pgAdmin4 with servers
+serverDefinitions:
+  enabled: true
+  resourceType: Secret
+  useStringData: true
+  servers:
+    proxmox_postgres:
+      Name: "Proxmox Postgres"
+      Group: "Servers"
+      Shared: true
+      Host: "10.0.0.12"
+      Port: 5432
+      MaintenanceDB: "postgres"
+      Username: "postgres"
+      SharedUsername: "postgres"
+      SavePassword: true
+      ConnectionParameters:
+        sslmode: "prefer"
 
 # Additional volumes
 persistentVolume:
