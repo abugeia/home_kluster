@@ -35,6 +35,12 @@ extraSecretMounts:
     mountPath: /pgadmin4/config_local.py
     readOnly: true
 
+  - name: servers-json
+    secret: pgadmin-servers
+    subPath: servers.json
+    mountPath: /pgadmin4/servers.json
+    readOnly: true
+
 # Additional volumes
 persistentVolume:
   enabled: true
