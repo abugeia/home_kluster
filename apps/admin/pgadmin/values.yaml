@@ -38,7 +38,7 @@ extraSecretMounts:
 # Pre-load pgAdmin4 with servers
 serverDefinitions:
   enabled: true
-  resourceType: Secret
+  resourceType: ConfigMap
   useStringData: true
   servers:
     proxmox_postgres:
