@@ -41,16 +41,19 @@ serverDefinitions:
   resourceType: ConfigMap
   useStringData: true
   servers:
-    proxmox_postgres:
+    "1":
       Name: "Proxmox Postgres"
       Group: "Servers"
       Port: 5432
       Username: "postgres"
       Host: "10.0.0.12"
       SSLMode: "prefer"
-      SavePassword: true
       MaintenanceDB: postgres
       Shared: true
+      SharedUsername: "postgres"
+      SavePassword: true
+      ConnectionParameters:
+        sslmode: "prefer"
 
 # Additional volumes
 persistentVolume:
