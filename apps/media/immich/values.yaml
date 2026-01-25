@@ -78,7 +78,7 @@ server:
       type: persistentVolumeClaim
       existingClaim: pvc-media-video
       globalMounts:
-        - path: /mnt/import/video
+        - path: /mnt/video
           readOnly: true
   controllers:
     main:
