@@ -66,19 +66,19 @@ valkey:
 server:
   enabled: true
   persistence:
-    import:
+    media-data:
       enabled: true
       type: persistentVolumeClaim
-      existingClaim: immich-import
+      existingClaim: pvc-media-data
       globalMounts:
-        - path: /mnt/import
+        - path: /mnt/media-data
           readOnly: true
-    video:
+    media-video:
       enabled: true
       type: persistentVolumeClaim
       existingClaim: pvc-media-video
       globalMounts:
-        - path: /mnt/video
+        - path: /mnt/media-video
           readOnly: true
   controllers:
     main:
@@ -89,7 +89,7 @@ server:
               memory: "128Mi"
               cpu: "50m"
             limits:
-              memory: "12Gi"
+              memory: "2Gi"
               cpu: "1000m"
   ingress:
     main:
