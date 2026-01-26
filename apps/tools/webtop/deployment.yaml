@@ -32,7 +32,7 @@ spec:
     spec:
       containers:
         - name: webtop
-          image: lscr.io/linuxserver/webtop:alpine-xfce
+          image: lscr.io/linuxserver/webtop:latest
           env:
             - name: PUID
               value: "1000"
