@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sablier
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    - repoURL: https://sablierapp.github.io/helm-charts
+      chart: sablier
+      targetRevision: 1.11.0
+      helm:
+        valueFiles:
+          - $values/apps/tools/sablier/values.yaml
+    - repoURL: https://github.com/abugeia/home_kluster.git
+      targetRevision: main
+      ref: values
+    - repoURL: https://github.com/abugeia/home_kluster.git
+      targetRevision: main
+      path: apps/tools/sablier
+      directory:
+        include: 'middleware.yaml'
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: tools
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground

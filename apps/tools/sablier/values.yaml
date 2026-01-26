@@ -1,0 +1,25 @@
+# Configuration Sablier pour Scale-to-Zero
+# Documentation: https://sablierapp.dev
+
+# Provider Kubernetes (obligatoire)
+# Indique à Sablier qu'il doit gérer des Deployments/StatefulSets Kubernetes
+provider:
+  name: kubernetes
+
+# Logging (optionnel)
+# Niveau de log pour le debugging
+logging:
+  level: info
+
+# Métriques Prometheus (optionnel mais recommandé)
+# Active l'export de métriques pour observer l'activité de Sablier
+metrics:
+  enabled: true
+
+# Service (configuration par défaut OK)
+# Le service sera créé automatiquement sur le port 10000 (par défaut)
+
+# Ingress (désactivé car nous utilisons des Middlewares Traefik)
+# Sablier n'a pas besoin d'ingress direct, il agit en tant que proxy transparent
+ingress:
+  enabled: false
