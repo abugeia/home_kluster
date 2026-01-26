@@ -6,7 +6,7 @@ metadata:
 spec:
   plugin:
     sablier:
-      sablierUrl: http://sablier.tools.svc.cluster.local:10000
+      sablierUrl: http://sablier-sablier.tools.svc.cluster.local:10000
       group: webtop
       sessionDuration: 5m
       dynamic:
