@@ -14,6 +14,12 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: tools
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      name: webtop
+      jsonPointers:
+        - /spec/replicas
   syncPolicy:
     automated:
       prune: true
