@@ -18,6 +18,8 @@ metadata:
   namespace: tools
   labels:
     app: webtop
+    sablier.enable: "true"
+    sablier.group: "webtop"
 spec:
   replicas: 1
   selector:

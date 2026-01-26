@@ -6,21 +6,11 @@ metadata:
 spec:
   plugin:
     sablier:
-      # URL du service Sablier dans le cluster
-      # Sablier écoute les requêtes du middleware et orchestre le démarrage/arrêt des pods
       sablierUrl: http://sablier.tools.svc.cluster.local:10000
-      
-      # Nom(s) du/des Deployment(s) Kubernetes à gérer
-      # Ici "webtop" correspond au nom du Deployment dans apps/tools/webtop/deployment.yaml
-      # Sablier va surveiller ce déploiement et le mettre à l'échelle (0 ou 1 réplique)
-      names: webtop
-      
-      # Durée d'inactivité avant extinction automatique
-      # Par défaut : 5 minutes (si non spécifié)
-      # Décommentez et ajustez selon vos besoins (ex: 10m, 1h)
-      # sessionDuration: 10m
-      
-      # Stratégie de scaling (optionnel, défaut: "blocking")
-      # - blocking: Affiche une page d'attente pendant le démarrage du pod
-      # - dynamic: Crée des services temporaires (plus complexe)
-      # strategy: blocking
+      group: webtop
+      sessionDuration: 5m
+      dynamic:
+        displayName: Webtop Desktop
+        showDetails: true
+        theme: hacker-terminal
+        refreshFrequency: 2s
