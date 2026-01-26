@@ -6,6 +6,8 @@ metadata:
   namespace: admin
   labels:
     app: wetty
+    sablier.enable: "true"
+    sablier.group: "wetty-px"
 spec:
   replicas: 1
   selector:

@@ -3,6 +3,10 @@ jellyfin:
     - name: DOTNET_System_Globalization_Invariant
       value: "false"
 
+podLabels:
+  sablier.enable: "true"
+  sablier.group: "jellyfin"
+
 ingress:
   enabled: true
   annotations:
@@ -15,6 +19,7 @@ ingress:
     gethomepage.dev/href: "https://jellyfin.valab.top"
     # TinyAuth removed - SSO plugin handles authentication
     # traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: tools-sablier@kubernetescrd
   hosts:
     - host: jellyfin.valab.top
       paths:

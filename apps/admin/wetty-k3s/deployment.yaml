@@ -6,6 +6,8 @@ metadata:
   namespace: admin
   labels:
     app: wetty-k3s
+    sablier.enable: "true"
+    sablier.group: "wetty-k3s"
 spec:
   replicas: 1
   selector:

@@ -5,6 +5,8 @@ metadata:
   namespace: media
   labels:
     app: metube
+    sablier.enable: "true"
+    sablier.group: "metube"
 spec:
   replicas: 1
   selector:
