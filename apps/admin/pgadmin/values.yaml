@@ -82,7 +82,7 @@ ingress:
     gethomepage.dev/icon: "si-postgresql"
     gethomepage.dev/name: "pgAdmin"
     gethomepage.dev/href: "https://pg.valab.top"
-    traefik.ingress.kubernetes.io/router.middlewares: tools-sablier@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: tools-sablier-30m@kubernetescrd
   hosts:
     - host: pg.valab.top
       paths:

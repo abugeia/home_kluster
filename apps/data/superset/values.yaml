@@ -41,7 +41,7 @@ ingress:
     gethomepage.dev/href: "https://superset.valab.top"
     # ⚠️ RETIRÉ : TinyAuth entrerait en conflit avec l'OIDC interne de Superset
     # traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
-    traefik.ingress.kubernetes.io/router.middlewares: tools-sablier@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: tools-sablier-30m@kubernetescrd
   tls:
     - hosts:
         - superset.valab.top

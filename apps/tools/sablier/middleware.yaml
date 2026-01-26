@@ -1,16 +1,33 @@
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
-  name: sablier
+  name: sablier-30m
   namespace: tools
 spec:
   plugin:
     sablier:
       sablierUrl: http://sablier-sablier.tools.svc.cluster.local:10000
-      group: webtop
-      sessionDuration: 5m
+      group: '{{ index .Labels "sablier.group" }}'
+      sessionDuration: 30m
       dynamic:
-        displayName: Webtop Desktop
+        displayName: '{{ index .Labels "sablier.group" }}'
+        showDetails: true
+        theme: hacker-terminal
+        refreshFrequency: 2s
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: sablier-1h
+  namespace: tools
+spec:
+  plugin:
+    sablier:
+      sablierUrl: http://sablier-sablier.tools.svc.cluster.local:10000
+      group: '{{ index .Labels "sablier.group" }}'
+      sessionDuration: 1h
+      dynamic:
+        displayName: '{{ index .Labels "sablier.group" }}'
         showDetails: true
         theme: hacker-terminal
         refreshFrequency: 2s

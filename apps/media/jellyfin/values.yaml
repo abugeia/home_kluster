@@ -19,7 +19,7 @@ ingress:
     gethomepage.dev/href: "https://jellyfin.valab.top"
     # TinyAuth removed - SSO plugin handles authentication
     # traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
-    traefik.ingress.kubernetes.io/router.middlewares: tools-sablier@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: tools-sablier-1h@kubernetescrd
   hosts:
     - host: jellyfin.valab.top
       paths:
