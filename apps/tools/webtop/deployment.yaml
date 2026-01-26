@@ -21,7 +21,7 @@ metadata:
     sablier.enable: "true"
     sablier.group: "webtop"
 spec:
-  replicas: 1
+  replicas: 0
   selector:
     matchLabels:
       app: webtop
