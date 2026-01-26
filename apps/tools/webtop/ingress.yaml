@@ -4,7 +4,7 @@ metadata:
   name: webtop
   namespace: tools
   annotations:
-    traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
+    # traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
     gethomepage.dev/enabled: "true"
     gethomepage.dev/description: "Webtop Workspace"
     gethomepage.dev/group: "Tools"
