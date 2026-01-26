@@ -5,6 +5,8 @@ metadata:
   namespace: media
   labels:
     app: filebrowser
+    sablier.enable: "true"
+    sablier.group: "filebrowser"
 spec:
   replicas: 1
   selector:
