@@ -18,8 +18,8 @@ spec:
     - group: apps
       kind: Deployment
       name: webtop
-      jsonPointers:
-        - /spec/replicas
+      jqPathExpressions:
+        - .spec.replicas
   syncPolicy:
     automated:
       prune: true
