@@ -32,7 +32,7 @@ spec:
     spec:
       containers:
         - name: webtop
-          image: lscr.io/linuxserver/webtop:arch-xfce
+          image: lscr.io/linuxserver/webtop:alpine-xfce
           env:
             - name: PUID
               value: "1000"
@@ -40,10 +40,6 @@ spec:
               value: "1000"
             - name: TZ
               value: "Pacific/Noumea"
-            - name: DOCKER_MODS
-              value: "linuxserver/mods:universal-package-install"
-            - name: INSTALL_PACKAGES
-              value: "chromium"
           ports:
             - containerPort: 3000
               name: http
