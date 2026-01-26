@@ -1,0 +1,31 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: webtop
+  namespace: tools
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/description: "Webtop Workspace"
+    gethomepage.dev/group: "Tools"
+    gethomepage.dev/icon: "chrome.png"
+    gethomepage.dev/name: "Webtop"
+    gethomepage.dev/href: "https://web.valab.top"
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - web.valab.top
+      secretName: webtop-tls
+  rules:
+    - host: web.valab.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: webtop
+                port:
+                  name: http
