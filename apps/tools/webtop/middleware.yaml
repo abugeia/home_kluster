@@ -1,9 +1,0 @@
-apiVersion: traefik.io/v1alpha1
-kind: Middleware
-metadata:
-  name: webtop-strip-headers
-  namespace: tools
-spec:
-  headers:
-    customRequestHeaders:
-      Authorization: ""
