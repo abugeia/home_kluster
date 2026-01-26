@@ -1,3 +1,5 @@
+# Middleware dynamique pour les outils (30 min)
+---
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
@@ -7,14 +9,16 @@ spec:
   plugin:
     sablier:
       sablierUrl: http://sablier-sablier.tools.svc.cluster.local:10000
-      # Utilise le label 'sablier.group' du Pod de destination pour identifier le groupe Sablier
-      group: '{{ index .Labels "sablier.group" }}'
+      # Utilise le Host (ex: pg.valab.top) comme nom de groupe Sablier
+      group: '{{.Host}}'
       sessionDuration: 30m
       dynamic:
-        displayName: '{{ index .Labels "sablier.group" }}'
+        displayName: '{{.Host}}'
         showDetails: true
         theme: ghost
         refreshFrequency: 2s
+
+# Middleware dynamique pour les médias (1h)
 ---
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
@@ -25,10 +29,10 @@ spec:
   plugin:
     sablier:
       sablierUrl: http://sablier-sablier.tools.svc.cluster.local:10000
-      group: '{{ index .Labels "sablier.group" }}'
+      group: '{{.Host}}'
       sessionDuration: 1h
       dynamic:
-        displayName: '{{ index .Labels "sablier.group" }}'
+        displayName: '{{.Host}}'
         showDetails: true
-        theme: ghost
+        theme: hacker-terminal
         refreshFrequency: 2s

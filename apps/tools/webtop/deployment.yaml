@@ -19,7 +19,7 @@ metadata:
   labels:
     app: webtop
     sablier.enable: "true"
-    sablier.group: "webtop"
+    sablier.group: "web.valab.top"
 spec:
   selector:
     matchLabels:

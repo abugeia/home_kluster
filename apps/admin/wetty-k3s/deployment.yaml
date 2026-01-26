@@ -7,7 +7,7 @@ metadata:
   labels:
     app: wetty-k3s
     sablier.enable: "true"
-    sablier.group: "wetty-k3s"
+    sablier.group: "k3s.valab.top"
 spec:
   replicas: 1
   selector:

@@ -6,7 +6,7 @@ metadata:
   labels:
     app: navidrome
     sablier.enable: "true"
-    sablier.group: "navidrome"
+    sablier.group: "music.valab.top"
 spec:
   replicas: 1
   selector:
