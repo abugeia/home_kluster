@@ -119,7 +119,7 @@ extraInitContainers: |
 # Labels additionnels pour le Pod (Sablier)
 podLabels:
   sablier.enable: "true"
-  sablier.group: "pgadmin"
+  sablier.group: "pg.valab.top"
 
 # Health checks
 livenessProbe:

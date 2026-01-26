@@ -21,7 +21,7 @@ image:
 # Labels communs pour Sablier (éteindre app + workers + beat)
 commonLabels:
   sablier.enable: "true"
-  sablier.group: "superset"
+  sablier.group: "superset.valab.top"
 
 # ==========================================================
 # 2. INGRESS & RESEAU

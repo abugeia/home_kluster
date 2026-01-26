@@ -6,7 +6,7 @@ metadata:
   labels:
     app: metube
     sablier.enable: "true"
-    sablier.group: "metube"
+    sablier.group: "metube.valab.top"
 spec:
   replicas: 1
   selector:

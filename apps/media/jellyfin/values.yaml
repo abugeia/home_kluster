@@ -5,7 +5,7 @@ jellyfin:
 
 podLabels:
   sablier.enable: "true"
-  sablier.group: "jellyfin"
+  sablier.group: "jellyfin.valab.top"
 
 ingress:
   enabled: true
