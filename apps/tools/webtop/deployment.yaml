@@ -38,6 +38,10 @@ spec:
               value: "1000"
             - name: TZ
               value: "Pacific/Noumea"
+            - name: DOCKER_MODS
+              value: "linuxserver/mods:universal-package-install"
+            - name: INSTALL_PACKAGES
+              value: "chromium"
           ports:
             - containerPort: 3000
               name: http
