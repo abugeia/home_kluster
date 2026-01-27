@@ -19,9 +19,7 @@ spec:
       ref: values
     - repoURL: https://github.com/abugeia/home_kluster.git
       targetRevision: main
-      path: apps/tools/sablier
-      directory:
-        include: 'middleware.yaml'
+      path: apps/tools/sablier/middlewares-chart
   destination:
     server: https://kubernetes.default.svc
     namespace: tools

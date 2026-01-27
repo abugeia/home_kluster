@@ -1,0 +1,12 @@
+{{- range $name, $config := .Values.apps }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: sablier-{{ $name }}
+  namespace: tools
+spec:
+  forwardAuth:
+    address: {{ printf "%s/api/auth/dynamic?name=%s&session_duration=%s" ($config.sablierUrl | default $.Values.defaults.sablierUrl) ($config.group | default $name) ($config.duration | default "30m") | quote }}
+    trustForwardHeader: true
+{{- end }}

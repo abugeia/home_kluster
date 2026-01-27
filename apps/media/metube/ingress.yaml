@@ -6,7 +6,7 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
     kubernetes.io/ingress.class: traefik
-    traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd,tools-sablier-1h@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd,tools-sablier-metube@kubernetescrd
     gethomepage.dev/enabled: "true"
     gethomepage.dev/description: "Youtube Downloader"
     gethomepage.dev/group: "Media"

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: sablier-middlewares
+description: A Helm chart to generate Sablier middlewares for Traefik
+type: application
+version: 0.1.0
+appVersion: "1.1.0"

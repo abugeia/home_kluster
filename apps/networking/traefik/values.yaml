@@ -48,8 +48,8 @@ service:
   annotations:
     metallb.io/load-balancer-ip: 10.0.0.101
 
-experimental:
-  plugins:
-    sablier:
-      moduleName: "github.com/sablierapp/sablier-traefik-plugin"
-      version: "v1.1.0"
+# experimental:
+#   plugins:
+#     sablier:
+#       moduleName: "github.com/sablierapp/sablier-traefik-plugin"
+#       version: "v1.1.0"

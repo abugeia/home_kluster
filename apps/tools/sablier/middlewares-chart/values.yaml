@@ -1,0 +1,43 @@
+# Liste des middlewares à générer
+# Chaque clé est le nom de l'application
+# duration: durée de la session Sablier
+# group: (optionnel) nom du groupe Sablier, par défaut le nom de l'app
+# theme: (optionnel) thème Sablier
+
+defaults:
+  theme: ghost
+  refreshFrequency: 2s
+  sablierUrl: http://sablier-sablier.tools.svc.cluster.local:10000
+
+apps:
+  webtop:
+    duration: 30m
+    group: "web.valab.top"
+  pgadmin:
+    duration: 30m
+    group: "pg.valab.top"
+    theme: hacker-terminal
+  superset:
+    duration: 30m
+    group: "superset.valab.top"
+  navidrome:
+    duration: 1h
+    group: "music.valab.top"
+    theme: hacker-terminal
+  metube:
+    duration: 1h
+    group: "metube.valab.top"
+    theme: hacker-terminal
+  filebrowser:
+    duration: 1h
+    group: "files.valab.top"
+  wetty-px:
+    duration: 30m
+    group: "px.valab.top"
+  wetty-k3s:
+    duration: 30m
+    group: "k3s.valab.top"
+  jellyfin:
+    duration: 1h
+    group: "jellyfin.valab.top"
+    theme: hacker-terminal
