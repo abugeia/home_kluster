@@ -1,0 +1,29 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base"
+  ],
+  "timezone": "Pacific/Noumea",
+  "schedule": [
+    "after 8am and before 9am on tuesday"
+  ],
+  "prHourlyLimit": 0,
+  "rangeStrategy": "bump",
+  "dependencyDashboard": true,
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "groupName": "all non-major dependencies",
+      "groupSlug": "all-minor-patch"
+    }
+  ],
+  "kubernetes": {
+    "fileMatch": ["\\.yaml$"]
+  },
+  "flux": {
+    "fileMatch": ["\\.yaml$"]
+  },
+  "helm-values": {
+    "fileMatch": ["values.yaml$"]
+  }
+}
