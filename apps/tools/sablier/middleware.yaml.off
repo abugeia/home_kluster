@@ -10,7 +10,7 @@ spec:
     sablier:
       sablierUrl: http://sablier-sablier.tools.svc.cluster.local:10000
       # Utilise le Host (ex: pg.valab.top) comme nom de groupe Sablier
-      group: '{{.Host}}'
+      group: 30m-group
       sessionDuration: 30m
       dynamic:
         displayName: '{{.Host}}'
@@ -29,7 +29,7 @@ spec:
   plugin:
     sablier:
       sablierUrl: http://sablier-sablier.tools.svc.cluster.local:10000
-      group: '{{.Host}}'
+      group: 1h-group
       sessionDuration: 1h
       dynamic:
         displayName: '{{.Host}}'

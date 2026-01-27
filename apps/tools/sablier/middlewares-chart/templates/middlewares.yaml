@@ -6,7 +6,14 @@ metadata:
   name: sablier-{{ $name }}
   namespace: tools
 spec:
-  forwardAuth:
-    address: {{ printf "%s/middleware/dynamic?name=%s&session_duration=%s" ($config.sablierUrl | default $.Values.defaults.sablierUrl) ($config.group | default $name) ($config.duration | default "30m") | quote }}
-    trustForwardHeader: true
+  plugin:
+    sablier:
+      sablierUrl: {{ $config.sablierUrl | default $.Values.defaults.sablierUrl }}
+      group: {{ $config.group | default $name | quote }}
+      sessionDuration: {{ $config.duration | default "30m" }}
+      dynamic:
+        displayName: {{ $config.group | default $name | quote }}
+        showDetails: true
+        theme: {{ $config.theme | default $.Values.defaults.theme }}
+        refreshFrequency: {{ $config.refreshFrequency | default $.Values.defaults.refreshFrequency }}
 {{- end }}
