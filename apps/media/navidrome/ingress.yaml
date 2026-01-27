@@ -4,7 +4,7 @@ metadata:
   name: navidrome
   namespace: media
   annotations:
-    traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd,tools-sablier-1h@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd,tools-sablier-navidrome@kubernetescrd
     gethomepage.dev/enabled: "true"
     gethomepage.dev/description: "Music Server"
     gethomepage.dev/group: "Media"

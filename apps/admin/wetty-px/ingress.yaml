@@ -5,7 +5,7 @@ metadata:
   name: wetty
   namespace: admin
   annotations:
-    traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd,tools-sablier-30m@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd,tools-sablier-wetty-px@kubernetescrd
     gethomepage.dev/enabled: "true"
     gethomepage.dev/description: "Web Terminal"
     gethomepage.dev/group: "Admin"

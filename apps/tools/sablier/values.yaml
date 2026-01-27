@@ -6,6 +6,9 @@
 provider:
   name: kubernetes
 
+sessions:
+  expiration-interval: 3m
+
 # Logging (optionnel)
 # Niveau de log pour le debugging
 logging:
