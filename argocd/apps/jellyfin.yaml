@@ -13,7 +13,7 @@ spec:
       targetRevision: main
       path: apps/media/jellyfin
       directory:
-        include: '{pvc.yaml,jellyfin-sso-setup-job.yaml}'
+        include: '{pvc.yaml,jellyfin-sso-setup-job.yaml,deployment-labels.yaml}'
     # Source 2: Helm chart with values from Git
     - repoURL: https://jellyfin.github.io/jellyfin-helm
       targetRevision: 2.7.0
@@ -35,20 +35,9 @@ spec:
     syncOptions:
       - PrunePropagationPolicy=foreground
       - PruneLast=true
+      - ServerSideApply=true
   ignoreDifferences:
     - group: apps
       kind: Deployment
       jsonPointers:
         - /spec/replicas
-  # Patch pour ajouter les labels Sablier au déploiement (non supporté par le chart)
-  patches:
-    - target:
-        kind: Deployment
-        name: jellyfin
-      patch: |
-        - op: add
-          path: /metadata/labels/sablier.enable
-          value: "true"
-        - op: add
-          path: /metadata/labels/sablier.group
-          value: "jellyfin.valab.top"

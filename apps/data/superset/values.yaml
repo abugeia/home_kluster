@@ -56,6 +56,9 @@ postgresql:
 # ==========================================================
 redis:
   enabled: true
+  commonLabels:
+    sablier.enable: "true"
+    sablier.group: "superset.valab.top"
   # ✅ Validé : Utiliser ECR est recommandé pour éviter les rate-limits Docker Hub
   image:
     registry: public.ecr.aws
@@ -145,7 +148,6 @@ configOverrides:
     from superset.security import SupersetSecurityManager
     
     logging.getLogger().setLevel(logging.DEBUG)
-
     AUTH_TYPE = AUTH_OAUTH
     
     # "Admin" est OK si tu es le seul utilisateur du Homelab.
@@ -172,7 +174,7 @@ configOverrides:
 
     # Superset refuse de créer un user s'il n'a pas username + email + first_name + last_name
     # PocketID envoie souvent juste 'name', donc on doit le découper nous-mêmes.
-    
+
     class PocketIDSecurityManager(SupersetSecurityManager):
         def oauth_user_info(self, provider, response=None):
             if provider == 'pocketid':
