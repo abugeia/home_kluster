@@ -1,7 +1,10 @@
+# Labels communs pour Sablier (éteindre app + workers + beat)
+# On utilise extraLabels à la racine car deploymentLabels n'est pas supporté par tous les composants (ex: celerybeat)
+extraLabels:
+  sablier.enable: "true"
+  sablier.group: "superset.valab.top"
+
 supersetNode:
-  deploymentLabels:
-    sablier.enable: "true"
-    sablier.group: "superset.valab.top"
   connections:
     # ✅ C'est CE champ qui configure le script wait-for-postgres
     db_host: "10.0.0.12"
@@ -79,16 +82,10 @@ redis:
 # Le "beat" lance les tâches planifiées (alertes, emails, cleanup)
 supersetCeleryBeat:
   enabled: true
-  deploymentLabels:
-    sablier.enable: "true"
-    sablier.group: "superset.valab.top"
 
 # Le "worker" exécute les requêtes SQL lourdes en arrière-plan
 supersetWorker:
   enabled: true
-  deploymentLabels:
-    sablier.enable: "true"
-    sablier.group: "superset.valab.top"
 
 # ==========================================================
 # 6. CONFIGURATION PYTHON & DRIVERS
@@ -174,7 +171,7 @@ configOverrides:
 
     # Superset refuse de créer un user s'il n'a pas username + email + first_name + last_name
     # PocketID envoie souvent juste 'name', donc on doit le découper nous-mêmes.
-
+    
     class PocketIDSecurityManager(SupersetSecurityManager):
         def oauth_user_info(self, provider, response=None):
             if provider == 'pocketid':
