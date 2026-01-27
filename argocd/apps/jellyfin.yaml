@@ -40,3 +40,15 @@ spec:
       kind: Deployment
       jsonPointers:
         - /spec/replicas
+  # Patch pour ajouter les labels Sablier au déploiement (non supporté par le chart)
+  patches:
+    - target:
+        kind: Deployment
+        name: jellyfin
+      patch: |
+        - op: add
+          path: /metadata/labels/sablier.enable
+          value: "true"
+        - op: add
+          path: /metadata/labels/sablier.group
+          value: "jellyfin.valab.top"

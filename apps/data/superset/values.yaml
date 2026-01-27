@@ -1,4 +1,7 @@
 supersetNode:
+  deploymentLabels:
+    sablier.enable: "true"
+    sablier.group: "superset.valab.top"
   connections:
     # ✅ C'est CE champ qui configure le script wait-for-postgres
     db_host: "10.0.0.12"
@@ -17,11 +20,6 @@ supersetNode:
 image:
   tag: 6.0.0
   pullPolicy: IfNotPresent
-
-# Labels communs pour Sablier (éteindre app + workers + beat)
-commonLabels:
-  sablier.enable: "true"
-  sablier.group: "superset.valab.top"
 
 # ==========================================================
 # 2. INGRESS & RESEAU
@@ -78,10 +76,16 @@ redis:
 # Le "beat" lance les tâches planifiées (alertes, emails, cleanup)
 supersetCeleryBeat:
   enabled: true
+  deploymentLabels:
+    sablier.enable: "true"
+    sablier.group: "superset.valab.top"
 
 # Le "worker" exécute les requêtes SQL lourdes en arrière-plan
 supersetWorker:
   enabled: true
+  deploymentLabels:
+    sablier.enable: "true"
+    sablier.group: "superset.valab.top"
 
 # ==========================================================
 # 6. CONFIGURATION PYTHON & DRIVERS
