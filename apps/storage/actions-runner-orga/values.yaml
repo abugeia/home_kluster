@@ -1,0 +1,11 @@
+gha-runner-scale-set:
+  githubConfigUrl: "https://github.com/scaledo"
+  githubConfigSecret: controller-manager
+  containerMode:
+    type: "dind"
+  minRunners: 0
+  maxRunners: 5
+  runnerScaleSetName: "scaledo-runner"
+  controllerServiceAccount:
+    namespace: storage
+    name: actions-runner-gha-rs-controller
