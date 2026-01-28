@@ -38,9 +38,9 @@ clickhouse:
     - name: admin
       password_secret_name: "clickhouse-auth-admin"
       hostIP: ["::/0", "0.0.0.0/0"]
-      accessManagement: 1
       grants:
         - "ALL ON *.*"
+        - "ACCESS MANAGEMENT"
 
     # User par défaut sécurisé (accès local uniquement)
     - name: default
@@ -55,9 +55,9 @@ clickhouse:
       password_secret_name: "clickhouse-auth-dataloader"
       hostIP: ["::/0", "0.0.0.0/0"]
       profile: "default"
-      accessManagement: 1
       grants:
         - "ALL ON *.*"
+        - "ACCESS MANAGEMENT"
 
     # User pour la visualisation (Superset)
     - name: superset
