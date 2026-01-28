@@ -7,6 +7,11 @@ podLabels:
   sablier.enable: "true"
   sablier.group: "jellyfin.valab.top"
 
+service:
+  labels:
+    sablier.enable: "true"
+    sablier.group: "jellyfin.valab.top"
+
 ingress:
   enabled: true
   annotations:
