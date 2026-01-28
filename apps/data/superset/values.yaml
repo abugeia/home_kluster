@@ -92,6 +92,8 @@ supersetWorker:
 # ==========================================================
 extraEnv:
   AUTH_DOMAIN: valab.top
+  NO_PROXY: "localhost,127.0.0.1,.svc,.svc.cluster.local,.cluster.local"
+  no_proxy: "localhost,127.0.0.1,.svc,.svc.cluster.local,.cluster.local"
 
 configOverrides:
   secret: |

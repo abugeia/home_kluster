@@ -20,10 +20,6 @@ apps:
   superset:
     duration: 30m
     group: "superset.valab.top"
-  navidrome:
-    duration: 1h
-    group: "music.valab.top"
-    theme: hacker-terminal
   metube:
     duration: 1h
     group: "metube.valab.top"
