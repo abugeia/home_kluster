@@ -31,13 +31,14 @@ spec:
         - name: moltbot
           image: harbor.valab.top/prod/moltbot:latest
           command:
-            - "node"
-            - "dist/index.js"
-            - "gateway"
-            - "--bind"
-            - "0.0.0.0"
-            - "--port"
+            - node
+            - dist/index.js
+            - gateway
+            - --bind
+            - 0.0.0.0
+            - --port
             - "18789"
+            - --allow-unconfigured
           env:
             - name: HOME
               value: /home/node
