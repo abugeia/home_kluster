@@ -1,0 +1,108 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: moltbot-pvc
+  namespace: moltbot
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: moltbot
+  namespace: moltbot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: moltbot
+  template:
+    metadata:
+      labels:
+        app: moltbot
+    spec:
+      containers:
+        - name: moltbot
+          image: harbor.valab.top/prod/moltbot:latest
+          command:
+            - "node"
+            - "dist/index.js"
+            - "gateway"
+            - "--bind"
+            - "0.0.0.0"
+            - "--port"
+            - "18789"
+          env:
+            - name: HOME
+              value: /home/node
+            - name: CLAWDBOT_GATEWAY_PORT
+              value: "18789"
+            - name: CLAWDBOT_GATEWAY_BIND
+              value: "0.0.0.0"
+          envFrom:
+            - secretRef:
+                name: moltbot-secrets
+          ports:
+            - name: gateway
+              containerPort: 18789
+            - name: bridge
+              containerPort: 18790
+          volumeMounts:
+            - name: data
+              mountPath: /home/node
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: moltbot-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: moltbot
+  namespace: moltbot
+spec:
+  selector:
+    app: moltbot
+  ports:
+    - name: http
+      port: 18789
+      targetPort: gateway
+    - name: bridge
+      port: 18790
+      targetPort: bridge
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: moltbot
+  namespace: moltbot
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/description: "AI Personal Assistant & Gateway"
+    gethomepage.dev/group: "AI"
+    gethomepage.dev/icon: "https://raw.githubusercontent.com/moltbot/moltbot/main/ui/public/logo.png"
+    gethomepage.dev/name: "Moltbot"
+    gethomepage.dev/href: "https://molt.valab.top"
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - molt.valab.top
+      secretName: molt-tls
+  rules:
+    - host: molt.valab.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: moltbot
+                port:
+                  name: http
