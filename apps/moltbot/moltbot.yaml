@@ -35,7 +35,7 @@ spec:
             - dist/index.js
             - gateway
             - --bind
-            - 0.0.0.0
+            - "lan"
             - --port
             - "18789"
             - --allow-unconfigured
@@ -45,7 +45,7 @@ spec:
             - name: CLAWDBOT_GATEWAY_PORT
               value: "18789"
             - name: CLAWDBOT_GATEWAY_BIND
-              value: "0.0.0.0"
+              value: "lan"
           envFrom:
             - secretRef:
                 name: moltbot-secrets
