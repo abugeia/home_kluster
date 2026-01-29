@@ -27,6 +27,26 @@ spec:
     spec:
       imagePullSecrets:
         - name: harbor-cicd-secret
+      initContainers:
+        - name: init-config
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |
+              mkdir -p /home/node/.moltbot
+              if [ ! -f /home/node/.moltbot/moltbot.json ]; then
+                echo '{"gateway": {"auth": {"mode": "token", "token": "'"$CLAWDBOT_GATEWAY_TOKEN"'"}, "trustedProxies": ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]}}' > /home/node/.moltbot/moltbot.json
+              else
+                # Mise à jour des trustedProxies si le fichier existe déjà
+                sed -i 's/"trustedProxies": \[.*\]/"trustedProxies": ["10.0.0.0\/8", "172.16.0.0\/12", "192.168.0.0\/16"]/' /home/node/.moltbot/moltbot.json
+              fi
+          envFrom:
+            - secretRef:
+                name: moltbot-secrets
+          volumeMounts:
+            - mountPath: /home/node
+              name: data
       containers:
         - name: moltbot
           image: harbor.valab.top/prod/moltbot:latest
@@ -38,7 +58,6 @@ spec:
             - "lan"
             - --port
             - "18789"
-            - --allow-unconfigured
           env:
             - name: HOME
               value: /home/node
