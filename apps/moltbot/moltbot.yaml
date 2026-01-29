@@ -36,10 +36,12 @@ spec:
             - |
               mkdir -p /home/node/.moltbot
               if [ ! -f /home/node/.moltbot/moltbot.json ]; then
-                echo '{"gateway": {"auth": {"mode": "token", "token": "'"$CLAWDBOT_GATEWAY_TOKEN"'"}, "trustedProxies": ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]}}' > /home/node/.moltbot/moltbot.json
+                echo '{"gateway": {"mode": "local", "auth": {"mode": "token", "token": "'"$CLAWDBOT_GATEWAY_TOKEN"'"}, "trustedProxies": ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]}}' > /home/node/.moltbot/moltbot.json
               else
-                # Mise à jour des trustedProxies si le fichier existe déjà
+                # Mise à jour des trustedProxies et du mode si le fichier existe déjà
                 sed -i 's/"trustedProxies": \[.*\]/"trustedProxies": ["10.0.0.0\/8", "172.16.0.0\/12", "192.168.0.0\/16"]/' /home/node/.moltbot/moltbot.json
+                # On s'assure que le mode est présent via une insertion brute si besoin (plus simple de réécrire la ligne gateway pour un petit JSON)
+                echo '{"gateway": {"mode": "local", "auth": {"mode": "token", "token": "'"$CLAWDBOT_GATEWAY_TOKEN"'"}, "trustedProxies": ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]}}' > /home/node/.moltbot/moltbot.json
               fi
           envFrom:
             - secretRef:
