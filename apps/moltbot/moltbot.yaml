@@ -25,6 +25,8 @@ spec:
       labels:
         app: moltbot
     spec:
+      imagePullSecrets:
+        - name: harbor-cicd-secret
       containers:
         - name: moltbot
           image: harbor.valab.top/prod/moltbot:latest
