@@ -48,6 +48,10 @@ spec:
           volumeMounts:
             - mountPath: /home/node
               name: data
+      hostAliases:
+        - ip: "157.240.8.53"
+          hostnames:
+            - "g.whatsapp.net"
       containers:
         - name: openclaw
           image: harbor.valab.top/prod/openclaw:latest
