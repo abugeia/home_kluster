@@ -1,8 +1,8 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: moltbot-pvc
-  namespace: moltbot
+  name: openclaw-pvc
+  namespace: openclaw
 spec:
   accessModes:
     - ReadWriteOnce
@@ -13,17 +13,17 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: moltbot
-  namespace: moltbot
+  name: openclaw
+  namespace: openclaw
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: moltbot
+      app: openclaw
   template:
     metadata:
       labels:
-        app: moltbot
+        app: openclaw
     spec:
       imagePullSecrets:
         - name: harbor-cicd-secret
@@ -34,24 +34,22 @@ spec:
             - sh
             - -c
             - |
-              mkdir -p /home/node/.moltbot
-              if [ ! -f /home/node/.moltbot/moltbot.json ]; then
-                echo '{"gateway": {"mode": "local", "auth": {"mode": "token", "token": "'"$CLAWDBOT_GATEWAY_TOKEN"'"}, "trustedProxies": ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]}}' > /home/node/.moltbot/moltbot.json
+              mkdir -p /home/node/.openclaw
+              if [ ! -f /home/node/.openclaw/openclaw.json ]; then
+                echo '{"gateway": {"mode": "local", "auth": {"mode": "token", "token": "'"$OPENCLAW_GATEWAY_TOKEN"'"}, "trustedProxies": ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]}}' > /home/node/.openclaw/openclaw.json
               else
-                # Mise à jour des trustedProxies et du mode si le fichier existe déjà
-                sed -i 's/"trustedProxies": \[.*\]/"trustedProxies": ["10.0.0.0\/8", "172.16.0.0\/12", "192.168.0.0\/16"]/' /home/node/.moltbot/moltbot.json
-                # On s'assure que le mode est présent via une insertion brute si besoin (plus simple de réécrire la ligne gateway pour un petit JSON)
-                echo '{"gateway": {"mode": "local", "auth": {"mode": "token", "token": "'"$CLAWDBOT_GATEWAY_TOKEN"'"}, "trustedProxies": ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]}}' > /home/node/.moltbot/moltbot.json
+                # On s'assure que le mode est présent et les trustedProxies sont à jour
+                echo '{"gateway": {"mode": "local", "auth": {"mode": "token", "token": "'"$OPENCLAW_GATEWAY_TOKEN"'"}, "trustedProxies": ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]}}' > /home/node/.openclaw/openclaw.json
               fi
           envFrom:
             - secretRef:
-                name: moltbot-secrets
+                name: openclaw-secrets
           volumeMounts:
             - mountPath: /home/node
               name: data
       containers:
-        - name: moltbot
-          image: harbor.valab.top/prod/moltbot:latest
+        - name: openclaw
+          image: harbor.valab.top/prod/openclaw:latest
           command:
             - node
             - dist/index.js
@@ -63,15 +61,15 @@ spec:
           env:
             - name: HOME
               value: /home/node
-            - name: CLAWDBOT_GATEWAY_PORT
+            - name: OPENCLAW_GATEWAY_PORT
               value: "18789"
-            - name: CLAWDBOT_GATEWAY_BIND
+            - name: OPENCLAW_GATEWAY_BIND
               value: "lan"
-            - name: CLAWDBOT_GATEWAY_TRUSTED_PROXIES
+            - name: OPENCLAW_GATEWAY_TRUSTED_PROXIES
               value: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
           envFrom:
             - secretRef:
-                name: moltbot-secrets
+                name: openclaw-secrets
           ports:
             - name: gateway
               containerPort: 18789
@@ -83,16 +81,16 @@ spec:
       volumes:
         - name: data
           persistentVolumeClaim:
-            claimName: moltbot-pvc
+            claimName: openclaw-pvc
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: moltbot
-  namespace: moltbot
+  name: openclaw
+  namespace: openclaw
 spec:
   selector:
-    app: moltbot
+    app: openclaw
   ports:
     - name: http
       port: 18789
@@ -104,15 +102,15 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: moltbot
-  namespace: moltbot
+  name: openclaw
+  namespace: openclaw
   annotations:
     traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
     gethomepage.dev/enabled: "true"
     gethomepage.dev/description: "AI Personal Assistant & Gateway"
     gethomepage.dev/group: "AI"
-    gethomepage.dev/icon: "https://raw.githubusercontent.com/moltbot/moltbot/main/ui/public/logo.png"
-    gethomepage.dev/name: "Moltbot"
+    gethomepage.dev/icon: "https://raw.githubusercontent.com/openclaw/openclaw/main/ui/public/logo.png"
+    gethomepage.dev/name: "OpenClaw"
     gethomepage.dev/href: "https://molt.valab.top"
     cert-manager.io/cluster-issuer: letsencrypt
 spec:
@@ -120,7 +118,7 @@ spec:
   tls:
     - hosts:
         - molt.valab.top
-      secretName: molt-tls
+      secretName: openclaw-tls
   rules:
     - host: molt.valab.top
       http:
@@ -129,6 +127,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: moltbot
+                name: openclaw
                 port:
                   name: http
