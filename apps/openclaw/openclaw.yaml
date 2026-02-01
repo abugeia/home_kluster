@@ -111,16 +111,16 @@ metadata:
     gethomepage.dev/group: "AI"
     gethomepage.dev/icon: "https://raw.githubusercontent.com/openclaw/openclaw/main/ui/public/logo.png"
     gethomepage.dev/name: "OpenClaw"
-    gethomepage.dev/href: "https://molt.valab.top"
+    gethomepage.dev/href: "https://openclaw.valab.top"
     cert-manager.io/cluster-issuer: letsencrypt
 spec:
   ingressClassName: traefik
   tls:
     - hosts:
-        - molt.valab.top
+        - openclaw.valab.top
       secretName: openclaw-tls
   rules:
-    - host: molt.valab.top
+    - host: openclaw.valab.top
       http:
         paths:
           - path: /
