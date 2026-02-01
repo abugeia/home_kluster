@@ -81,10 +81,15 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /home/node
+            - name: dshm
+              mountPath: /dev/shm
       volumes:
         - name: data
           persistentVolumeClaim:
             claimName: openclaw-pvc
+        - name: dshm
+          emptyDir:
+            medium: Memory
 ---
 apiVersion: v1
 kind: Service
