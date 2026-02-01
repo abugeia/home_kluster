@@ -84,6 +84,6 @@ metadata:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: moltbot
+  name: openclaw
   labels:
     replicate-harbor-cicd: "true"
