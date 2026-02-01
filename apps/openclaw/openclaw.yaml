@@ -78,6 +78,13 @@ spec:
               containerPort: 18789
             - name: bridge
               containerPort: 18790
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
           volumeMounts:
             - name: data
               mountPath: /home/node
