@@ -36,10 +36,10 @@ spec:
             - |
               mkdir -p /home/node/.openclaw
               if [ ! -f /home/node/.openclaw/openclaw.json ]; then
-                echo '{"gateway": {"mode": "local", "auth": {"mode": "token", "token": "'"$OPENCLAW_GATEWAY_TOKEN"'"}, "trustedProxies": ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]}}' > /home/node/.openclaw/openclaw.json
+                echo '{"gateway": {"mode": "local", "auth": {"mode": "token", "token": "'"$OPENCLAW_GATEWAY_TOKEN"'"}, "trustedProxies": ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]}, "channels": {"whatsapp": {"enabled": true}}}' > /home/node/.openclaw/openclaw.json
               else
                 # On s'assure que le mode est présent et les trustedProxies sont à jour
-                echo '{"gateway": {"mode": "local", "auth": {"mode": "token", "token": "'"$OPENCLAW_GATEWAY_TOKEN"'"}, "trustedProxies": ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]}}' > /home/node/.openclaw/openclaw.json
+                echo '{"gateway": {"mode": "local", "auth": {"mode": "token", "token": "'"$OPENCLAW_GATEWAY_TOKEN"'"}, "trustedProxies": ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]}, "channels": {"whatsapp": {"enabled": true}}}' > /home/node/.openclaw/openclaw.json
               fi
               chown -R 1000:1000 /home/node/.openclaw
           envFrom:
