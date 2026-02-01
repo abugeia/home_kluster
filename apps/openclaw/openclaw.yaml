@@ -48,10 +48,6 @@ spec:
           volumeMounts:
             - mountPath: /home/node
               name: data
-      hostAliases:
-        - ip: "157.240.8.53"
-          hostnames:
-            - "g.whatsapp.net"
       containers:
         - name: openclaw
           image: harbor.valab.top/prod/openclaw:latest
@@ -88,7 +84,7 @@ spec:
               memory: 256Mi
             limits:
               cpu: 1000m
-              memory: 2.5Gi
+              memory: 4Gi
           volumeMounts:
             - name: data
               mountPath: /home/node
