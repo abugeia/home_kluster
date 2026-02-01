@@ -68,6 +68,8 @@ spec:
               value: "lan"
             - name: OPENCLAW_GATEWAY_TRUSTED_PROXIES
               value: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+            - name: NODE_OPTIONS
+              value: "--dns-result-order=ipv4first"
           envFrom:
             - secretRef:
                 name: openclaw-secrets
