@@ -29,9 +29,18 @@ spec:
       labels:
         app: webtop
     spec:
+      initContainers:
+        - name: fix-permissions
+          image: busybox
+          command: ["sh", "-c", "chown -R 1000:1000 /config"]
+          volumeMounts:
+            - name: config
+              mountPath: /config
       containers:
         - name: webtop
           image: lscr.io/linuxserver/webtop:latest
+          tty: true
+          stdin: true
           env:
             - name: PUID
               value: "1000"
