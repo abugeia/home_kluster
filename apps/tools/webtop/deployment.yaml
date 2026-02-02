@@ -45,16 +45,21 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /config
+            - name: dshm
+              mountPath: /dev/shm
           resources:
             requests:
               cpu: 100m
               memory: 256Mi
             limits:
               cpu: 2000m
-              memory: 3Gi
+              memory: 4Gi
           securityContext:
             privileged: true # Often needed for webtop hardware acceleration/compatibility
       volumes:
         - name: config
           persistentVolumeClaim:
             claimName: webtop-config
+        - name: dshm
+          emptyDir:
+            medium: Memory
