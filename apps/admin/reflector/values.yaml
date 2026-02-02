@@ -5,3 +5,11 @@ configuration:
   # On peut restreindre si besoin, mais par défaut il surveille tout
   watcher:
     namespaces: []
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 64Mi
+  requests:
+    cpu: 10m
+    memory: 32Mi
