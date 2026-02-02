@@ -5,6 +5,12 @@
 
 replicaCount: 1
 
+# Labels pour Sablier au niveau du Deployment
+commonLabels:
+  sablier.enable: "true"
+  sablier.group: "pg.valab.top"
+
+
 image:
   registry: docker.io
   repository: dpage/pgadmin4
