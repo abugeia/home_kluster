@@ -16,6 +16,10 @@ spec:
   mountOptions:
     - nfsvers=4.1
     - hard
+    - noresvport
+    - lookupcache=none
+    - timeo=600
+    - retrans=2
   csi:
     driver: nfs.csi.k8s.io
     volumeHandle: pve-hdd-video
@@ -37,6 +41,10 @@ spec:
   mountOptions:
     - nfsvers=4.1
     - hard
+    - noresvport
+    - lookupcache=none
+    - timeo=600
+    - retrans=2
   csi:
     driver: nfs.csi.k8s.io
     volumeHandle: pve-hdd-data
@@ -79,6 +87,10 @@ spec:
   mountOptions:
     - nfsvers=4.1
     - hard
+    - noresvport
+    - lookupcache=none
+    - timeo=600
+    - retrans=2
   csi:
     driver: nfs.csi.k8s.io
     volumeHandle: pve-hdd-import

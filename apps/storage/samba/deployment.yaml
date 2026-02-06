@@ -52,6 +52,15 @@ spec:
           mountPath: /share/zfs/import
         - name: nvme
           mountPath: /share/nvme
+        livenessProbe:
+          exec:
+            command:
+            - ls
+            - /share/zfs/data
+          initialDelaySeconds: 60
+          periodSeconds: 300
+          timeoutSeconds: 30
+          failureThreshold: 1
       volumes:
       - name: video
         persistentVolumeClaim:
