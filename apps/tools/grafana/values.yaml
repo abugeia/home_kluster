@@ -7,6 +7,18 @@ persistence:
   size: 1Gi
   storageClassName: nfs-csi-nvme
 
+# Init container pour corriger les permissions NFS
+extraInitContainers:
+  - name: fix-fs-permissions
+    image: busybox:latest
+    command: ["/bin/sh", "-c"]
+    args: ["chown -R 472:472 /var/lib/grafana"]
+    securityContext:
+      runAsUser: 0
+    volumeMounts:
+      - name: storage
+        mountPath: /var/lib/grafana
+
 # Ressources adaptées à un home lab
 resources:
   requests:
