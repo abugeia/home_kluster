@@ -52,7 +52,7 @@ spec:
             - name: config
               mountPath: /database
             - name: immich-library
-              mountPath: /srv/immich-media
+              mountPath: /srv/immich
           resources:
             requests:
               memory: "64Mi"
