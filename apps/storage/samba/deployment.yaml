@@ -19,7 +19,7 @@ spec:
         args:
           - "-p"
           - "-g"
-          - "force user = root"
+          - "force user = root;socket options = TCP_NODELAY;aio read size = 1;getwd cache = yes;use sendfile = yes"
           # Syntaxe -s : "Nom;Chemin;Visible;LectureSeule;Invite;Utilisateurs"
           - "-s"
           - "Data_ZFS;/share/zfs;yes;no;no;user"
