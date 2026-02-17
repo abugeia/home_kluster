@@ -17,7 +17,7 @@ spec:
     - nfsvers=4.1
     - hard
     - noresvport
-    - lookupcache=none
+    - noatime
     - timeo=600
     - retrans=2
   csi:
@@ -42,7 +42,7 @@ spec:
     - nfsvers=4.1
     - hard
     - noresvport
-    - lookupcache=none
+    - noatime
     - timeo=600
     - retrans=2
   csi:
@@ -88,7 +88,7 @@ spec:
     - nfsvers=4.1
     - hard
     - noresvport
-    - lookupcache=none
+    - noatime
     - timeo=600
     - retrans=2
   csi:
@@ -112,6 +112,7 @@ spec:
   mountOptions:
     - nfsvers=4.1
     - hard
+    - noatime
   csi:
     driver: nfs.csi.k8s.io
     volumeHandle: pve-nvme-root
