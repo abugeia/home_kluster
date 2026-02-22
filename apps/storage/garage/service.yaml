@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: garage
+  namespace: storage
+spec:
+  ports:
+    - name: s3-api
+      port: 3900
+      targetPort: 3900
+    - name: s3-web
+      port: 3902
+      targetPort: 3902
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: garage
+  namespace: storage
+subsets:
+  - addresses:
+      - ip: 10.0.0.14
+    ports:
+      - name: s3-api
+        port: 3900
+      - name: s3-web
+        port: 3902
