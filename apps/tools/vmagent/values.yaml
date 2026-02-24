@@ -72,7 +72,7 @@ config:
     # 4. Scrape des hôtes externes (Proxmox + LXC)
     - job_name: 'external-nodes'
       static_configs:
-        - targets: ['10.0.0.10:9100', '10.0.0.12:9100', '10.0.0.13:9100', '10.0.0.14:9100']
+        - targets: ['10.0.0.10:9100', '10.0.0.11:9100', '10.0.0.12:9100', '10.0.0.13:9100', '10.0.0.14:9100']
           labels:
             env: 'prod'
 
