@@ -68,6 +68,23 @@ config:
           regex: (.+)
           target_label: __metrics_path__
           replacement: /api/v1/nodes/$1/proxy/metrics/cadvisor
+
+    # 4. Scrape des hôtes externes (Proxmox + LXC)
+    - job_name: 'external-nodes'
+      static_configs:
+        - targets: ['10.0.0.10:9100', '10.0.0.12:9100', '10.0.0.13:9100', '10.0.0.14:9100']
+          labels:
+            env: 'prod'
+
+    # 5. Scrape applicatif Garage
+    - job_name: 'garage'
+      static_configs:
+        - targets: ['10.0.0.14:3903']
+
+    # 6. Scrape applicatif Postgres
+    - job_name: 'postgres'
+      static_configs:
+        - targets: ['10.0.0.12:9187']
 # vmagent est extrêmement léger
 resources:
   requests:
