@@ -16,6 +16,16 @@ resources:
     cpu: 200m
     memory: 256Mi
 
+# Correction des permissions pour NFS
+securityContext:
+  runAsNonRoot: false
+  runAsUser: 472
+  runAsGroup: 472
+  fsGroup: 472
+
+initChownData:
+  enabled: true
+
 # Ingress pour accès via Traefik
 ingress:
   enabled: true
