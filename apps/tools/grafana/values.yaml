@@ -17,10 +17,12 @@ resources:
     memory: 256Mi
 
 # Correction des permissions pour NFS
-securityContext:
-  runAsNonRoot: false
+containerSecurityContext:
+  runAsNonRoot: true
   runAsUser: 472
   runAsGroup: 472
+
+securityContext:
   fsGroup: 472
 
 initChownData:
