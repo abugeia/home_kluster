@@ -28,7 +28,6 @@ artifactRoot:
     bucket: "mlflow"
     path: ""
 
-    # Credentials S3 via Sealed Secret existant
     existingSecret:
       name: "mlflow-s3-secrets"
       keyOfAccessKeyId: "access-key"
@@ -45,7 +44,7 @@ mysql:
 extraEnvVars:
   MLFLOW_S3_ENDPOINT_URL: "http://garage.storage.svc.cluster.local:3900"
   MLFLOW_S3_IGNORE_TLS: "true"
-  MLFLOW_ALLOWED_HOSTS: "mlflow.valab.top,mlflow.ai.svc.cluster.local,localhost"
+  MLFLOW_SERVER_ALLOWED_HOSTS: "*.valab.top,mlflow.ai.svc.cluster.local,localhost"
 
 # --- Service ---
 service:
