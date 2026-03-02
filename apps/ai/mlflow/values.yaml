@@ -1,0 +1,69 @@
+# MLflow Helm Values - Boten Anna
+# Chart: community-charts/mlflow v1.8.1
+
+# --- Backend Store (PostgreSQL externe - LXC Proxmox) ---
+backendStore:
+  databaseMigration: true
+  databaseConnectionCheck: true
+
+  postgres:
+    enabled: true
+    host: "10.0.0.12"
+    port: 5432
+    database: "mlflow_db"
+    user: "mlflow"
+    password: ""  # Ignoré car on utilise existingDatabaseSecret
+
+  existingDatabaseSecret:
+    name: "mlflow-pg-secret"    # Créé automatiquement par Ansible
+    usernameKey: "username"
+    passwordKey: "password"
+
+# --- Artifact Store (S3 Garage - LXC Proxmox) ---
+artifactRoot:
+  proxiedArtifactStorage: true
+
+  s3:
+    enabled: true
+    bucket: "mlflow"
+    path: ""
+
+    # Credentials S3 via Sealed Secret existant
+    existingSecret:
+      name: "mlflow-s3-secrets"
+      keyOfAccessKeyId: "access-key"
+      keyOfSecretAccessKey: "secret-key"
+
+# Désactiver les sous-charts BDD intégrés
+postgresql:
+  enabled: false
+
+mysql:
+  enabled: false
+
+# --- Variables d'environnement supplémentaires ---
+extraEnvVars:
+  MLFLOW_S3_ENDPOINT_URL: "http://10.0.0.14:3900"
+  MLFLOW_S3_IGNORE_TLS: "true"
+
+# --- Service ---
+service:
+  type: ClusterIP
+  port: 5000
+
+# --- Ingress (mlflow.valab.top avec SSO TinyAuth) ---
+ingress:
+  enabled: true
+  className: traefik
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
+  hosts:
+    - host: mlflow.valab.top
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - hosts:
+        - mlflow.valab.top
+      secretName: mlflow-tls

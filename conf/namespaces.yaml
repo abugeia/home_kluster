@@ -87,3 +87,8 @@ metadata:
   name: openclaw
   labels:
     replicate-harbor-cicd: "true"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ai
