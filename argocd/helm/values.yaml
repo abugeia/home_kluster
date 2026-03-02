@@ -48,6 +48,9 @@ configs:
     server.insecure: true
   cm:
     kustomize.buildOptions: "--enable-helm"
+    # Désactiver l'exclusion par défaut des Endpoints pour pouvoir
+    # gérer des Service + Endpoints manuels (services externes : Garage, etc.)
+    resource.exclusions: ""
     # User pour le widget Homepage
     accounts.homepage: apiKey
     # fix du problème "Progressing" des Ingress dans ArgoCD quand on a pas de loadbalancer cf TROUBLESHOOTING.md
