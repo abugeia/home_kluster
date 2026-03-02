@@ -43,8 +43,9 @@ mysql:
 
 # --- Variables d'environnement supplémentaires ---
 extraEnvVars:
-  MLFLOW_S3_ENDPOINT_URL: "http://10.0.0.14:3900"
+  MLFLOW_S3_ENDPOINT_URL: "http://garage.storage.svc.cluster.local:3900"
   MLFLOW_S3_IGNORE_TLS: "true"
+  MLFLOW_ALLOWED_HOSTS: "mlflow.valab.top,mlflow.ai.svc.cluster.local,localhost"
 
 # --- Service ---
 service:

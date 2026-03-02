@@ -1,3 +1,7 @@
+# Service headless pour exposer le LXC Garage (10.0.0.14) dans le cluster K8s.
+# Pattern standard K8s : Service sans selector + Endpoints manuels.
+# Note : nécessite que resource.exclusions soit vidé dans la config ArgoCD
+# (par défaut ArgoCD exclut les Endpoints).
 apiVersion: v1
 kind: Service
 metadata:
