@@ -12,7 +12,7 @@ clickhouse:
   # Configuration de l'image (utilisant ECR pour éviter les quotas Docker Hub)
   image:
     repository: public.ecr.aws/altinity/altinity/clickhouse-server
-    tag: "23.8.15.35"
+    tag: "25.8.3.66"
 
   # Configuration de la persistence
   persistence:
