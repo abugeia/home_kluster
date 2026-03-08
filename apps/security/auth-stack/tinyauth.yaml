@@ -54,16 +54,13 @@ spec:
                 secretKeyRef:
                   name: auth-secrets
                   key: pocket-client-id
+            - name: TINYAUTH_DATABASE_PATH
+              value: "/data/tinyauth.db"
             - name: TINYAUTH_OAUTH_PROVIDERS_POCKETID_CLIENTSECRET
               valueFrom:
                 secretKeyRef:
                   name: auth-secrets
                   key: pocket-client-secret
-            - name: TINYAUTH_AUTH_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: auth-secrets
-                  key: tinyauth-secret
             - name: TINYAUTH_OIDC_PRIVATEKEYPATH
               value: "/data/tinyauth_oidc_key"
             - name: TINYAUTH_OAUTH_WHITELIST
