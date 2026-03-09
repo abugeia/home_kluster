@@ -29,13 +29,19 @@ spec:
       labels:
         app: webtop
     spec:
-      securityContext:
-        seccompProfile:
-          type: Unconfined
       initContainers:
         - name: fix-permissions
           image: busybox
           command: ["sh", "-c", "chown -R 1000:1000 /config"]
+          volumeMounts:
+            - name: config
+              mountPath: /config
+        - name: cleanup-chrome-locks
+          image: busybox
+          command:
+            - sh
+            - -c
+            - find /config -name 'SingletonLock' -o -name 'SingletonSocket' -o -name 'SingletonCookie' | xargs -r rm -f
           volumeMounts:
             - name: config
               mountPath: /config
