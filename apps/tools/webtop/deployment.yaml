@@ -29,6 +29,9 @@ spec:
       labels:
         app: webtop
     spec:
+      securityContext:
+        seccompProfile:
+          type: Unconfined
       initContainers:
         - name: fix-permissions
           image: busybox
