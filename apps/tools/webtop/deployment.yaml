@@ -36,6 +36,15 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /config
+        - name: cleanup-chrome-locks
+          image: busybox
+          command:
+            - sh
+            - -c
+            - find /config -name 'SingletonLock' -o -name 'SingletonSocket' -o -name 'SingletonCookie' | xargs -r rm -f
+          volumeMounts:
+            - name: config
+              mountPath: /config
       containers:
         - name: webtop
           image: lscr.io/linuxserver/webtop:latest
