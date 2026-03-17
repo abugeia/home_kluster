@@ -28,9 +28,12 @@ logs:
   access:
     enabled: true
 
-# PERSISTANCE : Désactivée car les certifs sont dans des Secrets K8s (cert-manager)
+# PERSISTANCE : Activée sur /plugins-storage pour stabiliser les plugins (Sablier)
 persistence:
-  enabled: false
+  enabled: true
+  accessMode: ReadWriteOnce
+  size: 1Gi
+  path: /plugins-storage
 
 ports:
   web:

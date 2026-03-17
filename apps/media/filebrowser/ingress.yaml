@@ -5,6 +5,7 @@ metadata:
   namespace: media
   annotations:
     kubernetes.io/ingress.class: traefik
+    # Middleware Sablier pour le réveil auto + TinyAuth pour protéger l'admin
     traefik.ingress.kubernetes.io/router.middlewares: tools-sablier-filebrowser@kubernetescrd,security-tinyauth-protect@kubernetescrd
     gethomepage.dev/enabled: "true"
     gethomepage.dev/description: "Web File Manager"
@@ -37,7 +38,11 @@ metadata:
   namespace: media
   annotations:
     kubernetes.io/ingress.class: traefik
-    # Pas de middleware TinyAuth ici, uniquement Sablier si nécessaire
+    # EXPLICATION PRIORITÉ : 
+    # Traefik matche par défaut le chemin le plus long ou le premier défini.
+    # En mettant une priorité de 100 ici, on force Traefik à évaluer /share AVANT la racine /.
+    # Cela permet d'appliquer uniquement le middleware Sablier (sans TinyAuth) pour les partages.
+    traefik.ingress.kubernetes.io/router.priority: "100"
     traefik.ingress.kubernetes.io/router.middlewares: tools-sablier-filebrowser@kubernetescrd
     cert-manager.io/cluster-issuer: letsencrypt
 spec:
