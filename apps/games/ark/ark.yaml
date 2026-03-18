@@ -149,6 +149,15 @@ spec:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
+      initContainers:
+        - name: fix-permissions
+          image: busybox:latest
+          securityContext:
+            runAsUser: 0
+          command: ["sh", "-c", "chown -R 1000:1000 /database"]
+          volumeMounts:
+            - name: config
+              mountPath: /database
       containers:
         - name: filebrowser
           image: filebrowser/filebrowser:latest
