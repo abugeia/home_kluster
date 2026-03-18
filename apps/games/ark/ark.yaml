@@ -13,12 +13,15 @@ spec:
       labels:
         app: ark-server
     spec:
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
       initContainers:
         - name: fix-permissions
           image: busybox:latest
           securityContext:
             runAsUser: 0
-          command: ["sh", "-c", "chown -R 1000:1000 /app && chmod -R 755 /app"]
+          command: ["sh", "-c", "if [ \"$(stat -c %u /app)\" != \"1000\" ]; then echo 'Fixing permissions...'; chown -R 1000:1000 /app && chmod -R 755 /app; else echo 'Permissions already correct'; fi"]
           volumeMounts:
             - name: ark-data
               mountPath: /app
