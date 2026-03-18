@@ -54,17 +54,35 @@ spec:
                 secretKeyRef:
                   name: ark-secrets
                   key: ADMIN_PASSWORD
+            - name: ARK_ADMIN_PASSWORD # Ajout du prefixe pour compatibilité arkmanager
+              valueFrom:
+                secretKeyRef:
+                  name: ark-secrets
+                  key: ADMIN_PASSWORD
             - name: SERVER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ark-secrets
+                  key: SERVER_PASSWORD
+            - name: ARK_SERVER_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: ark-secrets
                   key: SERVER_PASSWORD
             - name: MAX_PLAYERS
               value: "20"
+            - name: ARK_MAX_PLAYERS
+              value: "20"
             - name: UPDATE_ON_START
               value: "true"
             - name: BACKUP_ON_STOP
               value: "true"
+            - name: GAME_CLIENT_PORT
+              value: "7777"
+            - name: SERVER_LIST_PORT
+              value: "27015"
+            - name: UDP_SOCKET_PORT
+              value: "7778"
           volumeMounts:
             - name: ark-data
               mountPath: /app
@@ -104,13 +122,16 @@ spec:
     requests:
       storage: 20Gi
 ---
+---
+# Service UDP (Game, Query, Raw)
 apiVersion: v1
 kind: Service
 metadata:
-  name: ark-server
+  name: ark-server-udp
   namespace: games
   annotations:
     metallb.io/load-balancer-ip: 10.0.0.105
+    metallb.universe.tf/allow-shared-ip: "ark-shared-ip"
 spec:
   type: LoadBalancer
   selector:
@@ -128,6 +149,21 @@ spec:
       port: 27015
       targetPort: 27015
       protocol: UDP
+---
+# Service TCP (RCON)
+apiVersion: v1
+kind: Service
+metadata:
+  name: ark-server-tcp
+  namespace: games
+  annotations:
+    metallb.io/load-balancer-ip: 10.0.0.105
+    metallb.universe.tf/allow-shared-ip: "ark-shared-ip"
+spec:
+  type: LoadBalancer
+  selector:
+    app: ark-server
+  ports:
     - name: rcon
       port: 27020
       targetPort: 27020
