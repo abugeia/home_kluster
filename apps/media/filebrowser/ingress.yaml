@@ -61,3 +61,10 @@ spec:
                 name: filebrowser
                 port:
                   number: 80
+          - path: /api/public/dl
+            pathType: Prefix
+            backend:
+              service:
+                name: filebrowser
+                port:
+                  number: 80
