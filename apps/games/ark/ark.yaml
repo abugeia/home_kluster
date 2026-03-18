@@ -1,0 +1,124 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ark-server
+  namespace: games
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ark-server
+  template:
+    metadata:
+      labels:
+        app: ark-server
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: ark-server
+          image: hermsi/ark-server:latest
+          ports:
+            - containerPort: 7777
+              protocol: UDP
+            - containerPort: 7778
+              protocol: UDP
+            - containerPort: 27015
+              protocol: UDP
+            - containerPort: 27020
+              protocol: TCP
+          env:
+            - name: SESSION_NAME
+              value: "ARK Server via Kubernetes"
+            - name: SERVER_MAP
+              value: "TheIsland"
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ark-secrets
+                  key: ADMIN_PASSWORD
+            - name: SERVER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ark-secrets
+                  key: SERVER_PASSWORD
+            - name: MAX_PLAYERS
+              value: "20"
+            - name: UPDATE_ON_START
+              value: "false"
+            - name: BACKUP_ON_STOP
+              value: "true"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: ark-data
+              mountPath: /app
+            - name: ark-backups
+              mountPath: /home/steam/ARK-Backups
+      volumes:
+        - name: ark-data
+          persistentVolumeClaim:
+            claimName: ark-data-pvc
+        - name: ark-backups
+          persistentVolumeClaim:
+            claimName: ark-backups-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ark-data-pvc
+  namespace: games
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-csi-nvme
+  resources:
+    requests:
+      storage: 60Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ark-backups-pvc
+  namespace: games
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-csi-nvme
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ark-server
+  namespace: games
+  annotations:
+    metallb.io/load-balancer-ip: 10.0.0.105
+spec:
+  type: LoadBalancer
+  selector:
+    app: ark-server
+  ports:
+    - name: game
+      port: 7777
+      targetPort: 7777
+      protocol: UDP
+    - name: raw-udp
+      port: 7778
+      targetPort: 7778
+      protocol: UDP
+    - name: server-list
+      port: 27015
+      targetPort: 27015
+      protocol: UDP
+    - name: rcon
+      port: 27020
+      targetPort: 27020
+      protocol: TCP

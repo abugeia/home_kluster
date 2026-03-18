@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ark
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/abugeia/home_kluster.git'
+    targetRevision: main
+    path: apps/games/ark
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: games
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false # Already in conf/namespaces.yaml
