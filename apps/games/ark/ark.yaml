@@ -132,6 +132,7 @@ metadata:
   name: ark-server-udp
   namespace: games
   annotations:
+    metallb.io/load-balancer-ip: 10.0.0.105
     metallb.universe.tf/loadBalancerIP: 10.0.0.105
     metallb.universe.tf/allow-shared-ip: "ark-shared-ip"
 spec:
@@ -159,6 +160,7 @@ metadata:
   name: ark-server-tcp
   namespace: games
   annotations:
+    metallb.io/load-balancer-ip: 10.0.0.105
     metallb.universe.tf/loadBalancerIP: 10.0.0.105
     metallb.universe.tf/allow-shared-ip: "ark-shared-ip"
 spec:
