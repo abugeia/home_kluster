@@ -1,10 +1,6 @@
 # Configuration officielle du chart Traefik (Simplifiée via cert-manager)
 # Référence: https://github.com/traefik/traefik-helm-chart
 
-additionalArguments:
-  # Permet aux Ingress d'autres namespaces d'être vus par Traefik
-  - "--providers.kubernetescrd.allowCrossNamespace=true"
-
 deployment:
   podAnnotations:
     prometheus.io/port: "8082"
@@ -19,16 +15,23 @@ tolerations:
     effect: "NoSchedule"
 
 providers:
+  kubernetesCRD:
+    enabled: true
+    # Permet de référencer des Middlewares situés dans d'autres namespaces (ex: security, tools)
+    allowCrossNamespace: true
   kubernetesIngress:
     publishedService:
       enabled: true
     allowEmptyServices: true
+    # Permet aux Ingress de namespaces différents d'utiliser les Middlewares globaux
+    allowCrossNamespace: true
 
 logs:
   access:
     enabled: true
 
-# PERSISTANCE : Activée sur /plugins-storage pour stabiliser les plugins (Sablier)
+# PERSISTANCE : Activée sur /plugins-storage pour stabiliser les plugins (Sablier).
+# Évite que les plugins ne soient re-téléchargés (et potentiellement perdus) à chaque redémarrage.
 persistence:
   enabled: true
   accessMode: ReadWriteOnce
