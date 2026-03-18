@@ -39,7 +39,7 @@ spec:
             - name: SESSION_NAME
               value: "ARK Server via Kubernetes"
             - name: SERVER_MAP
-              value: "TheIsland"
+              value: "Fjordur"
             - name: ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -123,3 +123,104 @@ spec:
       port: 27020
       targetPort: 27020
       protocol: TCP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ark-filebrowser
+  namespace: games
+  labels:
+    app: ark-filebrowser
+    sablier.enable: "true"
+    sablier.group: "arkconf.valab.top"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ark-filebrowser
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: ark-filebrowser
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: filebrowser
+          image: filebrowser/filebrowser:latest
+          args:
+            - --database
+            - /database/filebrowser.db
+            - --root
+            - /srv
+            - --noauth
+          ports:
+            - containerPort: 80
+              name: http
+          volumeMounts:
+            - name: ark-data
+              mountPath: /srv
+            - name: config
+              mountPath: /database
+      volumes:
+        - name: ark-data
+          persistentVolumeClaim:
+            claimName: ark-data-pvc
+        - name: config
+          persistentVolumeClaim:
+            claimName: ark-filebrowser-config
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ark-filebrowser-config
+  namespace: games
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-csi-nvme
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ark-filebrowser
+  namespace: games
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: ark-filebrowser
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ark-filebrowser
+  namespace: games
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/router.middlewares: tools-sablier-ark-files@kubernetescrd,security-tinyauth-protect@kubernetescrd
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  tls:
+    - hosts:
+        - arkconf.valab.top
+      secretName: ark-filebrowser-tls
+  rules:
+    - host: arkconf.valab.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ark-filebrowser
+                port:
+                  number: 80
