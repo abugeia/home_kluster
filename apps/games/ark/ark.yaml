@@ -125,7 +125,6 @@ spec:
     requests:
       storage: 20Gi
 ---
----
 # Service UDP (Game, Query, Raw)
 apiVersion: v1
 kind: Service
