@@ -53,7 +53,7 @@ spec:
             - name: MAX_PLAYERS
               value: "20"
             - name: UPDATE_ON_START
-              value: "false"
+              value: "true"
             - name: BACKUP_ON_STOP
               value: "true"
           volumeMounts:
