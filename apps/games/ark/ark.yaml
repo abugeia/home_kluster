@@ -13,13 +13,19 @@ spec:
       labels:
         app: ark-server
     spec:
-      securityContext:
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
       containers:
         - name: ark-server
           image: hermsi/ark-server:latest
+          securityContext:
+            runAsUser: 0
+            allowPrivilegeEscalation: true
+          resources:
+            requests:
+              memory: "8Gi"
+              cpu: "1000m"
+            limits:
+              memory: "12Gi"
+              cpu: "2000m"
           ports:
             - containerPort: 7777
               protocol: UDP
@@ -50,11 +56,6 @@ spec:
               value: "false"
             - name: BACKUP_ON_STOP
               value: "true"
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - ALL
           volumeMounts:
             - name: ark-data
               mountPath: /app
