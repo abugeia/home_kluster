@@ -37,3 +37,6 @@ apps:
     duration: 1h
     group: "jellyfin.valab.top"
     theme: hacker-terminal
+  ark-files:
+    duration: 30m
+    group: "arkconf.valab.top"
