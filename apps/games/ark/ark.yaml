@@ -57,11 +57,11 @@ spec:
                 secretKeyRef:
                   name: ark-secrets
                   key: ADMIN_PASSWORD
-            - name: ARK_ADMIN_PASSWORD # Ajout du prefixe pour compatibilité arkmanager
-              valueFrom:
-                secretKeyRef:
-                  name: ark-secrets
-                  key: ADMIN_PASSWORD
+            # - name: ARK_ADMIN_PASSWORD # Ajout du prefixe pour compatibilité arkmanager
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: ark-secrets
+            #       key: ADMIN_PASSWORD
             - name: SERVER_PASSWORD
               value: ""
             - name: MAX_PLAYERS
