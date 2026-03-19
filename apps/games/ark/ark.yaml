@@ -63,18 +63,8 @@ spec:
                   name: ark-secrets
                   key: ADMIN_PASSWORD
             - name: SERVER_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: ark-secrets
-                  key: SERVER_PASSWORD
-            - name: ARK_SERVER_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: ark-secrets
-                  key: SERVER_PASSWORD
+              value: ""
             - name: MAX_PLAYERS
-              value: "20"
-            - name: ARK_MAX_PLAYERS
               value: "20"
             - name: UPDATE_ON_START
               value: "true"
