@@ -31,6 +31,8 @@ spec:
           args:
             - "--arkopt,-NoBattlEye"
             - "--arkopt,-NoSteamClient"
+            - "--arkopt,-nosteam"
+            - "--arkopt,-outlaws"
           securityContext:
             runAsUser: 0
             allowPrivilegeEscalation: true
