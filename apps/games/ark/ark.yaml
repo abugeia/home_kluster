@@ -80,6 +80,8 @@ spec:
               value: "true"
             - name: ENABLE_CROSSPLAY
               value: "true"
+            - name: AM_arkopt_PublicIPForEpic
+              value: "115.126.181.187"
           volumeMounts:
             - name: ark-data
               mountPath: /app
