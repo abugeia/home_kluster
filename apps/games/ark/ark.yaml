@@ -28,6 +28,8 @@ spec:
       containers:
         - name: ark-server
           image: hermsi/ark-server:latest
+          args:
+            - "--arkopt,-PublicIPForEpic=115.126.181.187"
           securityContext:
             runAsUser: 0
             allowPrivilegeEscalation: true
@@ -80,8 +82,6 @@ spec:
               value: "true"
             - name: ENABLE_CROSSPLAY
               value: "true"
-            - name: AM_arkExtraOPTS
-              value: "-PublicIPForEpic=115.126.181.187"
           volumeMounts:
             - name: ark-data
               mountPath: /app
