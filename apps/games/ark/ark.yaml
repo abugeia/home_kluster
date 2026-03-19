@@ -29,7 +29,8 @@ spec:
         - name: ark-server
           image: hermsi/ark-server:latest
           args:
-            - "--arkopt,-PublicIPForEpic=115.126.181.187"
+            - "--arkopt,-NoBattlEye"
+            - "--arkopt,-NoSteamClient"
           securityContext:
             runAsUser: 0
             allowPrivilegeEscalation: true
@@ -80,8 +81,8 @@ spec:
               value: "7778"
             - name: DISABLE_BATTLEYE
               value: "true"
-            - name: ENABLE_CROSSPLAY
-              value: "true"
+            # - name: ENABLE_CROSSPLAY
+            #   value: "true"
           volumeMounts:
             - name: ark-data
               mountPath: /app
