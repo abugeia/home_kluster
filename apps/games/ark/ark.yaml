@@ -86,6 +86,8 @@ spec:
               value: "27015"
             - name: UDP_SOCKET_PORT
               value: "7778"
+            - name: DISABLE_BATTLEYE
+              value: "true"
           volumeMounts:
             - name: ark-data
               mountPath: /app
