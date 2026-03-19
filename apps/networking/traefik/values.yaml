@@ -23,8 +23,6 @@ providers:
     publishedService:
       enabled: true
     allowEmptyServices: true
-    # Permet aux Ingress de namespaces différents d'utiliser les Middlewares globaux
-    allowCrossNamespace: true
 
 logs:
   access:
