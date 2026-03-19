@@ -49,7 +49,7 @@ spec:
               protocol: TCP
           env:
             - name: SESSION_NAME
-              value: "ARK Server via Kubernetes"
+              value: "ARK_NC"
             - name: SERVER_MAP
               value: "Fjordur"
             - name: ADMIN_PASSWORD
