@@ -4,7 +4,7 @@ metadata:
   name: ark-server
   namespace: games
 spec:
-  replicas: 1
+  replicas: 0
   selector:
     matchLabels:
       app: ark-server
@@ -30,6 +30,8 @@ spec:
           image: hermsi/ark-server:latest
           args:
             - "--arkopt,-NoBattlEye"
+            - "--arkopt,-NoSteamClient"
+            - "--arkopt,-nosteam"
             - "--arkopt,-outlaws"
             # -rawsockets: Améliore la gestion UDP dans Docker/K8s pour éviter les timeouts au handshake
             - "--arkopt,-rawsockets"
@@ -72,7 +74,8 @@ spec:
             - name: MAX_PLAYERS
               value: "20"
             - name: UPDATE_ON_START
-              value: "true"
+              # Désactivé pour éviter que SteamCMD n'écrase l'émulateur Goldberg (GSE)
+              value: "false"
             - name: BACKUP_ON_STOP
               value: "true"
             - name: GAME_CLIENT_PORT
