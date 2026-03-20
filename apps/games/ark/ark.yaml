@@ -30,8 +30,6 @@ spec:
           image: hermsi/ark-server:latest
           args:
             - "--arkopt,-NoBattlEye"
-            - "--arkopt,-NoSteamClient"
-            - "--arkopt,-nosteam"
             - "--arkopt,-outlaws"
             - "--arkopt,-rawsockets"
           securityContext:
