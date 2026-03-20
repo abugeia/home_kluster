@@ -31,6 +31,7 @@ spec:
           args:
             - "--arkopt,-NoBattlEye"
             - "--arkopt,-outlaws"
+            # -rawsockets: Améliore la gestion UDP dans Docker/K8s pour éviter les timeouts au handshake
             - "--arkopt,-rawsockets"
           securityContext:
             runAsUser: 0
@@ -135,6 +136,8 @@ metadata:
     metallb.universe.tf/allow-shared-ip: "ark-shared-ip"
 spec:
   type: LoadBalancer
+  # Local: Préserve l'IP source du client (10.0.0.11), souvent requis pour le handshake UDP Ark
+  externalTrafficPolicy: Local
   selector:
     app: ark-server
   ports:
