@@ -149,7 +149,6 @@ metadata:
   annotations:
     metallb.io/loadBalancerIPs: 10.0.0.102
     metallb.io/allow-shared-ip: "ark-shared-ip"
-    metallb.universe.tf/allow-shared-ip: "ark-shared-ip"
 spec:
   type: LoadBalancer
   # Local: Préserve l'IP source du client (10.0.0.11), souvent requis pour le handshake UDP Ark
@@ -179,9 +178,10 @@ metadata:
   annotations:
     metallb.io/loadBalancerIPs: 10.0.0.102
     metallb.io/allow-shared-ip: "ark-shared-ip"
-    metallb.universe.tf/allow-shared-ip: "ark-shared-ip"
 spec:
   type: LoadBalancer
+  # DOIT ETRE LOCAL POUR PARTAGER L'IP AVEC L'UDP (MetalLB sharing key)
+  externalTrafficPolicy: Local
   selector:
     app: ark-server
   ports:
