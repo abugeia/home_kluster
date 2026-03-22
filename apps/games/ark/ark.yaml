@@ -33,8 +33,6 @@ spec:
             - "--arkopt,-NoSteamClient"
             - "--arkopt,-nosteam"
             - "--arkopt,-outlaws"
-            # -rawsockets: Améliore la gestion UDP dans Docker/K8s pour éviter les timeouts au handshake
-            - "--arkopt,-rawsockets"
           securityContext:
             runAsUser: 0
             allowPrivilegeEscalation: true
