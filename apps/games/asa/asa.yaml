@@ -1,0 +1,172 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: asa-server
+  namespace: games
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate # Pas de rolling update pour un game server stateful
+  selector:
+    matchLabels:
+      app: asa-server
+  template:
+    metadata:
+      labels:
+        app: asa-server
+    spec:
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+      containers:
+        - name: asa-server
+          image: acekorneya/asa_server:2_1_latest
+          securityContext:
+            runAsUser: 0 # Requis par l'image (gestion interne via PUID/PGID)
+          resources:
+            requests:
+              memory: "16Gi"
+              cpu: "2000m"
+            limits:
+              memory: "20Gi"
+              cpu: "4000m"
+          ports:
+            - containerPort: 7777
+              protocol: TCP
+            - containerPort: 7777
+              protocol: UDP
+            - containerPort: 27020
+              protocol: TCP
+          env:
+            - name: TZ
+              value: "Pacific/Noumea"
+            - name: INSTANCE_NAME
+              value: "asa_nc"
+            - name: SESSION_NAME
+              value: "ASA_NC"
+            - name: MAP_NAME
+              value: "TheIsland"
+            - name: SERVER_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: asa-secrets
+                  key: ADMIN_PASSWORD
+            - name: SERVER_PASSWORD
+              value: ""
+            - name: MAX_PLAYERS
+              value: "20"
+            - name: ASA_PORT
+              value: "7777"
+            - name: RCON_PORT
+              value: "27020"
+            - name: RCON_ENABLED
+              value: "TRUE"
+            # --- Paramètres pour client cracké ---
+            - name: BATTLEEYE
+              value: "FALSE"
+            # --- Mise à jour automatique ---
+            - name: UPDATE_SERVER
+              value: "TRUE"
+            # - name: CHECK_FOR_UPDATE_INTERVAL
+            #   value: "24"
+            # - name: RESTART_NOTICE_MINUTES
+            #   value: "15"
+            # --- Divers ---
+            - name: RANDOM_STARTUP_DELAY
+              value: "FALSE" # Pas besoin en single instance
+            - name: API
+              value: "FALSE"
+            - name: DISPLAY_POK_MONITOR_MESSAGE
+              value: "FALSE"
+            - name: ENABLE_MOTD
+              value: "FALSE"
+            # - name: MOD_IDS
+            #   value: ""
+            # - name: PASSIVE_MODS
+            #   value: ""
+            # - name: CUSTOM_SERVER_ARGS
+            #   value: ""
+          volumeMounts:
+            - name: asa-serverfiles
+              mountPath: /home/pok/arkserver
+            - name: asa-saved
+              mountPath: /home/pok/arkserver/ShooterGame/Saved
+      volumes:
+        - name: asa-serverfiles
+          persistentVolumeClaim:
+            claimName: asa-serverfiles-pvc
+        - name: asa-saved
+          persistentVolumeClaim:
+            claimName: asa-saved-pvc
+---
+# PVC pour les binaires serveur (~40 Go pour ASA + Proton + Wine)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: asa-serverfiles-pvc
+  namespace: games
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-csi-nvme
+  resources:
+    requests:
+      storage: 80Gi
+---
+# PVC pour les sauvegardes monde / configs (séparé pour faciliter les backups)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: asa-saved-pvc
+  namespace: games
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-csi-nvme
+  resources:
+    requests:
+      storage: 20Gi
+---
+# Service UDP (Game)
+apiVersion: v1
+kind: Service
+metadata:
+  name: asa-server-udp
+  namespace: games
+  annotations:
+    metallb.io/loadBalancerIPs: 10.0.0.103
+    metallb.io/allow-shared-ip: "asa-shared-ip"
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local # Préserve l'IP source du client
+  selector:
+    app: asa-server
+  ports:
+    - name: game-udp
+      port: 7777
+      targetPort: 7777
+      protocol: UDP
+---
+# Service TCP (Game + RCON)
+apiVersion: v1
+kind: Service
+metadata:
+  name: asa-server-tcp
+  namespace: games
+  annotations:
+    metallb.io/loadBalancerIPs: 10.0.0.103
+    metallb.io/allow-shared-ip: "asa-shared-ip"
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  selector:
+    app: asa-server
+  ports:
+    - name: game-tcp
+      port: 7777
+      targetPort: 7777
+      protocol: TCP
+    - name: rcon
+      port: 27020
+      targetPort: 27020
+      protocol: TCP
