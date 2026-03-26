@@ -16,8 +16,29 @@ spec:
         app: asa-server
     spec:
       securityContext:
-        fsGroup: 1000
+        fsGroup: 1001
         fsGroupChangePolicy: "OnRootMismatch"
+      initContainers:
+        - name: fix-permissions
+          image: busybox:latest
+          securityContext:
+            runAsUser: 0
+          command:
+            - "sh"
+            - "-c"
+            - |
+              echo 'Fixing permissions for ASA server directories...'
+              # Crée les répertoires s'ils n'existent pas
+              mkdir -p /serverfiles /saved
+              # Applique les permissions pour l'user pok (UID 1001 par défaut)
+              chown -R 1001:1001 /serverfiles /saved
+              chmod -R 755 /serverfiles /saved
+              echo 'Permissions fixed.'
+          volumeMounts:
+            - name: asa-serverfiles
+              mountPath: /serverfiles
+            - name: asa-saved
+              mountPath: /saved
       containers:
         - name: asa-server
           image: acekorneya/asa_server:2_1_latest
