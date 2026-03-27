@@ -28,17 +28,17 @@ spec:
             - "-c"
             - |
               echo 'Fixing permissions for ASA server directories...'
-              mkdir -p /serverfiles /shootergame /cluster
-              chown -R 7777:7777 /serverfiles /shootergame /cluster
-              chmod -R 755 /serverfiles /shootergame /cluster
+              # Le montage K8s crée certains dossiers parents en root (ex: ShooterGame)
+              chown -R 7777:7777 /home/pok/arkserver
+              chmod -R 755 /home/pok/arkserver
               echo 'Permissions fixed.'
           volumeMounts:
             - name: asa-serverfiles
-              mountPath: /serverfiles
+              mountPath: /home/pok/arkserver
             - name: asa-shootergame
-              mountPath: /shootergame
+              mountPath: /home/pok/arkserver/ShooterGame/Saved
             - name: asa-cluster
-              mountPath: /cluster
+              mountPath: /home/pok/arkserver/ShooterGame/Saved/clusters
       containers:
         - name: asa-server
           image: acekorneya/asa_server:2_1_latest
