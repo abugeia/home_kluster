@@ -14,7 +14,7 @@ spec:
         include: '{pv,pvc,pv-import,pvc-import}.yaml'
     # Source 2: Helm chart with values from Git
     - repoURL: https://immich-app.github.io/immich-charts
-      targetRevision: 0.10.3
+      targetRevision: 0.11.0
       chart: immich
       helm:
         valueFiles:
