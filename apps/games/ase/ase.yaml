@@ -25,13 +25,11 @@ spec:
             - "sh"
             - "-c"
             - |
-              if [ "$(stat -c %u /app)" != "1000" ]; then 
-                echo 'Fixing permissions...'
-                chown -R 1000:1000 /app
-                chmod -R 755 /app
-              else 
-                echo 'Permissions already correct'
-              fi
+              echo 'Fixing permissions for ASE server directories...'
+              # On force le chown sur tout le dossier pour éviter les fichiers root (ex: logs)
+              chown -R 1000:1000 /app
+              chmod -R 755 /app
+              echo 'Permissions fixed.'
               echo 'Ensuring GSE config exists...'
               mkdir -p /app/server/ShooterGame/Binaries/Linux/steam_settings
               if [ ! -f /app/server/ShooterGame/Binaries/Linux/steam_settings/configs.main.ini ]; then
