@@ -30,13 +30,29 @@ spec:
               chown -R 1000:1000 /app
               chmod -R 755 /app
               echo 'Permissions fixed.'
-              echo 'Ensuring GSE config exists...'
+              
+              echo 'Synchronizing AppID (346110) for cracked server...'
+              # Emplacement Goldberg (GSE)
               mkdir -p /app/server/ShooterGame/Binaries/Linux/steam_settings
-              if [ ! -f /app/server/ShooterGame/Binaries/Linux/steam_settings/configs.main.ini ]; then
-                echo '[main::general]' > /app/server/ShooterGame/Binaries/Linux/steam_settings/configs.main.ini
-                echo 'app_id=480' >> /app/server/ShooterGame/Binaries/Linux/steam_settings/configs.main.ini
+              CONF_FILE="/app/server/ShooterGame/Binaries/Linux/steam_settings/configs.main.ini"
+              if [ ! -f "$CONF_FILE" ]; then
+                echo '[main::general]' > "$CONF_FILE"
+                echo 'app_id=346110' >> "$CONF_FILE"
+              else
+                # Si la ligne app_id existe on la change, sinon on l'ajoute
+                grep -q "app_id=" "$CONF_FILE" && sed -i 's/app_id=.*/app_id=346110/' "$CONF_FILE" || echo 'app_id=346110' >> "$CONF_FILE"
               fi
-              chown -R 1000:1000 /app/server/ShooterGame/Binaries/Linux/steam_settings
+              echo '346110' > /app/server/ShooterGame/Binaries/Linux/steam_settings/steam_appid.txt
+              
+              # Emplacement Standard Steam
+              echo '346110' > /app/server/ShooterGame/Binaries/Linux/steam_appid.txt
+              
+              # Configuration arkmanager (wrapper)
+              [ -f /etc/arkmanager/arkmanager.cfg ] && sed -i 's/steamappid=.*/steamappid=346110/' /etc/arkmanager/arkmanager.cfg
+              [ -f /app/arkmanager.cfg ] && sed -i 's/steamappid=.*/steamappid=346110/' /app/arkmanager.cfg
+              
+              chown -R 1000:1000 /app/server/ShooterGame/Binaries/Linux
+              echo 'AppID synchronization complete.'
           volumeMounts:
             - name: ark-data
               mountPath: /app
@@ -97,8 +113,8 @@ spec:
               value: "7778"
             - name: DISABLE_BATTLEYE
               value: "true"
-            - name: ENABLE_CROSSPLAY
-              value: "true"
+            # - name: ENABLE_CROSSPLAY
+            #   value: "true"
           volumeMounts:
             - name: ark-data
               mountPath: /app
