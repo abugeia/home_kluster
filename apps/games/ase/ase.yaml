@@ -39,10 +39,10 @@ spec:
               if [ -f "/app/goldberg_fix/libsteam_api.so" ]; then
                   cp "/app/goldberg_fix/libsteam_api.so" "$BIN_DIR/libsteam_api.so"
                   # Ajout du client si présent
-                  [ -f "/app/goldberg_fix/libsteamclient.so" ] && cp "/app/goldberg_fix/libsteamclient.so" "$BIN_DIR/libsteamclient.so"
+                  [ -f "/app/goldberg_fix/steamclient.so" ] && cp "/app/goldberg_fix/steamclient.so" "$BIN_DIR/steamclient.so"
                   
-                  chown 1000:1000 "$BIN_DIR/libsteam_api.so" "$BIN_DIR/libsteamclient.so" 2>/dev/null || true
-                  chmod 755 "$BIN_DIR/libsteam_api.so" "$BIN_DIR/libsteamclient.so" 2>/dev/null || true
+                  chown 1000:1000 "$BIN_DIR/libsteam_api.so" "$BIN_DIR/steamclient.so" 2>/dev/null || true
+                  chmod 755 "$BIN_DIR/libsteam_api.so" "$BIN_DIR/steamclient.so" 2>/dev/null || true
               else
                 echo "WARNING: /app/goldberg_fix/libsteam_api.so NOT FOUND. Using default binary."
               fi
