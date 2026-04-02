@@ -37,10 +37,12 @@ spec:
               
               # Injection du binaire Goldberg s'il a été existant (uploadé via FileBrowser)
               if [ -f "/app/goldberg_fix/libsteam_api.so" ]; then
-                echo "Custom Goldberg binary found. Injecting into $BIN_DIR..."
-                cp "/app/goldberg_fix/libsteam_api.so" "$BIN_DIR/libsteam_api.so"
-                chown 1000:1000 "$BIN_DIR/libsteam_api.so"
-                chmod 755 "$BIN_DIR/libsteam_api.so"
+                  cp "/app/goldberg_fix/libsteam_api.so" "$BIN_DIR/libsteam_api.so"
+                  # Ajout du client si présent
+                  [ -f "/app/goldberg_fix/libsteamclient.so" ] && cp "/app/goldberg_fix/libsteamclient.so" "$BIN_DIR/libsteamclient.so"
+                  
+                  chown 1000:1000 "$BIN_DIR/libsteam_api.so" "$BIN_DIR/libsteamclient.so" 2>/dev/null || true
+                  chmod 755 "$BIN_DIR/libsteam_api.so" "$BIN_DIR/libsteamclient.so" 2>/dev/null || true
               else
                 echo "WARNING: /app/goldberg_fix/libsteam_api.so NOT FOUND. Using default binary."
               fi
