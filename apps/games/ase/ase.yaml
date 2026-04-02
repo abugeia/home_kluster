@@ -130,8 +130,8 @@ spec:
               value: "7778"
             - name: DISABLE_BATTLEYE
               value: "true"
-            - name: ENABLE_CROSSPLAY
-              value: "true"
+            # - name: ENABLE_CROSSPLAY
+            #   value: "true"
           volumeMounts:
             - name: ark-data
               mountPath: /app
