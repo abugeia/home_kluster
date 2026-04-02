@@ -25,43 +25,53 @@ spec:
             - "sh"
             - "-c"
             - |
-              echo 'Fixing permissions for ASE server directories...'
-              # On force le chown sur tout le dossier pour éviter les fichiers root (ex: logs)
-              echo 'Checking volume ownership...'
-              if [ "$(stat -c "%u" /app)" != "1000" ]; then
-                echo 'Incorrect ownership detected. Fixing /app permissions (this may take time)...'
+              if [ "$(stat -c %u /app)" != "1000" ]; then 
+                echo 'Fixing permissions...'
                 chown -R 1000:1000 /app
                 chmod -R 755 /app
               fi
               
-              echo 'Synchronizing AppID (346110) for cracked server...'
-              # Emplacement Goldberg (GSE)
-              mkdir -p /app/server/ShooterGame/Binaries/Linux/steam_settings
-              CONF_FILE="/app/server/ShooterGame/Binaries/Linux/steam_settings/configs.main.ini"
-              if [ ! -f "$CONF_FILE" ]; then
-                echo '[main::general]' > "$CONF_FILE"
-                echo 'app_id=346110' >> "$CONF_FILE"
+              echo 'Synchronizing Goldberg Emulator (480) for cracked server...'
+              # Emplacement cible des binaires
+              BIN_DIR="/app/server/ShooterGame/Binaries/Linux"
+              
+              # Injection du binaire Goldberg s'il a été existant (uploadé via FileBrowser)
+              if [ -f "/app/goldberg_fix/libsteam_api.so" ]; then
+                echo "Custom Goldberg binary found. Injecting into $BIN_DIR..."
+                cp "/app/goldberg_fix/libsteam_api.so" "$BIN_DIR/libsteam_api.so"
+                chown 1000:1000 "$BIN_DIR/libsteam_api.so"
+                chmod 755 "$BIN_DIR/libsteam_api.so"
               else
-                grep -q "app_id=" "$CONF_FILE" && sed -i 's/app_id=.*/app_id=346110/' "$CONF_FILE" || echo 'app_id=346110' >> "$CONF_FILE"
+                echo "WARNING: /app/goldberg_fix/libsteam_api.so NOT FOUND. Using default binary."
               fi
               
-              # Création des fichiers d'ID
-              echo '346110' > /app/server/ShooterGame/Binaries/Linux/steam_settings/steam_appid.txt
-              echo '346110' > /app/server/ShooterGame/Binaries/Linux/steam_appid.txt
+              # Configuration Goldberg (GSE)
+              mkdir -p "$BIN_DIR/steam_settings"
+              CONF_FILE="$BIN_DIR/steam_settings/configs.main.ini"
+              if [ ! -f "$CONF_FILE" ]; then
+                echo '[main::general]' > "$CONF_FILE"
+                echo 'app_id=480' >> "$CONF_FILE"
+              else
+                grep -q "app_id=" "$CONF_FILE" && sed -i 's/app_id=.*/app_id=480/' "$CONF_FILE" || echo 'app_id=480' >> "$CONF_FILE"
+              fi
               
-              # Correction ciblée du propriétaire pour les fichiers créés par ce script
-              chown -R 1000:1000 /app/server/ShooterGame/Binaries/Linux/steam_settings
-              chown 1000:1000 /app/server/ShooterGame/Binaries/Linux/steam_appid.txt
+              # Fichiers d'identification standard
+              echo '480' > "$BIN_DIR/steam_settings/steam_appid.txt"
+              echo '480' > "$BIN_DIR/steam_appid.txt"
+              chown 1000:1000 "$BIN_DIR/steam_appid.txt"
+
               
               # Patch des configs arkmanager
               for cfg in /etc/arkmanager/arkmanager.cfg /app/arkmanager.cfg; do
                 if [ -f "$cfg" ]; then
-                  sed -i 's/steamappid=.*/steamappid=346110/' "$cfg"
+                  sed -i 's/steamappid=.*/steamappid=480/' "$cfg"
                   chown 1000:1000 "$cfg"
                 fi
               done
               
-              echo 'AppID synchronization complete.'
+              # Garantir les permissions du dossier config
+              chown -R 1000:1000 "$BIN_DIR/steam_settings"
+              echo 'Goldberg synchronization complete (AppID 480).'
           volumeMounts:
             - name: ark-data
               mountPath: /app
@@ -120,8 +130,8 @@ spec:
               value: "7778"
             - name: DISABLE_BATTLEYE
               value: "true"
-            # - name: ENABLE_CROSSPLAY
-            #   value: "true"
+            - name: ENABLE_CROSSPLAY
+              value: "true"
           volumeMounts:
             - name: ark-data
               mountPath: /app
