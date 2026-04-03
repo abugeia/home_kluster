@@ -4,7 +4,7 @@ metadata:
   name: ark-server
   namespace: games
 spec:
-  replicas: 1
+  replicas: 0
   selector:
     matchLabels:
       app: ark-server
@@ -52,10 +52,11 @@ spec:
                   cp "/app/goldberg_fix/steam_interfaces.txt" "$BIN_DIR/steam_settings/steam_interfaces.txt"
                 fi
                 
-                # Remplacement forcé du client Steam par l'émulateur (CRITIQUE POUR EVITER LE CORE DUMP)
-                echo "Injecting steamclient.so..."
+                # Remplacement du client Steam par l'émulateur
                 if [ -f "/app/goldberg_fix/steamclient.so" ]; then
+                  echo "Injecting steamclient.so..."
                   cp "/app/goldberg_fix/steamclient.so" "$BIN_DIR/libsteamclient.so"
+                  cp "/app/goldberg_fix/steamclient.so" "$BIN_DIR/steamclient.so"
                 else
                   # Si pas de client spécifique, on utilise l'API comme client émulé
                   cp "/app/goldberg_fix/libsteam_api.so" "$BIN_DIR/libsteamclient.so"
@@ -261,7 +262,7 @@ metadata:
     sablier.enable: "true"
     sablier.group: "arkconf.valab.top"
 spec:
-  replicas: 1
+  replicas: 0
   selector:
     matchLabels:
       app: ark-filebrowser
