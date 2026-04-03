@@ -87,8 +87,12 @@ spec:
                 fi
               done
               
-              # RECTIFICATION GLOBALE DES PERMISSIONS (CRITIQUE)
-              echo "Fixing global permissions for steam user..."
+              # RECTIFICATION GLOBALE DES PERMISSIONS ET FORMATS (CRITIQUE)
+              echo "Fixing global permissions and CRLF formats for steam user..."
+              # Nettoyage des retours à la ligne Windows (\r) qui font crasher Goldberg (Core Dump)
+              find "$BIN_DIR/steam_settings" -type f -exec sed -i 's/\r$//' {} \; 2>/dev/null || true
+              sed -i 's/\r$//' "$BIN_DIR/steam_appid.txt" 2>/dev/null || true
+              
               mkdir -p /app/server/ShooterGame/Saved
               chown -R 1000:1000 /app/server
               chmod +x "$BIN_DIR/ShooterGameServer"
