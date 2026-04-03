@@ -35,32 +35,48 @@ spec:
               # Emplacement cible des binaires
               BIN_DIR="/app/server/ShooterGame/Binaries/Linux"
               
-              # Injection du binaire Goldberg s'il a été existant (uploadé via FileBrowser)
+              # Sécurité : S'assurer que le dossier de fix appartient à l'utilisateur steam
+              [ -d "/app/goldberg_fix" ] && chown -R 1000:1000 /app/goldberg_fix
+
+              # Configuration Goldberg v2 (API + Interfaces + AppID)
               if [ -f "/app/goldberg_fix/libsteam_api.so" ]; then
-                  cp "/app/goldberg_fix/libsteam_api.so" "$BIN_DIR/libsteam_api.so"
-                  # Ajout du client si présent
-                  [ -f "/app/goldberg_fix/steamclient.so" ] && cp "/app/goldberg_fix/steamclient.so" "$BIN_DIR/steamclient.so"
-                  
-                  chown 1000:1000 "$BIN_DIR/libsteam_api.so" "$BIN_DIR/steamclient.so" 2>/dev/null || true
-                  chmod 755 "$BIN_DIR/libsteam_api.so" "$BIN_DIR/steamclient.so" 2>/dev/null || true
+                echo "Injecting Goldberg API..."
+                cp "/app/goldberg_fix/libsteam_api.so" "$BIN_DIR/libsteam_api.so"
+                
+                # Préparation du dossier de configuration
+                mkdir -p "$BIN_DIR/steam_settings"
+
+                # Injection du dictionnaire d'interfaces (LE FIX DU CRASH)
+                if [ -f "/app/goldberg_fix/steam_interfaces.txt" ]; then
+                  echo "Injecting steam_interfaces.txt dictionary..."
+                  cp "/app/goldberg_fix/steam_interfaces.txt" "$BIN_DIR/steam_settings/steam_interfaces.txt"
+                fi
+                
+                # Injection optionnelle du client émulé
+                if [ -f "/app/goldberg_fix/steamclient.so" ]; then
+                  echo "Injecting steamclient.so..."
+                  cp "/app/goldberg_fix/steamclient.so" "$BIN_DIR/libsteamclient.so"
+                fi
+
+                # Configuration de l'AppID (Spacewar 480)
+                echo '480' > "$BIN_DIR/steam_settings/steam_appid.txt"
+                echo '480' > "$BIN_DIR/steam_appid.txt"
+                
+                CONF_FILE="$BIN_DIR/steam_settings/configs.main.ini"
+                if [ ! -f "$CONF_FILE" ]; then
+                  echo '[main::general]' > "$CONF_FILE"
+                  echo 'app_id=480' >> "$CONF_FILE"
+                else
+                  grep -q "app_id=" "$CONF_FILE" && sed -i 's/app_id=.*/app_id=480/' "$CONF_FILE" || echo 'app_id=480' >> "$CONF_FILE"
+                fi
+                
+                # Application finale des permissions pour tout le bloc Goldberg
+                chown -R 1000:1000 "$BIN_DIR/steam_settings"
+                chown 1000:1000 "$BIN_DIR/libsteam_api.so" "$BIN_DIR/libsteamclient.so" "$BIN_DIR/steam_appid.txt" 2>/dev/null || true
+                chmod 755 "$BIN_DIR/libsteam_api.so" "$BIN_DIR/libsteamclient.so" 2>/dev/null || true
               else
                 echo "WARNING: /app/goldberg_fix/libsteam_api.so NOT FOUND. Using default binary."
               fi
-              
-              # Configuration Goldberg (GSE)
-              mkdir -p "$BIN_DIR/steam_settings"
-              CONF_FILE="$BIN_DIR/steam_settings/configs.main.ini"
-              if [ ! -f "$CONF_FILE" ]; then
-                echo '[main::general]' > "$CONF_FILE"
-                echo 'app_id=480' >> "$CONF_FILE"
-              else
-                grep -q "app_id=" "$CONF_FILE" && sed -i 's/app_id=.*/app_id=480/' "$CONF_FILE" || echo 'app_id=480' >> "$CONF_FILE"
-              fi
-              
-              # Fichiers d'identification standard
-              echo '480' > "$BIN_DIR/steam_settings/steam_appid.txt"
-              echo '480' > "$BIN_DIR/steam_appid.txt"
-              chown 1000:1000 "$BIN_DIR/steam_appid.txt"
 
               
               # Patch des configs arkmanager
@@ -71,8 +87,6 @@ spec:
                 fi
               done
               
-              # Garantir les permissions du dossier config
-              chown -R 1000:1000 "$BIN_DIR/steam_settings"
               echo 'Goldberg synchronization complete (AppID 480).'
           volumeMounts:
             - name: ark-data
