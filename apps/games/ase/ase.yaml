@@ -52,10 +52,14 @@ spec:
                   cp "/app/goldberg_fix/steam_interfaces.txt" "$BIN_DIR/steam_settings/steam_interfaces.txt"
                 fi
                 
-                # Injection optionnelle du client émulé
+                # Remplacement forcé du client Steam par l'émulateur (CRITIQUE POUR EVITER LE CORE DUMP)
+                echo "Injecting steamclient.so..."
                 if [ -f "/app/goldberg_fix/steamclient.so" ]; then
-                  echo "Injecting steamclient.so..."
                   cp "/app/goldberg_fix/steamclient.so" "$BIN_DIR/libsteamclient.so"
+                else
+                  # Si pas de client spécifique, on utilise l'API comme client émulé
+                  cp "/app/goldberg_fix/libsteam_api.so" "$BIN_DIR/libsteamclient.so"
+                  cp "/app/goldberg_fix/libsteam_api.so" "$BIN_DIR/steamclient.so"
                 fi
 
                 # Configuration de l'AppID (Spacewar 480)
