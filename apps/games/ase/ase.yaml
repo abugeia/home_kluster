@@ -70,7 +70,7 @@ spec:
                   grep -q "app_id=" "$CONF_FILE" && sed -i 's/app_id=.*/app_id=480/' "$CONF_FILE" || echo 'app_id=480' >> "$CONF_FILE"
                 fi
                 
-                # Application finale des permissions pour tout le bloc Goldberg
+              # Application finale des permissions pour tout le bloc Goldberg
                 chown -R 1000:1000 "$BIN_DIR/steam_settings"
                 chown 1000:1000 "$BIN_DIR/libsteam_api.so" "$BIN_DIR/libsteamclient.so" "$BIN_DIR/steam_appid.txt" 2>/dev/null || true
                 chmod 755 "$BIN_DIR/libsteam_api.so" "$BIN_DIR/libsteamclient.so" 2>/dev/null || true
@@ -86,6 +86,12 @@ spec:
                   chown 1000:1000 "$cfg"
                 fi
               done
+              
+              # RECTIFICATION GLOBALE DES PERMISSIONS (CRITIQUE)
+              echo "Fixing global permissions for steam user..."
+              mkdir -p /app/server/ShooterGame/Saved
+              chown -R 1000:1000 /app/server
+              chmod +x "$BIN_DIR/ShooterGameServer"
               
               echo 'Goldberg synchronization complete (AppID 480).'
           volumeMounts:
