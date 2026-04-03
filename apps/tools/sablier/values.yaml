@@ -6,6 +6,9 @@
 provider:
   name: kubernetes
 
+image:
+  tag: "v1.11.1"
+
 sessions:
   expiration-interval: 3m
 
