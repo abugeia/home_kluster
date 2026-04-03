@@ -73,30 +73,7 @@ spec:
 #     volumeAttributes:
 #       server: 10.0.0.10
 #       share: /tank_data/immich
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: pv-hdd-import
-spec:
-  capacity:
-    storage: 10Ti
-  accessModes:
-    - ReadWriteMany
-  persistentVolumeReclaimPolicy: Retain
-  storageClassName: nfs-csi-hdd
-  mountOptions:
-    - nfsvers=4.1
-    - hard
-    - noresvport
-    - noatime
-    - timeo=600
-    - retrans=2
-  csi:
-    driver: nfs.csi.k8s.io
-    volumeHandle: pve-hdd-import
-    volumeAttributes:
-      server: 10.0.0.10
-      share: /tank_data/import
+
 ---
 apiVersion: v1
 kind: PersistentVolume

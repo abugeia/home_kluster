@@ -30,7 +30,9 @@ spec:
           - "use sendfile = yes"
           # Syntaxe -s : "Nom;Chemin;Visible;LectureSeule;Invite;Utilisateurs"
           - "-s"
-          - "Data_ZFS;/share/zfs;yes;no;no;user"
+          - "Data;/share/zfs/data;yes;no;no;user"
+          - "-s"
+          - "Video;/share/zfs/video;yes;no;no;user"
           - "-s"
           - "Data_NVMe;/share/nvme;yes;no;no;user"
           # Syntaxe -u : "Utilisateur;MotDePasse"
@@ -54,10 +56,6 @@ spec:
           mountPath: /share/zfs/video
         - name: data
           mountPath: /share/zfs/data
-        # - name: immich
-        #   mountPath: /share/zfs/immich
-        - name: import
-          mountPath: /share/zfs/import
         - name: nvme
           mountPath: /share/nvme
         livenessProbe:
@@ -76,12 +74,6 @@ spec:
       - name: data
         persistentVolumeClaim:
           claimName: pvc-samba-data
-      # - name: immich
-      #   persistentVolumeClaim:
-      #     claimName: pvc-samba-immich
-      - name: import
-        persistentVolumeClaim:
-          claimName: pvc-samba-import
       - name: nvme
         persistentVolumeClaim:
           claimName: pvc-samba-nvme
