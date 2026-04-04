@@ -100,6 +100,34 @@ spec:
               value: ""
             - name: CUSTOM_SERVER_ARGS
               value: ""
+        - name: filebrowser
+          image: filebrowser/filebrowser:latest
+          securityContext:
+            runAsUser: 7777
+            runAsGroup: 7777
+          args:
+            - --noauth
+            - --database
+            - /tmp/filebrowser.db
+            - --root
+            - /srv
+            - --address
+            - 0.0.0.0
+            - --port
+            - "8080"
+          ports:
+            - containerPort: 8080
+              name: config-web
+          volumeMounts:
+            - name: asa-shootergame
+              mountPath: /srv
+          resources:
+            requests:
+              memory: "32Mi"
+              cpu: "5m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
           volumeMounts:
             # Chemins officiels du repo GitHub
             - name: asa-serverfiles
@@ -203,4 +231,8 @@ spec:
     - name: rcon
       port: 27020
       targetPort: 27020
+      protocol: TCP
+    - name: config-web
+      port: 8080
+      targetPort: 8080
       protocol: TCP
