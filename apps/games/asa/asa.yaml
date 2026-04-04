@@ -129,6 +129,8 @@ spec:
           volumeMounts:
             - name: asa-shootergame
               mountPath: /srv
+            - name: asa-fb-config
+              mountPath: /config
           resources:
             requests:
               memory: "32Mi"
@@ -146,6 +148,8 @@ spec:
         - name: asa-cluster
           persistentVolumeClaim:
             claimName: asa-cluster-pvc
+        - name: asa-fb-config
+          emptyDir: {}
 ---
 # PVC pour les binaires serveur ASA + Proton/Wine (~50 Go requis de base)
 apiVersion: v1
