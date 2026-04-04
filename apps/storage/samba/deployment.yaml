@@ -37,7 +37,7 @@ spec:
           - "-g"
           - "getwd cache = yes"
           - "-g"
-          - "use sendfile = yes"
+          - "use sendfile = no"
           - "-g"
           - "server multi channel support = yes"
           - "-g"
@@ -80,7 +80,7 @@ spec:
           initialDelaySeconds: 60
           periodSeconds: 300
           timeoutSeconds: 30
-          failureThreshold: 1
+          failureThreshold: 3
       volumes:
       - name: video
         persistentVolumeClaim:
