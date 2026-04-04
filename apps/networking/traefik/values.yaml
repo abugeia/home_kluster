@@ -55,5 +55,5 @@ service:
 experimental:
   plugins:
     sablier:
-      moduleName: "github.com/sablierapp/sablier-traefik-plugin"
-      version: "v1.1.0"
+      moduleName: "github.com/sablierapp/sablier"
+      version: "v1.10.1"
