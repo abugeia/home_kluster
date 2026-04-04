@@ -100,6 +100,14 @@ spec:
               value: ""
             - name: CUSTOM_SERVER_ARGS
               value: ""
+          volumeMounts:
+            # Chemins officiels du repo GitHub
+            - name: asa-serverfiles
+              mountPath: /home/pok/arkserver
+            - name: asa-shootergame
+              mountPath: /home/pok/arkserver/ShooterGame/Saved
+            - name: asa-cluster
+              mountPath: /home/pok/arkserver/ShooterGame/Saved/clusters
         - name: filebrowser
           image: filebrowser/filebrowser:latest
           securityContext:
@@ -128,14 +136,6 @@ spec:
             limits:
               memory: "128Mi"
               cpu: "500m"
-          volumeMounts:
-            # Chemins officiels du repo GitHub
-            - name: asa-serverfiles
-              mountPath: /home/pok/arkserver
-            - name: asa-shootergame
-              mountPath: /home/pok/arkserver/ShooterGame/Saved
-            - name: asa-cluster
-              mountPath: /home/pok/arkserver/ShooterGame/Saved/clusters
       volumes:
         - name: asa-serverfiles
           persistentVolumeClaim:
