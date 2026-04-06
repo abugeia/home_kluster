@@ -17,7 +17,7 @@ spec:
     spec:
       securityContext:
         fsGroup: 7777
-        fsGroupChangePolicy: "OnRootMismatch"
+        fsGroupChangePolicy: "Always"
       initContainers:
         - name: fix-permissions
           image: busybox:latest
@@ -28,9 +28,14 @@ spec:
             - "-c"
             - |
               echo 'Fixing permissions for ASA server directories...'
-              # Le montage K8s crée certains dossiers parents en root (ex: ShooterGame)
+              # On corrige le dossier racine (Propriétaire + Droits de base)
               chown -R 7777:7777 /home/pok/arkserver
               chmod -R 755 /home/pok/arkserver
+              
+              # On force spécifiquement sur les points de montage des PVCs pour éviter l'écrasement par k8s
+              chown -R 7777:7777 /home/pok/arkserver/ShooterGame/Saved
+              chown -R 7777:7777 /home/pok/arkserver/ShooterGame/Saved/clusters
+              chmod -R 775 /home/pok/arkserver/ShooterGame/Saved
               echo 'Permissions fixed.'
           volumeMounts:
             - name: asa-serverfiles
