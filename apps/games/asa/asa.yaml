@@ -89,7 +89,7 @@ spec:
               value: "winmm=n,b;OnlineFix64=n,b"
             # --- Mise à jour ---
             - name: UPDATE_SERVER
-              value: "TRUE"
+              value: "FALSE"
             - name: CHECK_FOR_UPDATE_INTERVAL
               value: "24"
             - name: RESTART_NOTICE_MINUTES
