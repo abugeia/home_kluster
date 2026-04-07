@@ -39,3 +39,4 @@ terraform.rc
 .env
 .terraform.lock.hcl
 secrets/clear
+*.code-workspace
