@@ -82,14 +82,12 @@ spec:
               value: "27020"
             - name: RCON_ENABLED
               value: "TRUE"
-            # --- Client cracké ---
+            # --- Anti-Cheat ---
             - name: BATTLEEYE
               value: "FALSE"
-            - name: WINEDLLOVERRIDES
-              value: "winmm=n,b;OnlineFix64=n,b"
             # --- Mise à jour ---
             - name: UPDATE_SERVER
-              value: "FALSE"
+              value: "TRUE"
             - name: CHECK_FOR_UPDATE_INTERVAL
               value: "24"
             - name: RESTART_NOTICE_MINUTES
