@@ -30,6 +30,10 @@ config:
         - source_labels: [__meta_kubernetes_pod_name]
           action: replace
           target_label: kubernetes_pod_name
+        # Filtre pour éviter les doublons si le pod a plusieurs ports
+        # On ne garde que la cible dont le numéro de port correspond à l'annotation
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_port, __meta_kubernetes_pod_container_port_number]
+          action: keep_if_equal
 
     # 2. Scrape des noeuds Kubernetes (Kubelet / cAdvisor / Node Exporter si installé)
     - job_name: 'kubernetes-nodes'
