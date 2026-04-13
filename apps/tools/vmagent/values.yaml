@@ -92,6 +92,7 @@ config:
 
     # 7. Scrape de l'onduleur Proxmox (NUT)
     - job_name: 'nut'
+      metrics_path: /ups_metrics
       static_configs:
         - targets: ['10.0.0.10:9110']
 # vmagent est extrêmement léger
