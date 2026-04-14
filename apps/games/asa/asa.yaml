@@ -16,6 +16,8 @@ spec:
         app: asa-server
     spec:
       securityContext:
+        runAsUser: 7777
+        runAsGroup: 7777
         fsGroup: 7777
         fsGroupChangePolicy: "Always"
       initContainers:
@@ -28,15 +30,18 @@ spec:
             - "-c"
             - |
               echo 'Fixing permissions for ASA server directories...'
-              # On corrige le dossier racine (Propriétaire + Droits de base)
+              # On s'assure que tout appartient à pok avant de démarrer
               chown -R 7777:7777 /home/pok/arkserver
               chmod -R 755 /home/pok/arkserver
               
-              # On force spécifiquement sur les points de montage des PVCs pour éviter l'écrasement par k8s
+              # On force spécifiquement sur les points de montage des PVCs
               chown -R 7777:7777 /home/pok/arkserver/ShooterGame/Saved
               chown -R 7777:7777 /home/pok/arkserver/ShooterGame/Saved/clusters
               chmod -R 775 /home/pok/arkserver/ShooterGame/Saved
-              echo 'Permissions fixed.'
+              
+              # Suppression des flags de blocage potentiels liés à un arrêt brutal (extinction 1h)
+              rm -f /home/pok/arkserver/updating.flag
+              echo 'Permissions and flags fixed.'
           volumeMounts:
             - name: asa-serverfiles
               mountPath: /home/pok/arkserver
@@ -47,6 +52,10 @@ spec:
       containers:
         - name: asa-server
           image: acekorneya/asa_server:2_1_latest
+          securityContext:
+            runAsUser: 7777
+            runAsGroup: 7777
+            runAsNonRoot: true
           resources:
             requests:
               memory: "16Gi"
