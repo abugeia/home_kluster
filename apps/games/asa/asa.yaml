@@ -71,9 +71,9 @@ spec:
                   - "-c"
                   - |
                     echo "PreStop: Saving world before shutdown..."
-                    /home/pok/scripts/rcon_commands.sh saveworld
+                    /home/pok/scripts/rcon_interface.sh -saveworld
                     echo "PreStop: Save done, waiting for completion..."
-                    sleep 10
+                    sleep 5
           ports:
             - containerPort: 7777
               protocol: TCP
