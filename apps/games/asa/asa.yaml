@@ -30,11 +30,11 @@ spec:
             - "-c"
             - |
               echo 'Fixing permissions for ASA server directories...'
-              # On s'assure que tout appartient à pok avant de démarrer
+              # On corrige le dossier racine (Propriétaire + Droits de base)
               chown -R 7777:7777 /home/pok/arkserver
               chmod -R 755 /home/pok/arkserver
               
-              # On force spécifiquement sur les points de montage des PVCs
+              # On force spécifiquement sur les points de montage des PVCs pour éviter l'écrasement par k8s
               chown -R 7777:7777 /home/pok/arkserver/ShooterGame/Saved
               chown -R 7777:7777 /home/pok/arkserver/ShooterGame/Saved/clusters
               chmod -R 775 /home/pok/arkserver/ShooterGame/Saved
@@ -63,6 +63,17 @@ spec:
             limits:
               memory: "20Gi"
               cpu: "4000m"
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - "/bin/bash"
+                  - "-c"
+                  - |
+                    echo "PreStop: Saving world before shutdown..."
+                    /home/pok/scripts/rcon_commands.sh saveworld
+                    echo "PreStop: Save done, waiting for completion..."
+                    sleep 10
           ports:
             - containerPort: 7777
               protocol: TCP
@@ -120,36 +131,6 @@ spec:
               mountPath: /home/pok/arkserver/ShooterGame/Saved
             - name: asa-cluster
               mountPath: /home/pok/arkserver/ShooterGame/Saved/clusters
-        - name: filebrowser
-          image: filebrowser/filebrowser:latest
-          securityContext:
-            runAsUser: 7777
-            runAsGroup: 7777
-          args:
-            - --noauth
-            - --database
-            - /tmp/filebrowser.db
-            - --root
-            - /srv
-            - --address
-            - 0.0.0.0
-            - --port
-            - "8080"
-          ports:
-            - containerPort: 8080
-              name: config-web
-          volumeMounts:
-            - name: asa-shootergame
-              mountPath: /srv
-            - name: asa-fb-config
-              mountPath: /config
-          resources:
-            requests:
-              memory: "32Mi"
-              cpu: "5m"
-            limits:
-              memory: "128Mi"
-              cpu: "500m"
       volumes:
         - name: asa-serverfiles
           persistentVolumeClaim:
@@ -160,8 +141,6 @@ spec:
         - name: asa-cluster
           persistentVolumeClaim:
             claimName: asa-cluster-pvc
-        - name: asa-fb-config
-          emptyDir: {}
 ---
 # PVC pour les binaires serveur ASA + Proton/Wine (~50 Go requis de base)
 apiVersion: v1
@@ -247,8 +226,4 @@ spec:
     - name: rcon
       port: 27020
       targetPort: 27020
-      protocol: TCP
-    - name: config-web
-      port: 8080
-      targetPort: 8080
       protocol: TCP
