@@ -19,7 +19,6 @@ spec:
         runAsUser: 7777
         runAsGroup: 7777
         fsGroup: 7777
-        fsGroupChangePolicy: "Always"
       initContainers:
         - name: fix-permissions
           image: busybox:latest
