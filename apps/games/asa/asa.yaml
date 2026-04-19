@@ -155,6 +155,20 @@ spec:
     requests:
       storage: 140Gi
 ---
+# PVC pour ShooterGame (saves, configs, logs) - LOCAL-PATH
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: asa-shootergame-pvc-local
+  namespace: games
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 10Gi
+---
 # PVC pour ShooterGame (saves, configs, logs)
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -226,3 +240,26 @@ spec:
       port: 27020
       targetPort: 27020
       protocol: TCP
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: asa-migrate
+  namespace: games
+spec:
+  containers:
+    - name: migrate
+      image: busybox:latest
+      command: ["sleep", "3600"]
+      volumeMounts:
+        - name: old-nfs
+          mountPath: /old
+        - name: new-local
+          mountPath: /new
+  volumes:
+    - name: old-nfs
+      persistentVolumeClaim:
+        claimName: asa-shootergame-pvc
+    - name: new-local
+      persistentVolumeClaim:
+        claimName: asa-shootergame-pvc-local
