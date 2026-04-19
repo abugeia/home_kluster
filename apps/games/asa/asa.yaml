@@ -4,7 +4,7 @@ metadata:
   name: asa-server
   namespace: games
 spec:
-  replicas: 1
+  replicas: 0
   strategy:
     type: Recreate # Pas de rolling update pour un game server stateful
   selector:
