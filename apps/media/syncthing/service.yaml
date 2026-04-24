@@ -26,3 +26,24 @@ spec:
   selector:
     app: syncthing
   type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: syncthing-sync
+  namespace: media
+  annotations:
+    metallb.io/load-balancer-ip: 10.0.0.102
+spec:
+  type: LoadBalancer
+  selector:
+    app: syncthing
+  ports:
+    - name: sync-tcp
+      port: 22000
+      targetPort: 22000
+      protocol: TCP
+    - name: sync-udp
+      port: 22000
+      targetPort: 22000
+      protocol: UDP
