@@ -173,20 +173,7 @@ spec:
   resources:
     requests:
       storage: 10Gi
----
-# PVC pour ShooterGame (saves, configs, logs)
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: asa-shootergame-pvc
-  namespace: games
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: nfs-csi-nvme
-  resources:
-    requests:
-      storage: 10Gi
+
 ---
 # PVC pour le Cluster (transferts cross-serveur)
 apiVersion: v1
