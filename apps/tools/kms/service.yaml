@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kms
+  namespace: tools
+  labels:
+    app: kms
+spec:
+  type: ClusterIP
+  selector:
+    app: kms
+  ports:
+    - name: kms
+      port: 1688
+      targetPort: 1688
+      protocol: TCP
+    - name: gui
+      port: 3000
+      targetPort: 3000
+      protocol: TCP
+---
+# Exposition du port KMS (1688) sur le LAN via MetalLB.
+# Pool MetalLB 10.0.0.100-110 ; .100/.101/.102/.103 déjà pris.
+apiVersion: v1
+kind: Service
+metadata:
+  name: kms-lan
+  namespace: tools
+  labels:
+    app: kms
+  annotations:
+    metallb.io/load-balancer-ip: 10.0.0.104
+spec:
+  type: LoadBalancer
+  selector:
+    app: kms
+  ports:
+    - name: kms
+      port: 1688
+      targetPort: 1688
+      protocol: TCP
+---
+# Exposition du port KMS sur le tailnet via l'opérateur Tailscale.
+apiVersion: v1
+kind: Service
+metadata:
+  name: kms-ts
+  namespace: tools
+  labels:
+    app: kms
+spec:
+  type: LoadBalancer
+  loadBalancerClass: tailscale
+  selector:
+    app: kms
+  ports:
+    - name: kms
+      port: 1688
+      targetPort: 1688
+      protocol: TCP
