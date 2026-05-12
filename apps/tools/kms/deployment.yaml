@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kms
+  namespace: tools
+  labels:
+    app: kms
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kms
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: kms
+    spec:
+      initContainers:
+        - name: fix-permissions
+          image: busybox
+          command: ["sh", "-c", "chown -R 1000:1000 /kms/var"]
+          volumeMounts:
+            - name: var
+              mountPath: /kms/var
+      containers:
+        - name: app
+          image: 11notes/kms:1.0.3
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: TZ
+              value: "Pacific/Noumea"
+          ports:
+            - name: kms
+              containerPort: 1688
+              protocol: TCP
+          volumeMounts:
+            - name: var
+              mountPath: /kms/var
+          resources:
+            requests:
+              memory: "32Mi"
+              cpu: "10m"
+            limits:
+              memory: "128Mi"
+              cpu: "200m"
+          livenessProbe:
+            tcpSocket:
+              port: 1688
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            tcpSocket:
+              port: 1688
+            initialDelaySeconds: 5
+            periodSeconds: 10
+        - name: gui
+          image: 11notes/kms-gui:1.0.3
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: TZ
+              value: "Pacific/Noumea"
+          ports:
+            - name: gui
+              containerPort: 3000
+              protocol: TCP
+          volumeMounts:
+            - name: var
+              mountPath: /kms/var
+              readOnly: true
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "10m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          readinessProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: var
+          persistentVolumeClaim:
+            claimName: kms-var

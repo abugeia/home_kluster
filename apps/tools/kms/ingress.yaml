@@ -1,0 +1,32 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kms-gui
+  namespace: tools
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
+    cert-manager.io/cluster-issuer: letsencrypt
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/description: "KMS activation monitor"
+    gethomepage.dev/group: "Tools"
+    gethomepage.dev/icon: "si-microsoft"
+    gethomepage.dev/name: "KMS"
+    gethomepage.dev/href: "https://kms.valab.top"
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - kms.valab.top
+      secretName: kms-gui-tls
+  rules:
+    - host: kms.valab.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kms
+                port:
+                  number: 3000
