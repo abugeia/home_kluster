@@ -90,6 +90,22 @@ grafana.ini:
     # Mapper les attributs OIDC
     role_attribute_path: contains(groups[*], 'admin') && 'Admin' || 'Viewer'
 
+# Sidecar dashboards : watch les ConfigMaps avec label grafana_dashboard=1
+# et les charge auto dans Grafana. Workflow GitOps : un dashboard JSON
+# dans le repo → ConfigMap généré via kustomize → sidecar le découvre.
+# Pattern documenté côté Ansible (cf. infra_proxmox), géré ici via
+# l'Application ArgoCD `grafana-dashboards` qui pointe
+# apps/tools/grafana/dashboards/.
+sidecar:
+  dashboards:
+    enabled: true
+    label: grafana_dashboard
+    labelValue: "1"
+    searchNamespace: ALL
+    folder: /tmp/dashboards
+    provider:
+      foldersFromFilesStructure: true
+
 # Secrets OIDC et Postgres injectés globalement
 envFromSecrets:
   - name: grafana-oidc-secret

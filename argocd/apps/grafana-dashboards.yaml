@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: grafana-dashboards
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  # Séparé de l'app `grafana` (qui pointe le Helm chart) pour pouvoir
+  # sync les dashboards sans redéployer Grafana. Les ConfigMaps sont
+  # ensuite découverts par le sidecar grafana via le label
+  # `grafana_dashboard=1` (cf. apps/tools/grafana/values.yaml).
+  source:
+    repoURL: 'https://github.com/abugeia/home_kluster.git'
+    targetRevision: main
+    path: apps/tools/grafana/dashboards
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: observability
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
