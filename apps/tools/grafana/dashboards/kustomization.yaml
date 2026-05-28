@@ -1,6 +1,6 @@
 ---
-# Pattern A — un ConfigMap par dashboard JSON, labelisé pour que le
-# sidecar Grafana le découvre automatiquement (cf. values.yaml de
+# Pattern A — un ConfigMap par dashboard JSON MAISON, labelisé pour que
+# le sidecar Grafana le découvre automatiquement (cf. values.yaml de
 # grafana qui active sidecar.dashboards avec label=grafana_dashboard).
 #
 # Workflow : drop un nouveau .json ici → ajouter une entry ci-dessous
@@ -9,6 +9,10 @@
 # disableNameSuffixHash=true : on garde un nom stable de ConfigMap pour
 # éviter une explosion d'objets à chaque édition du JSON. Pas de
 # rolling restart Grafana nécessaire (sidecar watch via inotify).
+#
+# NB : on ne versionne ICI que les dashboards MAISON (custom). Les
+# dashboards communautaires importés (Node Exporter Full, etc.) restent
+# en import manuel via l'UI — cf. README.md de ce dossier.
 
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
@@ -16,9 +20,9 @@ kind: Kustomization
 namespace: observability
 
 configMapGenerator:
-  - name: dashboard-gpu-power
+  - name: dashboard-homelab-power-env
     files:
-      - gpu-power.json
+      - homelab-power-env.json
     options:
       labels:
         grafana_dashboard: "1"
