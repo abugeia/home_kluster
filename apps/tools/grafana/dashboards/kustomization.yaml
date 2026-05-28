@@ -1,0 +1,25 @@
+---
+# Pattern A — un ConfigMap par dashboard JSON, labelisé pour que le
+# sidecar Grafana le découvre automatiquement (cf. values.yaml de
+# grafana qui active sidecar.dashboards avec label=grafana_dashboard).
+#
+# Workflow : drop un nouveau .json ici → ajouter une entry ci-dessous
+# → commit → ArgoCD sync → ConfigMap créé → sidecar push à Grafana.
+#
+# disableNameSuffixHash=true : on garde un nom stable de ConfigMap pour
+# éviter une explosion d'objets à chaque édition du JSON. Pas de
+# rolling restart Grafana nécessaire (sidecar watch via inotify).
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: observability
+
+configMapGenerator:
+  - name: dashboard-gpu-power
+    files:
+      - gpu-power.json
+    options:
+      labels:
+        grafana_dashboard: "1"
+      disableNameSuffixHash: true
