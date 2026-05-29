@@ -36,14 +36,32 @@ ingress:
   tls: true
   existingSecret: open-webui-tls
 
-# Auth : login interne Open WebUI (1er compte créé = admin). L'app n'est
-# donc pas ouverte malgré l'ingress public.
-# TODO (optionnel) : brancher Pocket ID en OIDC via extraEnvVars
-# (OAUTH_CLIENT_ID/SECRET depuis un secret open-webui-oidc-secret,
-# OPENID_PROVIDER_URL=https://auth-id.valab.top/.well-known/openid-configuration).
+# Auth : SSO OIDC via Pocket ID (auth-id.valab.top). Le formulaire de
+# login interne est désactivé (ENABLE_LOGIN_FORM=false) → accès 100% SSO.
+# Le client OAuth a été créé dans Pocket ID (redirect
+# https://chat.valab.top/oauth/oidc/callback) ; CLIENT_ID/SECRET viennent
+# du sealed-secret open-webui-oidc-secret (secrets/sealed/open-webui.yaml).
+# 1er utilisateur OAuth = admin (ENABLE_OAUTH_SIGNUP).
 extraEnvVars:
   - name: WEBUI_NAME
     value: "Valab AI"
+  - name: WEBUI_URL
+    value: "https://chat.valab.top"
+  - name: ENABLE_OAUTH_SIGNUP
+    value: "true"
+  - name: OPENID_PROVIDER_URL
+    value: "https://auth-id.valab.top/.well-known/openid-configuration"
+  - name: OAUTH_PROVIDER_NAME
+    value: "Pocket ID"
+  - name: OAUTH_SCOPES
+    value: "openid email profile groups"
+  - name: ENABLE_LOGIN_FORM
+    value: "false"
+
+# CLIENT_ID/SECRET OAuth injectés depuis le sealed-secret.
+extraEnvFrom:
+  - secretRef:
+      name: open-webui-oidc-secret
 
 resources:
   requests:
