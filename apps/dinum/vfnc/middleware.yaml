@@ -1,0 +1,11 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: vfnc-basicauth
+  namespace: dinum
+spec:
+  basicAuth:
+    # Le secret "vfnc-basicauth" (clé "users", format htpasswd) est fourni
+    # via SealedSecret -> secrets/sealed/vfnc-basicauth.yaml
+    secret: vfnc-basicauth
+    realm: "vfnc - acces restreint"

@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vfnc
+  namespace: dinum
+  labels:
+    app.kubernetes.io/name: vfnc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vfnc
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: vfnc
+    spec:
+      containers:
+        # Placeholder : à remplacer par l'image réelle de vfnc.
+        - name: vfnc
+          image: traefik/whoami
+          ports:
+            - name: http
+              containerPort: 80
