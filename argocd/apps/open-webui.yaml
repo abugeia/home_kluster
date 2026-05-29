@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: open-webui
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    # Source 1: chart Helm public Open WebUI
+    - repoURL: https://helm.openwebui.com
+      chart: open-webui
+      targetRevision: 14.6.0
+      helm:
+        valueFiles:
+          - $values/apps/ai/open-webui/values.yaml
+    # Source 2: repo git pour les values
+    - repoURL: 'https://github.com/abugeia/home_kluster.git'
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ai
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

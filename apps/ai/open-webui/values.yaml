@@ -1,0 +1,54 @@
+# Open WebUI — frontend LLM pointant l'Ollama de la VM ai-gaming (810→815).
+# Doc chart : https://github.com/open-webui/helm-charts
+
+# Pas de sous-chart Ollama : on consomme l'Ollama externe de la VM
+# ai-gaming (10.0.0.15:11434), qui a le GPU (RTX 5070 Ti) en passthrough.
+ollama:
+  enabled: false
+ollamaUrls:
+  - http://10.0.0.15:11434
+
+# Pipelines (plugins Python) non nécessaires pour un usage chat simple.
+pipelines:
+  enabled: false
+
+# Persistance des conversations / config (même classe que le reste du lab).
+persistence:
+  enabled: true
+  size: 5Gi
+  storageClass: nfs-csi-nvme
+
+# Ingress Traefik + TLS cert-manager (letsencrypt), cohérent avec les
+# autres apps. cert-manager remplit le secret open-webui-tls via
+# l'annotation cluster-issuer.
+ingress:
+  enabled: true
+  class: traefik
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Open WebUI"
+    gethomepage.dev/description: "Chat LLM local (Ollama / RTX 5070 Ti)"
+    gethomepage.dev/group: "AI"
+    gethomepage.dev/icon: "open-webui"
+    gethomepage.dev/href: "https://chat.valab.top"
+  host: chat.valab.top
+  tls: true
+  existingSecret: open-webui-tls
+
+# Auth : login interne Open WebUI (1er compte créé = admin). L'app n'est
+# donc pas ouverte malgré l'ingress public.
+# TODO (optionnel) : brancher Pocket ID en OIDC via extraEnvVars
+# (OAUTH_CLIENT_ID/SECRET depuis un secret open-webui-oidc-secret,
+# OPENID_PROVIDER_URL=https://auth-id.valab.top/.well-known/openid-configuration).
+extraEnvVars:
+  - name: WEBUI_NAME
+    value: "Valab AI"
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 256Mi
+  limits:
+    cpu: "1"
+    memory: 1Gi
