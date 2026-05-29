@@ -9,3 +9,14 @@ spec:
     # via SealedSecret -> secrets/sealed/vfnc-basicauth.yaml
     secret: vfnc-basicauth
     realm: "vfnc - acces restreint"
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: vfnc-api-stripprefix
+  namespace: dinum
+spec:
+  # vfnc.valab.top/api/<route> -> l'API FastAPI reçoit /<route>
+  stripPrefix:
+    prefixes:
+      - /api
