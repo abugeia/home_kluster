@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vfnc
+  namespace: dinum
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    # Protection "de principe" par basic auth dédié (compte dinum) — volontairement
+    # PAS tinyauth, pour que ce credential n'ouvre aucune autre app du cluster.
+    traefik.ingress.kubernetes.io/router.middlewares: dinum-vfnc-basicauth@kubernetescrd
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - vfnc.valab.top
+      secretName: vfnc-tls
+  rules:
+    - host: vfnc.valab.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: vfnc
+                port:
+                  number: 80

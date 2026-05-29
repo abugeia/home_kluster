@@ -57,6 +57,34 @@ openssl rand -hex 32
 ```
 Copier le résultat dans `tinyauth-secret`.
 
+## Basic Auth Traefik (protection "de principe" par app)
+
+Pour protéger une app par un simple user/mot de passe **sans passer par TinyAuth**
+(le credential n'ouvre alors que cette app, aucune autre) — ex. `vfnc.valab.top`
+avec le compte `dinum` :
+
+1. Générer le hash htpasswd (format `apr1`, supporté par Traefik) :
+   ```bash
+   openssl passwd -apr1 'MON_MOT_DE_PASSE'
+   ```
+2. Le placer dans `secrets/clear/<app>-basicauth.yaml`, clé `stringData.users`,
+   au format `user:hash` (1 ligne par utilisateur) :
+   ```yaml
+   stringData:
+     users: |
+       dinum:$apr1$....
+   ```
+3. Sceller (le fichier n'existant pas encore dans `sealed/`, `seal_all.sh` suffit ;
+   sinon sceller ce fichier directement car le script saute les sealed existants) :
+   ```bash
+   cd secrets && kubeseal --cert clear/sealed-secrets.pem --format yaml \
+     < clear/<app>-basicauth.yaml > sealed/<app>-basicauth.yaml
+   ```
+4. Côté app : un `Middleware` Traefik `basicAuth` référençant ce secret (clé `users`),
+   attaché à l'ingress via l'annotation
+   `traefik.ingress.kubernetes.io/router.middlewares: <ns>-<mw>-basicauth@kubernetescrd`.
+   Voir `apps/dinum/vfnc/` pour un exemple complet.
+
 ## Rappel : Chiffrement
 
 Une fois le fichier `secrets/clear/auth-stack.yaml` rempli :
