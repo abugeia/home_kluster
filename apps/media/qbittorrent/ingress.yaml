@@ -1,0 +1,33 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: qbittorrent
+  namespace: media
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    # Protection par TinyAuth (forward auth). Pas de Sablier : le client doit
+    # rester actif en continu pour télécharger / seeder.
+    traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/description: "Torrent Client"
+    gethomepage.dev/group: "Media"
+    gethomepage.dev/icon: "si-qbittorrent"
+    gethomepage.dev/name: "qBittorrent"
+    gethomepage.dev/href: "https://qbittorrent.valab.top"
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  tls:
+    - hosts:
+        - qbittorrent.valab.top
+      secretName: qbittorrent-tls
+  rules:
+    - host: qbittorrent.valab.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: qbittorrent
+                port:
+                  number: 8080

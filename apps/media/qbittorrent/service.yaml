@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: qbittorrent
+  namespace: media
+  labels:
+    app: qbittorrent
+spec:
+  type: ClusterIP
+  selector:
+    app: qbittorrent
+  ports:
+    - name: webui
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+---
+# Optionnel : exposer le port d'écoute BitTorrent via une IP MetalLB dédiée
+# pour améliorer la connectabilité (peers entrants). Sans ça, les transferts
+# fonctionnent quand même via les connexions sortantes, avec moins de peers.
+# Décommenter et router le port 6881 sur ton routeur vers cette IP si voulu.
+#
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: qbittorrent-bt
+#   namespace: media
+#   annotations:
+#     metallb.io/loadBalancerIPs: 10.0.0.102
+# spec:
+#   type: LoadBalancer
+#   selector:
+#     app: qbittorrent
+#   ports:
+#     - name: bt-tcp
+#       port: 6881
+#       targetPort: 6881
+#       protocol: TCP
+#     - name: bt-udp
+#       port: 6881
+#       targetPort: 6881
+#       protocol: UDP

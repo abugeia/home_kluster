@@ -1,0 +1,16 @@
+# Seul le volume de config est créé ici.
+# Les téléchargements réutilisent les PVC ReadWriteMany partagés
+# pvc-media-data (/tank_data/data) et pvc-media-video (/tank_data/video),
+# déjà définis par filebrowser et montés en read-only par jellyfin.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: qbittorrent-config
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-csi-nvme
+  resources:
+    requests:
+      storage: 1Gi

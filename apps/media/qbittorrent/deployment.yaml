@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qbittorrent
+  namespace: media
+  labels:
+    app: qbittorrent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: qbittorrent
+  strategy:
+    type: Recreate # mono-instance, pas de rolling update (PVC RWO config)
+  template:
+    metadata:
+      labels:
+        app: qbittorrent
+    spec:
+      # Pas de securityContext.runAsUser : l'image linuxserver démarre en root
+      # (s6-overlay) puis applique PUID/PGID. fsGroup pour l'accès NFS partagé.
+      securityContext:
+        fsGroup: 1000
+      containers:
+        - name: qbittorrent
+          image: lscr.io/linuxserver/qbittorrent:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "Pacific/Noumea"
+            - name: WEBUI_PORT
+              value: "8080"
+          ports:
+            - containerPort: 8080
+              name: webui
+            - containerPort: 6881
+              protocol: TCP
+              name: bt-tcp
+            - containerPort: 6881
+              protocol: UDP
+              name: bt-udp
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            # Destinations de téléchargement = partages ZFS existants (read-write).
+            # Configure le "Default Save Path" de qBittorrent vers /video/downloads
+            # (ou /data/downloads) : déplacement atomique au sein du même montage NFS.
+            - name: vol-video
+              mountPath: /video
+            - name: vol-data
+              mountPath: /data
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "2Gi"
+              cpu: "2000m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: qbittorrent-config
+        - name: vol-video
+          persistentVolumeClaim:
+            claimName: pvc-media-video
+        - name: vol-data
+          persistentVolumeClaim:
+            claimName: pvc-media-data
