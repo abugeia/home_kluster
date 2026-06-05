@@ -17,19 +17,19 @@ spec:
       labels:
         app: qbittorrent
     spec:
-      # Pas de securityContext.runAsUser : l'image linuxserver démarre en root
-      # (s6-overlay) puis applique PUID/PGID. fsGroup pour l'accès NFS partagé.
-      securityContext:
-        fsGroup: 1000
+      # PUID/PGID=0 : qBittorrent tourne en root. L'arborescence ZFS existante
+      # (/tank_data/{video,data}) est en root:root, et l'export NFS est en
+      # no_root_squash → root peut écrire partout, les fichiers créés restent
+      # root:root, cohérents avec le reste. uid 1000 serait refusé en écriture.
       containers:
         - name: qbittorrent
           image: lscr.io/linuxserver/qbittorrent:latest
           imagePullPolicy: IfNotPresent
           env:
             - name: PUID
-              value: "1000"
+              value: "0"
             - name: PGID
-              value: "1000"
+              value: "0"
             - name: TZ
               value: "Pacific/Noumea"
             - name: WEBUI_PORT
