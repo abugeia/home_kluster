@@ -17,15 +17,15 @@ data:
       trusted_proxies:
         - 10.42.0.0/16
 
-    # --- Phase 2 : SSO OIDC via Pocket ID (public client / PKCE) -------------
-    # L'add-on auth_oidc est déjà installé par l'initContainer du Deployment.
-    # Décommenter après avoir créé le client "Home Assistant" dans Pocket ID
-    # (callback : https://ha.valab.top/auth/oidc/callback, type Public Client).
-    # client_id n'est PAS un secret en public client -> pas de sealed-secret.
-    # auth_oidc:
-    #   client_id: "<CLIENT_ID_POCKET_ID>"
-    #   discovery_url: "https://auth-id.valab.top/.well-known/openid-configuration"
-    #   display_name: "Pocket ID"
+    # --- SSO OIDC via Pocket ID (public client / PKCE) ----------------------
+    # Add-on auth_oidc installé par l'initContainer du Deployment.
+    # Client "Home Assistant" dans Pocket ID, type Public Client (PKCE) ->
+    # pas de client_secret, donc client_id non sensible (transite dans l'URL).
+    # Callback déclaré côté Pocket ID : https://ha.valab.top/auth/oidc/callback
+    auth_oidc:
+      client_id: "0ab1ae9e-c7dd-4a8f-a730-7eca540166ed"
+      discovery_url: "https://auth-id.valab.top/.well-known/openid-configuration"
+      display_name: "Pocket ID"
     # ------------------------------------------------------------------------
 
     automation: !include automations.yaml
