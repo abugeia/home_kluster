@@ -36,13 +36,30 @@ spec:
         - name: boten-anna
           image: harbor.valab.top/prod/boten-anna:main
           imagePullPolicy: Always
-          envFrom:
-            # FREQTRADE__DB_URL (PostgreSQL) + identifiants API/FreqUI — sealed-secret
-            - secretRef:
-                name: boten-anna-secrets
+          # Compose db_url depuis le secret PostgreSQL géré par Ansible (boten-anna-pg-secret,
+          # source de vérité = vault). Mot de passe URL-encodé pour rester robuste si rotation.
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              export FREQTRADE__DB_URL="postgresql+psycopg://${PG_USER}:$(python3 -c 'import urllib.parse,sys;print(urllib.parse.quote(sys.argv[1],safe=""))' "$PG_PASSWORD")@10.0.0.12:5432/ba_db"
+              exec freqtrade trade --config /freqtrade/user_data/config.json --strategy BotenAnnaStrategy
           env:
             - name: TZ
               value: "Pacific/Noumea"
+            - name: PG_USER
+              valueFrom:
+                secretKeyRef:
+                  name: boten-anna-pg-secret # créé par Ansible (rôle k3s)
+                  key: username
+            - name: PG_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: boten-anna-pg-secret
+                  key: password
+          envFrom:
+            # Identifiants FreqUI / API REST uniquement (sealed-secret)
+            - secretRef:
+                name: boten-anna-secrets
           ports:
             - containerPort: 8080
               name: http
