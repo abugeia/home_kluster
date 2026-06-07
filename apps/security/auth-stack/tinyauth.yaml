@@ -64,7 +64,7 @@ spec:
             - name: TINYAUTH_OIDC_PRIVATEKEYPATH
               value: "/data/tinyauth_oidc_key"
             - name: TINYAUTH_OAUTH_WHITELIST
-              value: "REDACTED,admin@pocketid"
+              value: "REDACTED,admin@pocketid,REDACTED"
           livenessProbe:
             httpGet:
               path: /api/healthz
