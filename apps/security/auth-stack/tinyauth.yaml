@@ -64,7 +64,7 @@ spec:
             - name: TINYAUTH_OIDC_PRIVATEKEYPATH
               value: "/data/tinyauth_oidc_key"
             - name: TINYAUTH_OAUTH_WHITELIST
-              value: "abugeia@gmail.com,admin@pocketid"
+              value: "abugeia@gmail.com,admin@pocketid,sabrina-gournet@hotmail.fr"
           livenessProbe:
             httpGet:
               path: /api/healthz
