@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: home-assistant
+  namespace: home-assistant
+  labels:
+    app: home-assistant
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate # PVC RWO + instance unique (recorder SQLite)
+  selector:
+    matchLabels:
+      app: home-assistant
+  template:
+    metadata:
+      labels:
+        app: home-assistant
+    spec:
+      initContainers:
+        # Prépare /config : fichiers d'include vides + installe l'add-on OIDC
+        # (full GitOps, sans HACS). Idempotent : ne réinstalle pas si déjà présent.
+        - name: bootstrap-config
+          image: alpine:3.20
+          env:
+            - name: OIDC_VERSION
+              value: "v1.1.0" # christiaangoossens/hass-oidc-auth
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              cd /config
+              mkdir -p custom_components
+              [ -f automations.yaml ] || echo "[]" > automations.yaml
+              [ -f scripts.yaml ] || echo "{}" > scripts.yaml
+              [ -f scenes.yaml ] || echo "[]" > scenes.yaml
+              if [ ! -f custom_components/auth_oidc/manifest.json ]; then
+                echo "Installing hass-oidc-auth ${OIDC_VERSION}..."
+                wget -qO /tmp/oidc.tar.gz \
+                  "https://github.com/christiaangoossens/hass-oidc-auth/archive/refs/tags/${OIDC_VERSION}.tar.gz"
+                tar -xzf /tmp/oidc.tar.gz -C /tmp
+                rm -rf custom_components/auth_oidc
+                cp -r /tmp/hass-oidc-auth-*/custom_components/auth_oidc custom_components/auth_oidc
+                rm -rf /tmp/hass-oidc-auth-* /tmp/oidc.tar.gz
+              fi
+          volumeMounts:
+            - name: config
+              mountPath: /config
+      containers:
+        - name: home-assistant
+          image: ghcr.io/home-assistant/home-assistant:stable
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: TZ
+              value: "Pacific/Noumea"
+          ports:
+            - name: http
+              containerPort: 8123
+          readinessProbe:
+            httpGet:
+              path: /manifest.json # accessible sans auth
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 15
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /manifest.json
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: configuration
+              mountPath: /config/configuration.yaml
+              subPath: configuration.yaml
+              readOnly: true
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: home-assistant-config
+        - name: configuration
+          configMap:
+            name: home-assistant-config

@@ -1,0 +1,32 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: home-assistant
+  namespace: home-assistant
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    # Pas de middleware TinyAuth : HA gère sa propre auth (owner natif + OIDC),
+    # et un proxy d'auth devant casserait l'app mobile et les webhooks.
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Home Assistant"
+    gethomepage.dev/description: "Domotique"
+    gethomepage.dev/group: "Home"
+    gethomepage.dev/icon: "home-assistant.png"
+    gethomepage.dev/href: "https://ha.valab.top"
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - ha.valab.top
+      secretName: home-assistant-tls
+  rules:
+    - host: ha.valab.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: home-assistant
+                port:
+                  number: 80

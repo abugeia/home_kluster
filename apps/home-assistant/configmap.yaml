@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: home-assistant-config
+  namespace: home-assistant
+data:
+  # Monté en lecture seule sur /config/configuration.yaml (subPath).
+  # HA ne réécrit jamais ce fichier : la config est versionnée ici (GitOps).
+  configuration.yaml: |
+    default_config:
+
+    # Indispensable derrière Traefik : sans ça HA renvoie une 400
+    # "request from a reverse proxy". 10.42.0.0/16 = CIDR des pods k3s
+    # (le pod Traefik est la source vue par HA).
+    http:
+      use_x_forwarded_for: true
+      trusted_proxies:
+        - 10.42.0.0/16
+
+    # --- Phase 2 : SSO OIDC via Pocket ID (public client / PKCE) -------------
+    # L'add-on auth_oidc est déjà installé par l'initContainer du Deployment.
+    # Décommenter après avoir créé le client "Home Assistant" dans Pocket ID
+    # (callback : https://ha.valab.top/auth/oidc/callback, type Public Client).
+    # client_id n'est PAS un secret en public client -> pas de sealed-secret.
+    # auth_oidc:
+    #   client_id: "<CLIENT_ID_POCKET_ID>"
+    #   discovery_url: "https://auth-id.valab.top/.well-known/openid-configuration"
+    #   display_name: "Pocket ID"
+    # ------------------------------------------------------------------------
+
+    automation: !include automations.yaml
+    script: !include scripts.yaml
+    scene: !include scenes.yaml
