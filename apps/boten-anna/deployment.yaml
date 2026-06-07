@@ -4,41 +4,81 @@ metadata:
   name: boten-anna
   namespace: boten-anna
   labels:
-    app: boten-anna 
+    app: boten-anna
 spec:
   replicas: 1
+  strategy:
+    type: Recreate # PVC RWO + bot mono-instance : pas de rolling update
   selector:
     matchLabels:
       app: boten-anna
   template:
     metadata:
       labels:
-        app: boten-anna 
+        app: boten-anna
     spec:
-      imagePullSecrets: 
-        - name: harbor-cicd-secret # Le secret répliqué par Reflector
+      imagePullSecrets:
+        - name: harbor-cicd-secret # répliqué par Reflector (label ns replicate-harbor-cicd)
+      securityContext:
+        fsGroup: 1000 # ftuser de l'image freqtrade
+      initContainers:
+        # Prépare et donne les droits à ftuser sur les sous-dossiers montés du PVC
+        - name: fix-permissions
+          image: busybox
+          command:
+            - sh
+            - -c
+            - mkdir -p /pvc/data /pvc/models /pvc/logs && chown -R 1000:1000 /pvc
+          volumeMounts:
+            - name: data
+              mountPath: /pvc
       containers:
-        - name: boten-anna 
-          image: harbor.valab.top/prod/boten-anna:main 
+        - name: boten-anna
+          image: harbor.valab.top/prod/boten-anna:main
           imagePullPolicy: Always
+          envFrom:
+            # FREQTRADE__DB_URL (PostgreSQL) + identifiants API/FreqUI — sealed-secret
+            - secretRef:
+                name: boten-anna-secrets
+          env:
+            - name: TZ
+              value: "Pacific/Noumea"
           ports:
-            - containerPort: 5000 
+            - containerPort: 8080
+              name: http
+          # /api/v1/ping est public (pas de JWT) -> idéal pour les probes
           readinessProbe:
             httpGet:
-              path: / 
-              port: 5000
-            initialDelaySeconds: 5
-            periodSeconds: 60
+              path: /api/v1/ping
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 30
           livenessProbe:
             httpGet:
-              path: /
-              port: 5000
-            initialDelaySeconds: 15
+              path: /api/v1/ping
+              port: 8080
+            initialDelaySeconds: 30
             periodSeconds: 60
+          volumeMounts:
+            # Seuls les sous-dossiers runtime sont sur PVC ; config.json + strategies
+            # restent ceux embarqués dans l'image.
+            - name: data
+              mountPath: /freqtrade/user_data/data
+              subPath: data
+            - name: data
+              mountPath: /freqtrade/user_data/models
+              subPath: models
+            - name: data
+              mountPath: /freqtrade/user_data/logs
+              subPath: logs
           resources:
             requests:
-              memory: "64Mi"
-              cpu: "10m"
+              memory: "512Mi"
+              cpu: "100m"
             limits:
-              memory: "128Mi"
-              cpu: "500m"
+              memory: "2Gi" # marge pour le ré-entraînement FreqAI (phase 2)
+              cpu: "2"
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: boten-anna-data

@@ -4,10 +4,16 @@ metadata:
   name: boten-anna
   namespace: boten-anna
   annotations:
-    kubernetes.io/ingress.class: traefik
     traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
     cert-manager.io/cluster-issuer: letsencrypt
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Boten Anna"
+    gethomepage.dev/description: "Bot de trading crypto (Freqtrade)"
+    gethomepage.dev/group: "Tools"
+    gethomepage.dev/icon: "freqtrade.png"
+    gethomepage.dev/href: "https://ba.valab.top"
 spec:
+  ingressClassName: traefik
   tls:
     - hosts:
         - ba.valab.top
