@@ -19,7 +19,7 @@ spec:
     spec:
       initContainers:
         # Prépare /config : fichiers d'include vides + installe l'add-on OIDC
-        # (full GitOps, sans HACS). Idempotent : ne réinstalle pas si déjà présent.
+        # (full GitOps, sans HACS). Idempotent + auto-réparateur.
         - name: bootstrap-config
           image: alpine:3.20
           env:
@@ -35,14 +35,20 @@ spec:
               [ -f automations.yaml ] || echo "[]" > automations.yaml
               [ -f scripts.yaml ] || echo "{}" > scripts.yaml
               [ -f scenes.yaml ] || echo "[]" > scenes.yaml
-              if [ ! -f custom_components/auth_oidc/manifest.json ]; then
-                echo "Installing hass-oidc-auth ${OIDC_VERSION}..."
-                wget -qO /tmp/oidc.tar.gz \
-                  "https://github.com/christiaangoossens/hass-oidc-auth/archive/refs/tags/${OIDC_VERSION}.tar.gz"
-                tar -xzf /tmp/oidc.tar.gz -C /tmp
-                rm -rf custom_components/auth_oidc
-                cp -r /tmp/hass-oidc-auth-*/custom_components/auth_oidc custom_components/auth_oidc
-                rm -rf /tmp/hass-oidc-auth-* /tmp/oidc.tar.gz
+              # On installe depuis l'ASSET DE RELEASE (zip packagé), pas le tarball
+              # source : ce dernier ne contient pas le CSS compilé (static/style.css),
+              # ce qui casse le rendu des pages de login. La condition sur style.css
+              # déclenche aussi une réinstallation des installs incomplètes.
+              if [ ! -f custom_components/auth_oidc/static/style.css ]; then
+                echo "Installing hass-oidc-auth ${OIDC_VERSION} (release asset)..."
+                command -v unzip >/dev/null || apk add --no-cache unzip
+                rm -rf custom_components/auth_oidc /tmp/auth_oidc /tmp/auth_oidc.zip
+                mkdir -p /tmp/auth_oidc
+                wget -qO /tmp/auth_oidc.zip \
+                  "https://github.com/christiaangoossens/hass-oidc-auth/releases/download/${OIDC_VERSION}/hass-oidc-auth.zip"
+                unzip -q /tmp/auth_oidc.zip -d /tmp/auth_oidc
+                mv /tmp/auth_oidc custom_components/auth_oidc
+                rm -f /tmp/auth_oidc.zip
               fi
           volumeMounts:
             - name: config
