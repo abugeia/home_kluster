@@ -26,6 +26,11 @@ data:
       client_id: "0ab1ae9e-c7dd-4a8f-a730-7eca540166ed"
       discovery_url: "https://auth-id.valab.top/.well-known/openid-configuration"
       display_name: "Pocket ID"
+      features:
+        # Skippe la welcome screen de l'add-on (servie sans CSS -> rendu cassé)
+        # et redirige directement vers la page de login Pocket ID (stylée).
+        # Login HA local de secours : https://ha.valab.top/?skip_oidc_redirect=true
+        default_redirect: true
     # ------------------------------------------------------------------------
 
     automation: !include automations.yaml
