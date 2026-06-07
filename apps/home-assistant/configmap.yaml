@@ -31,10 +31,9 @@ data:
         # et redirige directement vers la page de login Pocket ID (stylée).
         # Login HA local de secours : https://ha.valab.top/?skip_oidc_redirect=true
         default_redirect: true
-        # TEMPORAIRE : lie le login OIDC au compte HA de même username
-        # (preferred_username == owner "antoine"). À repasser à false une fois
-        # le compte lié (sinon tout user OIDC homonyme hérite des droits).
-        automatic_user_linking: true
+        # Le compte OIDC est lié au owner "antoine" (admin) directement par son
+        # 'sub' dans .storage/auth -> automatic_user_linking inutile et laissé à
+        # false (défaut) pour la sécurité.
     # ------------------------------------------------------------------------
 
     automation: !include automations.yaml
