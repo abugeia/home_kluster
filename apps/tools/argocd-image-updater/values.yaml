@@ -4,8 +4,7 @@ config:
   git.user: "argocd-image-updater"
   git.email: "argocd-image-updater@home_kluster"
   # Registries surveillés. Harbor prod est privé : on réutilise le pull secret
-  # harbor-cicd-secret, répliqué dans le ns argocd par Reflector
-  # (label replicate-harbor-cicd=true sur le namespace argocd).
+  # harbor-cicd-secret (présent dans le ns argocd).
   registries:
     - name: Harbor Valab
       api_url: https://harbor.valab.top
@@ -13,3 +12,29 @@ config:
       ping: yes
       credentials: pullsecret:argocd/harbor-cicd-secret
       default: true
+
+# Modèle CRD (chart 1.x) : la config de suivi vit dans une ressource ImageUpdater,
+# pas dans les annotations de l'Application. Déployée via extraObjects.
+extraObjects:
+  - apiVersion: argocd-image-updater.argoproj.io/v1alpha1
+    kind: ImageUpdater
+    metadata:
+      name: vfnc
+    spec:
+      # tag :main mutable -> on suit le digest (sha256) derrière main
+      commonUpdateSettings:
+        updateStrategy: digest
+      # write-back GitOps via la deploy key SSH (SealedSecret image-updater-git-creds)
+      writeBackConfig:
+        method: "git:secret:argocd/image-updater-git-creds"
+        gitConfig:
+          repository: git@github.com:abugeia/home_kluster.git
+          branch: main
+      # cible : l'Application argocd "vfnc" (même namespace que cette CR : argocd)
+      applicationRefs:
+        - namePattern: vfnc
+          images:
+            - alias: api
+              imageName: harbor.valab.top/prod/vfnc-api:main
+            - alias: web
+              imageName: harbor.valab.top/prod/vfnc-web:main
