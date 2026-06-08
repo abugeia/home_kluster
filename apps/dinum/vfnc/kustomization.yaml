@@ -6,6 +6,7 @@ resources:
   - api.yaml
   - web.yaml
   - middleware.yaml
+  - ingress.yaml
 # Images surveillées par argocd-image-updater (write-back kustomize).
 # Le digest courant du tag :main est inscrit ici via .argocd-source-vfnc.yaml.
 images:
