@@ -11,6 +11,8 @@ spec:
       sablierUrl: {{ $config.sablierUrl | default $.Values.defaults.sablierUrl }}
       group: {{ $config.group | default $name | quote }}
       sessionDuration: {{ $config.duration | default "30m" }}
+      {{- /* hasKey pour gérer correctement un override booléen à false (default écraserait false) */}}
+      failOpen: {{ if hasKey $config "failOpen" }}{{ $config.failOpen }}{{ else }}{{ $.Values.defaults.failOpen }}{{ end }}
       dynamic:
         displayName: {{ $config.group | default $name | quote }}
         showDetails: true

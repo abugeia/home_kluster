@@ -8,6 +8,10 @@ defaults:
   theme: ghost
   refreshFrequency: 2s
   sablierUrl: http://sablier-sablier.tools.svc.cluster.local:10000
+  # failOpen (plugin >= v1.3.0) : si Sablier est injoignable, laisse passer la requête
+  # vers le backend au lieu de renvoyer une erreur. Évite que Sablier soit un SPOF
+  # pour les apps déjà démarrées.
+  failOpen: true
 
 apps:
   webtop:
