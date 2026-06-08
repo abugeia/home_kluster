@@ -1,30 +1,21 @@
 # Configuration Sablier pour Scale-to-Zero
 # Documentation: https://sablierapp.dev
+#
+# NOTE (chart 1.2.x) : la structure des values a été refondue par rapport à la 1.0.x.
+# - Le provider Kubernetes est désormais hardcodé dans le template (args: start --provider.name=kubernetes).
+# - Le RBAC (ServiceAccount + Role) est créé automatiquement par le chart.
+# - La configuration fine passe par `extraArgs` (flags CLI du serveur Sablier).
 
-# Provider Kubernetes (obligatoire)
-# Indique à Sablier qu'il doit gérer des Deployments/StatefulSets Kubernetes
-provider:
-  name: kubernetes
+# Niveau de log (mappé sur --logging.level)
+logLevel: "info"
 
 image:
-  tag: "1.11.2"
+  # Épinglé sur l'appVersion du chart 1.2.1 ; explicite pour tracer la version serveur.
+  tag: "1.13.0"
 
-sessions:
-  expiration-interval: 3m
-
-# Logging (optionnel)
-logging:
-  level: info
-
-# Métriques Prometheus (optionnel mais recommandé)
-# Active l'export de métriques pour observer l'activité de Sablier
-metrics:
-  enabled: true
-
-# Service (configuration par défaut OK)
-# Le service sera créé automatiquement sur le port 10000 (par défaut)
-
-# Ingress (désactivé car nous utilisons des Middlewares Traefik)
-# Sablier n'a pas besoin d'ingress direct, il agit en tant que proxy transparent
-ingress:
-  enabled: false
+# Arguments CLI additionnels passés au conteneur sablier.
+extraArgs:
+  # Intervalle de vérification d'expiration des sessions.
+  - --sessions.expiration-interval=3m
+  # Expose l'endpoint Prometheus /metrics (anciennement metrics.enabled: true).
+  - --server.metrics.enabled=true

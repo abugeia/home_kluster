@@ -10,7 +10,7 @@ spec:
   sources:
     - repoURL: https://sablierapp.github.io/helm-charts
       chart: sablier
-      targetRevision: 1.0.3
+      targetRevision: 1.2.1
       helm:
         valueFiles:
           - $values/apps/tools/sablier/values.yaml
