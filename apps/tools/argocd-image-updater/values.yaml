@@ -1,0 +1,15 @@
+config:
+  log.level: "info"
+  # Identité des commits de write-back dans le repo GitOps
+  git.user: "argocd-image-updater"
+  git.email: "argocd-image-updater@home_kluster"
+  # Registries surveillés. Harbor prod est privé : on réutilise le pull secret
+  # harbor-cicd-secret, répliqué dans le ns argocd par Reflector
+  # (label replicate-harbor-cicd=true sur le namespace argocd).
+  registries:
+    - name: Harbor Valab
+      api_url: https://harbor.valab.top
+      prefix: harbor.valab.top
+      ping: yes
+      credentials: pullsecret:argocd/harbor-cicd-secret
+      default: true
