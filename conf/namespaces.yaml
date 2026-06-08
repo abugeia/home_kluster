@@ -27,6 +27,8 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: argocd
+  labels:
+    replicate-harbor-cicd: "true"   # pour qu'argocd-image-updater lise harbor-cicd-secret (répliqué par Reflector)
 ---
 apiVersion: v1
 kind: Namespace

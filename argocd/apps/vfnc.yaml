@@ -5,6 +5,16 @@ metadata:
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
+  annotations:
+    # Surveillance des deux images par argocd-image-updater.
+    # Tag :main mutable -> stratégie digest (suit le sha256 derrière main).
+    argocd-image-updater.argoproj.io/image-list: "api=harbor.valab.top/prod/vfnc-api:main,web=harbor.valab.top/prod/vfnc-web:main"
+    argocd-image-updater.argoproj.io/api.update-strategy: digest
+    argocd-image-updater.argoproj.io/web.update-strategy: digest
+    # Write-back GitOps : commit du digest dans le repo via la deploy key SSH.
+    argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/image-updater-git-creds
+    argocd-image-updater.argoproj.io/git-repository: git@github.com:abugeia/home_kluster.git
+    argocd-image-updater.argoproj.io/git-branch: main
 spec:
   project: default
   source:

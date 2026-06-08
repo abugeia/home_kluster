@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: dinum
+resources:
+  - db.yaml
+  - api.yaml
+  - web.yaml
+  - middleware.yaml
+# Images surveillées par argocd-image-updater (write-back kustomize).
+# Le digest courant du tag :main est inscrit ici via .argocd-source-vfnc.yaml.
+images:
+  - name: harbor.valab.top/prod/vfnc-api
+    newTag: main
+  - name: harbor.valab.top/prod/vfnc-web
+    newTag: main
