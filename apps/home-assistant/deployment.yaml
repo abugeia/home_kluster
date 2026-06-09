@@ -17,6 +17,12 @@ spec:
       labels:
         app: home-assistant
     spec:
+      # Pod sur le réseau de l'hôte (VM Proxmox sur le LAN) : indispensable pour
+      # que la découverte mDNS/Zeroconf + SSDP/UPnP fonctionne (multicast L2).
+      # HA écoute alors directement sur <IP_VM>:8123. L'Ingress/Service restent
+      # valides (endpoint = IP de la VM:8123). dnsPolicy conserve le DNS cluster.
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       initContainers:
         # Prépare /config : fichiers d'include vides + installe l'add-on OIDC
         # (full GitOps, sans HACS). Idempotent + auto-réparateur.
