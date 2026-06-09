@@ -41,7 +41,7 @@ spec:
           command: ["/bin/sh", "-c"]
           args:
             - |
-              export FREQTRADE__DB_URL="postgresql+psycopg://${PG_USER}:$(python3 -c 'import urllib.parse,sys;print(urllib.parse.quote(sys.argv[1],safe=""))' "$PG_PASSWORD")@10.0.0.12:5432/ba_db"
+              export FREQTRADE__DB_URL="postgresql+psycopg://${PG_USER}:$(python3 -c 'import urllib.parse,sys;print(urllib.parse.quote(sys.argv[1],safe=""))' "$PG_PASSWORD")@10.0.0.12:5432/ba_db?client_encoding=utf8"
               exec freqtrade trade --config /freqtrade/user_data/config.json --strategy BotenAnnaStrategy
           env:
             - name: TZ
