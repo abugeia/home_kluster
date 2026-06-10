@@ -123,8 +123,10 @@ spec:
               value: "FALSE"
             - name: CLUSTER_ID
               value: "cluster"
+            # Ordre = ordre de chargement : overhaul (spawns) avant structures, HUD en dernier
+            # 1166819 = Tek Dinos Everywhere | 940003 = Super Structures Ascended (S+) | 1357454 = Dino HUD Plus
             - name: MOD_IDS
-              value: ""
+              value: "1166819,940003,1357454"
             - name: CUSTOM_SERVER_ARGS
               value: ""
           volumeMounts:
