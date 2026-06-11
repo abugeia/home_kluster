@@ -21,6 +21,19 @@ spec:
       # (/tank_data/{video,data}) est en root:root, et l'export NFS est en
       # no_root_squash → root peut écrire partout, les fichiers créés restent
       # root:root, cohérents avec le reste. uid 1000 serait refusé en écriture.
+      initContainers:
+        # Supprime un éventuel lockfile/ipc-socket résiduel. qBittorrent 5.2.x a un
+        # bug (qbittorrent/qBittorrent#24185) : après un arrêt brutal (SIGKILL par
+        # la liveness, OOM…), le lockfile subsiste → au redémarrage qBittorrent
+        # croit qu'une instance tourne déjà et s'auto-termine en boucle. On nettoie
+        # au démarrage pour casser ce cercle vicieux.
+        - name: clean-lockfile
+          image: busybox:latest
+          command:
+            ["sh", "-c", "rm -fv /config/qBittorrent/lockfile /config/qBittorrent/ipc-socket || true"]
+          volumeMounts:
+            - name: config
+              mountPath: /config
       containers:
         - name: qbittorrent
           image: lscr.io/linuxserver/qbittorrent:latest
