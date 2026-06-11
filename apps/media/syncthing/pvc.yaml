@@ -6,7 +6,9 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: local-path
+  # nfs-csi-nvme (et non local-path) : la config doit survivre à un reschedule du pod
+  # sur un autre nœud. local-path est lié au disque local du nœud → config perdue.
+  storageClassName: nfs-csi-nvme
   resources:
     requests:
       storage: 50Mi

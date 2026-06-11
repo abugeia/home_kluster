@@ -19,15 +19,19 @@ spec:
       labels:
         app: filebrowser
     spec:
+      # root : nécessaire pour écrire (upload/rename/delete) sur le NFS dont
+      # l'arborescence /tank_data/{data,video} est en root:root (no_root_squash).
+      # En UID 1000, filebrowser ne pouvait que lire/télécharger. Cohérent avec
+      # metube/qbittorrent/syncthing.
       securityContext:
-        runAsUser: 1000
-        runAsGroup: 1000
+        runAsUser: 0
+        runAsGroup: 0
       initContainers:
         - name: fix-permissions
           image: busybox:latest
           securityContext:
             runAsUser: 0
-          command: ["sh", "-c", "chown -R 1000:1000 /database"]
+          command: ["sh", "-c", "chown -R 0:0 /database"]
           volumeMounts:
             - name: config
               mountPath: /database
