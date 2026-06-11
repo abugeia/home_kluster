@@ -24,7 +24,7 @@ spec:
       initContainers:
         - name: fix-permissions
           image: busybox
-          command: ["sh", "-c", "chown -R 1000:1000 /config"]
+          command: ["sh", "-c", "chown -R 0:0 /config"]
           volumeMounts:
             - name: config
               mountPath: /config
@@ -33,10 +33,13 @@ spec:
           image: lscr.io/linuxserver/syncthing:latest
           imagePullPolicy: IfNotPresent
           env:
+            # PUID/PGID=0 : Syncthing tourne en root pour pouvoir écrire sur le NFS
+            # (no_root_squash, arborescence /tank_data/data en root:root). Cohérent
+            # avec metube/qbittorrent. Sinon la sync recevante échoue (permission denied).
             - name: PUID
-              value: "1000"
+              value: "0"
             - name: PGID
-              value: "1000"
+              value: "0"
             - name: TZ
               value: "Pacific/Noumea"
             - name: STNOUPNP
