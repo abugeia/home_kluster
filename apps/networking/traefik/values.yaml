@@ -6,6 +6,64 @@ deployment:
     prometheus.io/port: "8082"
     prometheus.io/scrape: "true"
   priorityClassName: "system-cluster-critical"
+  # Sources du plugin Sablier stockées sur un PVC persistant (cf. extraObjects).
+  additionalVolumes:
+    - name: plugins-local
+      persistentVolumeClaim:
+        claimName: traefik-plugins
+  # Clone les sources du plugin Sablier UNE seule fois, puis le PVC les conserve.
+  # Objectif : supprimer toute dépendance réseau au démarrage de Traefik.
+  # Historique : en mode plugin distant, Traefik retéléchargeait le plugin depuis
+  # plugins.traefik.io à chaque boot. Au reboot nocturne, le réseau du pod (CNI/DNS)
+  # n'est pas prêt -> téléchargement KO -> "Plugins are disabled" -> tous les
+  # middlewares tools-sablier-* invalides -> 404 sur les apps + Sablier jamais
+  # sollicité (donc aucun réveil). Le mode localPlugins lit les sources sur disque.
+  # L'initContainer n'échoue JAMAIS le boot : si le réseau est indisponible mais que
+  # les sources sont déjà présentes sur le PVC, Traefik démarre quand même.
+  initContainers:
+    - name: fetch-sablier-plugin
+      image: alpine/git:2.47.1
+      command: ["/bin/sh", "-c"]
+      args:
+        - |
+          set -u
+          DEST="/plugins-local/src/github.com/sablierapp/sablier-traefik-plugin"
+          if [ -f "$DEST/.traefik.yml" ]; then
+            echo "Plugin Sablier deja present -> skip clone"
+          else
+            echo "Clone du plugin Sablier ${SABLIER_PLUGIN_VERSION}..."
+            rm -rf "$DEST"
+            mkdir -p "$DEST"
+            git clone --depth 1 --branch "${SABLIER_PLUGIN_VERSION}" \
+              https://github.com/sablierapp/sablier-traefik-plugin "$DEST" \
+              || echo "AVERTISSEMENT: clone echoue (reseau indispo au boot). Traefik demarrera avec les sources existantes si presentes."
+          fi
+          exit 0
+      env:
+        - name: SABLIER_PLUGIN_VERSION
+          value: "v1.3.0"
+        - name: HOME
+          value: /plugins-local
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: [ALL]
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+      volumeMounts:
+        - name: plugins-local
+          mountPath: /plugins-local
+
+# fsGroup : indispensable pour que l'initContainer non-root (uid 65532) puisse
+# écrire dans le PVC traefik-plugins fraîchement provisionné (sinon root:root).
+podSecurityContext:
+  runAsGroup: 65532
+  runAsNonRoot: true
+  runAsUser: 65532
+  fsGroup: 65532
+  seccompProfile:
+    type: RuntimeDefault
 
 tolerations:
   - key: "CriticalAddonsOnly"
@@ -28,13 +86,20 @@ logs:
   access:
     enabled: true
 
-# PERSISTANCE : Activée sur /plugins-storage pour stabiliser les plugins (Sablier).
-# Évite que les plugins ne soient re-téléchargés (et potentiellement perdus) à chaque redémarrage.
-persistence:
-  enabled: true
-  accessMode: ReadWriteOnce
-  size: 1Gi
-  path: /plugins-storage
+# PVC dédié aux SOURCES du plugin Sablier (mode localPlugins).
+# Provisionné une fois, conservé ensuite (survit aux reboots) : aucun
+# téléchargement réseau requis au démarrage de Traefik.
+extraObjects:
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: traefik-plugins
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi
 
 ports:
   web:
@@ -53,11 +118,14 @@ service:
     metallb.io/load-balancer-ip: 10.0.0.101
 
 experimental:
-  plugins:
+  # Plugin Sablier en mode LOCAL (sources sur PVC, cf. deployment.initContainers).
+  # Remplace l'ancien plugin distant (experimental.plugins.sablier) dont le
+  # re-téléchargement au boot provoquait les 404 après le redémarrage nocturne.
+  # Le plugin a été extrait dans un repo dédié fin 2025 ; v1.3.0 : fix cache page
+  # d'attente/redirect loop (#37), fix SSE hang (#36), keep-alive (#35), failOpen (#40).
+  localPlugins:
     sablier:
-      # Plugin extrait dans un repo dédié depuis fin 2025 (l'ancien module
-      # github.com/sablierapp/sablier est figé en v1.10.x et n'est plus maintenu).
-      # v1.3.0 apporte : fix cache page d'attente/redirect loop (#37), fix SSE hang (#36),
-      # keep-alive connexions longues (#35), failOpen (#40).
-      moduleName: "github.com/sablierapp/sablier-traefik-plugin"
-      version: "v1.3.0"
+      type: localPath
+      moduleName: github.com/sablierapp/sablier-traefik-plugin
+      mountPath: /plugins-local
+      volumeName: plugins-local
