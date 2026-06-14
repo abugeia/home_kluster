@@ -85,10 +85,13 @@ spec:
               mountPath: /data
           resources:
             requests:
-              memory: "100Mi"
+              memory: "128Mi"
               cpu: "50m"
             limits:
-              memory: "1Gi"
+              # 2Gi : un gros lot (playlist) lance plusieurs yt-dlp + ffmpeg
+              # d'extraction audio en parallèle ; 1Gi suffisait au repos mais
+              # provoquait des OOMKilled sur les gros téléchargements groupés.
+              memory: "2Gi"
               cpu: "1000m"
       volumes:
         - name: video-vol
