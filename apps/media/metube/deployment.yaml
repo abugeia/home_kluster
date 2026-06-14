@@ -37,16 +37,25 @@ spec:
           image: ghcr.io/alexta69/metube:latest
           imagePullPolicy: IfNotPresent
           env:
+            # UID/GID=0 : MeTube écrit en root sur le NFS (arborescence
+            # /tank_data/data en root:root, no_root_squash). En UID 1000 le
+            # process de download ne pouvait rien créer dans Musique_sync
+            # (« Permission denied »). Cohérent avec syncthing/qbittorrent.
             - name: UID
-              value: "1000"
+              value: "0"
             - name: GID
-              value: "1000"
+              value: "0"
             - name: DOWNLOAD_DIR
               value: "/mnt/video/Download"
             - name: AUDIO_DOWNLOAD_DIR
               value: "/mnt/data/Musique_sync"
             - name: STATE_DIR
               value: "/data"
+            # Playlists téléchargées à plat (pas de sous-dossier par playlist).
+            # Défaut MeTube = %(playlist_title)s/%(title)s.%(ext)s → on retire le
+            # préfixe dossier pour que tout atterrisse directement dans Musique_sync.
+            - name: OUTPUT_TEMPLATE_PLAYLIST
+              value: "%(title)s.%(ext)s"
             - name: DEFAULT_OPTION_PLAYLIST_STRICT_MODE
               value: "true"
             - name: DEFAULT_OPTION_PLAYLIST_ITEM_LIMIT
