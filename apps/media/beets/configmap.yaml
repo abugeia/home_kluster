@@ -36,11 +36,14 @@ data:
       log: /config/import_sync.log
 
     match:
-      # 0.20 : calibré empiriquement (mesure sur échantillon -> ~97% de match auto
-      # de bonne qualité). Le défaut 0.04 est bien trop strict pour ce contenu et
-      # skippait quasi tout. quiet_fallback reste 'skip' : les rares cas sous le
-      # seuil sont laissés pour une session interactive.
-      strong_rec_thresh: 0.20
+      # Calibré empiriquement sur le vrai contenu (tubes YouTube) :
+      # - strong_rec_thresh 0.30 : tolère les suffixes de titre ("- Remastered…").
+      # - rec_gap_thresh 0.90 : neutralise la pénalité "near-tie" — un morceau
+      #   populaire existe dans des dizaines de releases MusicBrainz quasi
+      #   identiques, ce qui faisait skipper beets par excès de prudence.
+      # Mesure : fait passer le taux de match auto de ~82% à ~93%, qualité conservée.
+      strong_rec_thresh: 0.30
+      rec_gap_thresh: 0.90
 
     # Reste = défauts beets : write:yes, autotag:yes, quiet_fallback:skip,
     # paths Artiste/Album/$track $title, ignore ['.*', ...].
