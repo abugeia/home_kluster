@@ -11,7 +11,7 @@ applications principales se partagent ce volume.
 
 | App | Image | Rôle | Vue du volume `pvc-media-data` | Exposition |
 |-----|-------|------|--------------------------------|------------|
-| **Navidrome** | `deluan/navidrome:0.56.0` | Streaming (API Subsonic) | `/music/Musique_sync` + `/music/Music` (2 subPaths) | `music.valab.top` + alias `navidrome.valab.top` + **Tailscale** |
+| **Navidrome** | `deluan/navidrome:0.56.0` | Streaming (API Subsonic) | `/music` = subPath `Musique/` (74G) **uniquement** | `music.valab.top` + alias `navidrome.valab.top` + **Tailscale** |
 | **MeTube** | `ghcr.io/alexta69/metube:latest` | Download YouTube | audio → `Musique_sync/`, vidéo → `pvc-media-video:/Download` | `tb.valab.top` |
 | **Syncthing** | `lscr.io/linuxserver/syncthing:latest` | Sync multi-device | monte **toute la racine** `/data` | UI `syncthing.valab.top` (IP locale) + P2P MetalLB `10.0.0.102:22000` |
 
@@ -23,9 +23,14 @@ la partie vidéo ; non central pour la musique.
 ```
 Proxmox pve1 (10.0.0.10) — ZFS tank_data (mirror HDD 14,6 To)
   └── /tank_data/data        (export NFS, PV pv-media-data → PVC pvc-media-data)
-        ├── Musique_sync/     ← cible download audio MeTube + ajouts manuels
-        └── Music/            ← bibliothèque
+        ├── Musique/          ← BIBLIOTHÈQUE MAÎTRE (14954 fichiers, 74G) — diffusée par Navidrome
+        └── Musique_sync/     ← antichambre (cible MeTube + ajouts manuels), ~2G — offline only
 ```
+
+> Attention nommage : la bibliothèque est `Musique/` (français). Un dossier
+> `Music/` (anglais) **vide** traînait et était monté par erreur dans Navidrome
+> (qui ne diffusait donc que `Musique_sync`) → supprimé, Navidrome pointe
+> désormais sur `Musique/`.
 
 StorageClasses (cf. `conf/nfs.yaml`) : `nfs-csi-hdd` (données massives, RWX,
 ReclaimPolicy **Retain**), `nfs-csi-nvme` (DB/config petites, RWO — porte la
@@ -42,9 +47,12 @@ filebrowser étaient l'exception (UID 1000) → corrigés en root (cf. §3).
 
 ### Constats
 
-1. **`Musique_sync/` et `Music/` sont deux frères dans le même dataset, tous deux
-   scannés par Navidrome.** Le download YouTube est donc déjà dans la
-   bibliothèque d'écoute, mais physiquement isolé dans son sous-dossier.
+1. **Séparation stream / offline** : Navidrome diffuse **`Musique/`** (la grande
+   bibliothèque) ; **`Musique_sync/` n'est PAS dans Navidrome** — il est réservé à
+   l'écoute offline via une source locale Symfonium (fichiers répliqués par
+   Syncthing). Pas de doublon côté client. Un morceau téléchargé par MeTube arrive
+   dans `Musique_sync/` (offline) et ne devient streamable qu'après **promotion**
+   vers `Musique/`.
 2. **Syncthing monte la racine `/tank_data/data` entière** et sa config réelle vit
    dans le PVC `syncthing-config` (hors git, éditée à l'UI) : le périmètre
    réellement synchronisé n'est pas traçable dans le repo. Cette config a déjà été
@@ -69,10 +77,10 @@ Modèle à **deux dossiers aux rôles distincts**, avec Syncthing **cloisonné**
 - **`Musique_sync/`** — zone légère et mouvante : cible MeTube + ajouts manuels.
   **Seul dossier synchronisé** par Syncthing vers téléphones/PC (écoute offline).
   Doit rester petit.
-- **`Music/`** — bibliothèque maître : taggée/organisée, lourde, **reste sur le
-  serveur**, écoutée uniquement en streaming Navidrome via Tailscale.
+- **`Musique/`** — bibliothèque maître : taggée/organisée, lourde (74G), **reste
+  sur le serveur**, écoutée uniquement en streaming Navidrome via Tailscale.
 - **Promotion** : périodiquement, le contenu de `Musique_sync/` est taggé puis
-  déplacé vers `Music/`, ce qui empêche `Musique_sync/` de gonfler et de saturer
+  déplacé vers `Musique/`, ce qui empêche `Musique_sync/` de gonfler et de saturer
   les appareils.
 
 ### Correctif technique à appliquer
@@ -100,8 +108,8 @@ flowchart TD
         Tagger["🏷️ Tagging (beets / Picard / Lidarr ?)<br/>— à décider"]:::todo
 
         subgraph PVC["💾 pvc-media-data → NFS /tank_data/data"]
-            DirSync["📁 Musique_sync/<br/>léger, synchronisé"]:::storage
-            DirMusic["📁 Music/<br/>bibliothèque maître"]:::storage
+            DirSync["📁 Musique_sync/<br/>léger, synchronisé, offline"]:::storage
+            DirMusic["📁 Musique/<br/>bibliothèque maître 74G"]:::storage
         end
     end
 
@@ -110,12 +118,11 @@ flowchart TD
     Phone -- "ajout manuel (via sync)" --> Syncthing
 
     DirSync <== "Send & Receive<br/>(uniquement ce dossier)" ==> Syncthing
-    Syncthing <== offline ==> Phone
+    Syncthing <== offline (source locale) ==> Phone
 
     DirSync -. promotion (tag + move) .-> Tagger
     Tagger -. range dans .-> DirMusic
 
-    DirSync -. scan .-> Navidrome
     DirMusic -. scan .-> Navidrome
     Navidrome == "streaming (Tailscale)" ==> Phone
 ```
