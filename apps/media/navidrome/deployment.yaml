@@ -33,6 +33,11 @@ spec:
             # fichiers déplacés s'accumulent en fantômes dans la base.
             - name: ND_SCANNER_PURGEMISSING
               value: "full"
+            # Playlists importées (.nsp/.m3u) et créées par les users = publiques
+            # par défaut → visibles par tout le monde (et via Subsonic/Symfonium).
+            # Sans ça elles sont privées au compte propriétaire (souvent "admin").
+            - name: ND_DEFAULTPLAYLISTPUBLICVISIBILITY
+              value: "true"
             - name: ND_MUSICFOLDER
               value: "/music"
             - name: ND_DATAFOLDER

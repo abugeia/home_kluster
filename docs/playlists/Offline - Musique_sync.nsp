@@ -1,6 +1,7 @@
 {
   "all": [
-    { "contains": { "filepath": "Musique_sync/" } }
+    { "contains": { "filepath": "Musique_sync/" } },
+    { "is": { "missing": false } }
   ],
   "sort": "dateadded",
   "order": "desc"
