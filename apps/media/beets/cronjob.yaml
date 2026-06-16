@@ -8,12 +8,19 @@ metadata:
 spec:
   schedule: "0 10 * * *" # tous les jours à 10:00 (heure locale via timeZone)
   timeZone: "Pacific/Noumea"
-  concurrencyPolicy: Forbid # jamais deux imports en parallèle (DB + PVC RWO)
+  # Replace (pas Forbid) : le serveur s'éteint la nuit (minuit→10h) ; un job coupé
+  # peut rester "active" au reboot et bloquerait Forbid. Replace écrase tout résidu
+  # au passage de 10h. Pas de parallélisme réel (la fenêtre serveur < durée entre 2
+  # passages), donc DB/PVC RWO préservés.
+  concurrencyPolicy: Replace
+  startingDeadlineSeconds: 1800 # tolère un démarrage du serveur un peu après 10:00
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
   jobTemplate:
     spec:
-      backoffLimit: 0
+      backoffLimit: 1
+      activeDeadlineSeconds: 50400  # 14h : borné à la fenêtre serveur 10h→minuit
+      ttlSecondsAfterFinished: 86400 # nettoie les jobs terminés au bout d'un jour
       template:
         metadata:
           labels:
