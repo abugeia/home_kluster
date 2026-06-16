@@ -146,6 +146,20 @@ flowchart TD
 - [x] **Modèle offline révisé** : abandon de l'offline-via-Syncthing au profit de
       l'auto-cache Symfonium sur une smart playlist `filepath ~ /Musique_sync/`
       (cf. `docs/playlists/`). Navidrome scanne les deux dossiers (biblio unique).
+- [x] **Tagging beets** : CronJob déployé (`apps/media/beets/`), 10:00, mode
+      *singleton* auto (`quiet`/`skip`), plugins `musicbrainz`+`chroma`+`duplicates`
+      +`fetchart`, `strong_rec_thresh: 0.20`, `incremental: no` + `move` (reprise
+      auto après extinction), clé AcoustID en SealedSecret. ~97% de match mesuré.
+      CronJob durci pour l'extinction nocturne (Replace, startingDeadline, activeDeadline).
+- [~] **Import initial `Musique_sync`** : 1ère passe EN COURS (job manuel). Rangé en
+      `Musique_sync/Non-Album/$artist/$title`. Les ~3% douteux restent à plat →
+      session interactive plus tard (`beet import` sans `-q` en TTY via un pod).
+- [ ] **Traiter `Musique/` (74G)** : ajouter au CronJob un 2e passage (config + DB
+      dédiées, `directory: /music/Musique`) enchaîné APRÈS `Musique_sync` (un seul
+      beets à la fois — PVC config RWO). ~16h → reprise sur ~2 jours (fenêtre 10h-minuit).
+- [ ] **Dédup** : `beet duplicates` (liste) puis suppression contrôlée, quand voulu.
+- [x] **qBittorrent** CrashLoopBackOff RÉSOLU : initContainer nettoyant le `lockfile`
+      résiduel au démarrage (bug qBittorrent 5.2.x).
 - [ ] **Déposer la smart playlist** `Offline - Musique_sync.nsp` sur le NFS (via
       Filebrowser dans `Musique/`) puis activer l'auto-cache dans Symfonium.
 - [ ] **Sort de Syncthing** : confirmer qu'il ne sert qu'à la musique → si oui,
@@ -156,5 +170,3 @@ flowchart TD
 - [ ] Définir la cadence et le mode (manuel vs automatisé) de la **promotion**
       `Musique_sync/` → `Music/`.
 - [ ] *(hors musique, cf. `TODO.md`)* généraliser `Retain` sur `nfs-csi-nvme`.
-- [ ] *(séparé)* qBittorrent en CrashLoopBackOff (liveness probe port 8080,
-      exit 137) — sans rapport avec les droits.
