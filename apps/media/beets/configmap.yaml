@@ -17,6 +17,8 @@ data:
     # duplicates : LISTE seulement (défaut keep:0, aucune suppression auto).
     # fetchart : pochettes. info : commande d'inspection.
     plugins:
+      - musicbrainz # backend MusicBrainz (en beets 2.x c'est un plugin à activer
+                    # explicitement — sans lui, l'autotagger ne trouve AUCUN candidat)
       - chroma      # identification par empreinte acoustique (fpcalc/AcoustID)
       - duplicates
       - fetchart
@@ -29,6 +31,12 @@ data:
       incremental: yes     # ne retraite pas ce qui l'a déjà été
       log: /config/import_sync.log
 
-    # Tout le reste = défauts beets : write:yes, autotag:yes, quiet_fallback:skip,
-    # match.strong_rec_thresh:0.04 (seuil strict), paths Artiste/Album/$track $title,
-    # ignore ['.*', ...] (couvre déjà .stfolder/.stversions).
+    match:
+      # 0.20 : calibré empiriquement (mesure sur échantillon -> ~97% de match auto
+      # de bonne qualité). Le défaut 0.04 est bien trop strict pour ce contenu et
+      # skippait quasi tout. quiet_fallback reste 'skip' : les rares cas sous le
+      # seuil sont laissés pour une session interactive.
+      strong_rec_thresh: 0.20
+
+    # Reste = défauts beets : write:yes, autotag:yes, quiet_fallback:skip,
+    # paths Artiste/Album/$track $title, ignore ['.*', ...].
