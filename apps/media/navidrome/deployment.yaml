@@ -49,12 +49,17 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /data
-            # Diffusion = la bibliothèque maître "Musique/" (74G) uniquement.
-            # Musique_sync n'est PAS scanné par Navidrome (réservé à l'offline via
-            # la source locale Symfonium/Syncthing) → pas de doublon côté client.
+            # Navidrome scanne /music = les DEUX sous-dossiers (Musique 74G +
+            # Musique_sync), pour pouvoir créer des playlists piochant dans les deux.
+            # NB : Musique_sync étant aussi exposé en source locale Symfonium, il
+            # apparaîtra en double côté client (stream Navidrome + local) — retirer
+            # la source locale si le doublon gêne.
             - name: music
-              mountPath: /music
+              mountPath: /music/Musique
               subPath: Musique
+            - name: music
+              mountPath: /music/Musique_sync
+              subPath: Musique_sync
           resources:
             requests:
               memory: "100Mi"
