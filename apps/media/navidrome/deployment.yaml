@@ -49,12 +49,12 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /data
+            # Diffusion = la bibliothèque maître "Musique/" (74G) uniquement.
+            # Musique_sync n'est PAS scanné par Navidrome (réservé à l'offline via
+            # la source locale Symfonium/Syncthing) → pas de doublon côté client.
             - name: music
-              mountPath: /music/Musique_sync
-              subPath: Musique_sync
-            - name: music
-              mountPath: /music/Music
-              subPath: Music
+              mountPath: /music
+              subPath: Musique
           resources:
             requests:
               memory: "100Mi"
