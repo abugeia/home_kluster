@@ -11,7 +11,7 @@ applications principales se partagent ce volume.
 
 | App | Image | Rôle | Vue du volume `pvc-media-data` | Exposition |
 |-----|-------|------|--------------------------------|------------|
-| **Navidrome** | `deluan/navidrome:0.56.0` | Streaming (API Subsonic) | `/music` = subPath `Musique/` (74G) **uniquement** | `music.valab.top` + alias `navidrome.valab.top` + **Tailscale** |
+| **Navidrome** | `deluan/navidrome:0.62.0` | Streaming (API Subsonic) | bibliothèque unique `/music` = subPaths `Musique/` (74G) **+** `Musique_sync/` | `music.valab.top` + alias `navidrome.valab.top` + **Tailscale** |
 | **MeTube** | `ghcr.io/alexta69/metube:latest` | Download YouTube | audio → `Musique_sync/`, vidéo → `pvc-media-video:/Download` | `tb.valab.top` |
 | **Syncthing** | `lscr.io/linuxserver/syncthing:latest` | Sync multi-device | monte **toute la racine** `/data` | UI `syncthing.valab.top` (IP locale) + P2P MetalLB `10.0.0.102:22000` |
 
@@ -47,12 +47,15 @@ filebrowser étaient l'exception (UID 1000) → corrigés en root (cf. §3).
 
 ### Constats
 
-1. **Séparation stream / offline** : Navidrome diffuse **`Musique/`** (la grande
-   bibliothèque) ; **`Musique_sync/` n'est PAS dans Navidrome** — il est réservé à
-   l'écoute offline via une source locale Symfonium (fichiers répliqués par
-   Syncthing). Pas de doublon côté client. Un morceau téléchargé par MeTube arrive
-   dans `Musique_sync/` (offline) et ne devient streamable qu'après **promotion**
-   vers `Musique/`.
+1. **Modèle offline (révisé juin 2026)** : Navidrome scanne désormais **les deux
+   dossiers** dans une **bibliothèque unique** (`Musique/` + `Musique_sync/`), pour
+   que tout soit accessible à la curation de playlists. L'**offline ne passe plus
+   par Syncthing** : Symfonium télécharge lui-même le sous-ensemble offline via
+   l'API Subsonic. Comme Symfonium ne sait pas cibler un *dossier* (browsing par
+   métadonnées), on lui donne un handle = une **smart playlist Navidrome filtrée sur
+   `filepath contains "/Musique_sync/"`**, et on active l'**auto-cache** dessus.
+   Voir `docs/playlists/`. Plus de doublon stream+local puisqu'il n'y a plus de
+   source locale Syncthing.
 2. **Syncthing monte la racine `/tank_data/data` entière** et sa config réelle vit
    dans le PVC `syncthing-config` (hors git, éditée à l'UI) : le périmètre
    réellement synchronisé n'est pas traçable dans le repo. Cette config a déjà été
@@ -66,11 +69,18 @@ filebrowser étaient l'exception (UID 1000) → corrigés en root (cf. §3).
   nativement Subsonic/OpenSubsonic/Navidrome (cache offline, cast). **On garde.**
 - **MeTube** : toujours maintenu, adapté au download *à la demande*. (Pinchflat
   vise l'archivage auto de chaînes → hors besoin.) **On garde.**
-- **Syncthing** : référence P2P multi-device. **On garde.**
-- **Tagging** : seul maillon manquant. Décision à trancher en fin de chantier
-  (candidats : beets CLI/auto, MusicBrainz Picard GUI, ou Lidarr). **En suspens.**
+- **Syncthing** : **son rôle offline-musique disparaît** (remplacé par l'auto-cache
+  Symfonium, cf. §1). À retirer du repo s'il ne sert qu'à la musique ; à conserver
+  seulement s'il a un autre usage. *Décision en suspens.*
+- **Tagging** : **beets retenu** (`apps/media/beets/`, en cours de déploiement,
+  phase 1 = nettoyage de `Musique_sync/`). Picard/Lidarr écartés.
 
 ## 3. Cible recommandée
+
+> ⚠️ **Révisé (juin 2026)** : le volet « offline via Syncthing » ci-dessous est
+> **remplacé** par l'auto-cache Symfonium (cf. §1, constat 1). Le schéma et le
+> §« correctif Syncthing » restent ici pour mémoire le temps de trancher le sort de
+> Syncthing. Le reste (deux dossiers, promotion `Musique_sync/` → `Musique/`) tient.
 
 Modèle à **deux dossiers aux rôles distincts**, avec Syncthing **cloisonné**.
 
@@ -133,11 +143,16 @@ flowchart TD
       `runAsUser:0`) pour pouvoir écrire — ils étaient bloqués en lecture seule.
 - [x] **PVC config Syncthing** : `pvc.yaml` réaligné `local-path → nfs-csi-nvme`
       (le réel ; le `local-path` du git n'avait jamais pris, champ immutable).
-- [ ] **Reconfig Syncthing (UI)** : recréer le dossier partagé `Musique_sync/`
-      (`Send & Receive`) et **ré-appairer** les devices (le device ID a changé,
-      l'ancien appairage est mort). Restreindre le partage au **seul**
-      `Musique_sync/`, pas la racine `/tank_data/data`.
-- [ ] **Tagging** : choisir l'outil (beets / Picard / Lidarr) — *en suspens*.
+- [x] **Modèle offline révisé** : abandon de l'offline-via-Syncthing au profit de
+      l'auto-cache Symfonium sur une smart playlist `filepath ~ /Musique_sync/`
+      (cf. `docs/playlists/`). Navidrome scanne les deux dossiers (biblio unique).
+- [ ] **Déposer la smart playlist** `Offline - Musique_sync.nsp` sur le NFS (via
+      Filebrowser dans `Musique/`) puis activer l'auto-cache dans Symfonium.
+- [ ] **Sort de Syncthing** : confirmer qu'il ne sert qu'à la musique → si oui,
+      retirer l'app (`apps/media/syncthing/` + `argocd/apps/`). Sinon documenter
+      son autre usage.
+- [ ] **Compte Navidrome pour ta copine** (auth header `Remote-User`) pour qu'elle
+      crée ses playlists (cochées `Public` pour partage).
 - [ ] Définir la cadence et le mode (manuel vs automatisé) de la **promotion**
       `Musique_sync/` → `Music/`.
 - [ ] *(hors musique, cf. `TODO.md`)* généraliser `Retain` sur `nfs-csi-nvme`.
