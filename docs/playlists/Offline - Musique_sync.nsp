@@ -1,0 +1,7 @@
+{
+  "all": [
+    { "contains": { "filepath": "Musique_sync/" } }
+  ],
+  "sort": "dateadded",
+  "order": "desc"
+}

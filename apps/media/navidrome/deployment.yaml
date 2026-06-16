@@ -21,13 +21,18 @@ spec:
     spec:
       containers:
         - name: navidrome
-          image: deluan/navidrome:0.56.0
+          image: deluan/navidrome:0.62.0
           ports:
             - containerPort: 4533
               name: http
           env:
             - name: ND_SCANTYPES
               value: "m4a,mp3,flac,ogg"
+            # Purge les entrées "missing" lors des scans complets. Pertinent car
+            # beets (move:yes) déplace Musique_sync/ -> Musique/ : sans ça, les
+            # fichiers déplacés s'accumulent en fantômes dans la base.
+            - name: ND_SCANNER_PURGEMISSING
+              value: "full"
             - name: ND_MUSICFOLDER
               value: "/music"
             - name: ND_DATAFOLDER
@@ -45,7 +50,7 @@ spec:
             - name: ND_EXTAUTH_TRUSTEDSOURCES
               value: "0.0.0.0/0"
             - name: ND_LOGLEVEL
-              value: "trace"
+              value: "info"
           volumeMounts:
             - name: data
               mountPath: /data
