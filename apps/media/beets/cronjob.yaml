@@ -6,7 +6,7 @@ metadata:
   labels:
     app: beets
 spec:
-  schedule: "0 4 * * *" # tous les jours à 04:00 (heure locale via timeZone)
+  schedule: "0 10 * * *" # tous les jours à 10:00 (heure locale via timeZone)
   timeZone: "Pacific/Noumea"
   concurrencyPolicy: Forbid # jamais deux imports en parallèle (DB + PVC RWO)
   successfulJobsHistoryLimit: 3
