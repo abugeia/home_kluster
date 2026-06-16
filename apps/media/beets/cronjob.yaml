@@ -1,0 +1,63 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: beets
+  namespace: media
+  labels:
+    app: beets
+spec:
+  schedule: "0 4 * * *" # tous les jours à 04:00 (heure locale via timeZone)
+  timeZone: "Pacific/Noumea"
+  concurrencyPolicy: Forbid # jamais deux imports en parallèle (DB + PVC RWO)
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          labels:
+            app: beets
+        spec:
+          restartPolicy: Never
+          # Pas de PUID/PGID : on bypasse l'init s6 (invocation directe de beet),
+          # le conteneur tourne donc en root -> écriture OK sur le NFS root:root.
+          containers:
+            - name: beets
+              image: lscr.io/linuxserver/beets:latest
+              imagePullPolicy: IfNotPresent
+              # Import non-interactif : applique les matches sûrs, skip les douteux
+              # (quiet_fallback: skip dans la config) qui restent en attente d'une
+              # session interactive manuelle. incremental -> ne retraite pas l'acquis.
+              command: ["beet", "import", "-q", "/music/Musique_sync"]
+              env:
+                - name: BEETSDIR
+                  value: /config
+                - name: TZ
+                  value: Pacific/Noumea
+              volumeMounts:
+                - name: config
+                  mountPath: /config
+                - name: config-file
+                  mountPath: /config/config.yaml
+                  subPath: config.yaml
+                - name: music
+                  mountPath: /music/Musique_sync
+                  subPath: Musique_sync
+              resources:
+                requests:
+                  memory: "256Mi"
+                  cpu: "100m"
+                limits:
+                  memory: "1Gi"
+                  cpu: "1000m"
+          volumes:
+            - name: config
+              persistentVolumeClaim:
+                claimName: beets-config
+            - name: config-file
+              configMap:
+                name: beets-config
+            - name: music
+              persistentVolumeClaim:
+                claimName: pvc-media-data

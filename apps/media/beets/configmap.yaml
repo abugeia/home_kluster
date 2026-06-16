@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: beets-config
+  namespace: media
+data:
+  # Config beets — PHASE 1 : nettoyage de Musique_sync (test, protégé par la
+  # corbeille Syncthing). Pour traiter Musique/ ensuite, on basculera `directory`
+  # et `library` (ou on lancera avec -c une 2e config).
+  config.yaml: |
+    directory: /music/Musique_sync
+    library: /config/beets_sync.db
+
+    # Identification : tags existants + MusicBrainz. (chroma/AcoustID = empreinte
+    # acoustique, utile pour les fichiers YouTube mal nommés, à activer plus tard
+    # avec une clé AcoustID.)
+    # duplicates : LISTE seulement (défaut keep:0, aucune suppression auto).
+    # fetchart : pochettes. info : commande d'inspection.
+    plugins:
+      - duplicates
+      - fetchart
+      - info
+
+    # Seules déviations volontaires aux défauts beets :
+    import:
+      move: yes            # réorg EN PLACE (défaut = copy -> dupliquerait l'espace)
+      quiet: yes           # mode automatique (défaut = import interactif)
+      incremental: yes     # ne retraite pas ce qui l'a déjà été
+      log: /config/import_sync.log
+
+    # Tout le reste = défauts beets : write:yes, autotag:yes, quiet_fallback:skip,
+    # match.strong_rec_thresh:0.04 (seuil strict), paths Artiste/Album/$track $title,
+    # ignore ['.*', ...] (couvre déjà .stfolder/.stversions).
