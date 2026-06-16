@@ -33,6 +33,12 @@ spec:
             # fichiers déplacés s'accumulent en fantômes dans la base.
             - name: ND_SCANNER_PURGEMISSING
               value: "full"
+            # Scan incrémental toutes les 2h : le watcher inotify ne marche pas sur
+            # NFS, donc sans ça les ajouts MeTube/beets n'apparaissent qu'au boot.
+            # Scan "quick" = ne relit PAS les 74 Go de Musique/ (juste un stat des
+            # dossiers), ne retraite que ce qui a changé (Musique_sync/).
+            - name: ND_SCANNER_SCHEDULE
+              value: "@every 2h"
             # Playlists importées (.nsp/.m3u) et créées par les users = publiques
             # par défaut → visibles par tout le monde (et via Subsonic/Symfonium).
             # Sans ça elles sont privées au compte propriétaire (souvent "admin").
