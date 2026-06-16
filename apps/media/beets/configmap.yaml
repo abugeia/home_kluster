@@ -28,7 +28,11 @@ data:
     import:
       move: yes            # réorg EN PLACE (défaut = copy -> dupliquerait l'espace)
       quiet: yes           # mode automatique (défaut = import interactif)
-      incremental: yes     # ne retraite pas ce qui l'a déjà été
+      # incremental DÉSACTIVÉ : inadapté à un dossier plat nettoyé en place — il fige
+      # le dossier dès le 1er passage et saute les fichiers suivants. Sans lui, beets
+      # re-scanne tout mais saute sans lookup ce qui est déjà dans sa base (pas de
+      # surcoût), et traite bien les nouveaux fichiers déposés par MeTube.
+      incremental: no
       log: /config/import_sync.log
 
     match:
