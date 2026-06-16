@@ -9,7 +9,8 @@ NFS (voir ci-dessous).
 ## `Offline - Musique_sync.nsp`
 
 Smart playlist qui capture **tout ce qui est dans le dossier `Musique_sync/`**, via
-le critère `filepath contains "Musique_sync/"`. Elle sert de **handle offline**
+le critère `filepath contains "Musique_sync/"` (+ `missing: false` pour exclure
+les entrées fantômes des fichiers déplacés par beets). Elle sert de **handle offline**
 pour Symfonium : Symfonium ne sait pas mettre « un dossier » hors-ligne (browsing
 par métadonnées, pas par arborescence), mais il sait auto-cacher une playlist.
 
