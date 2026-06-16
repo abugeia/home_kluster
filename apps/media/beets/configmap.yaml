@@ -17,6 +17,7 @@ data:
     # duplicates : LISTE seulement (défaut keep:0, aucune suppression auto).
     # fetchart : pochettes. info : commande d'inspection.
     plugins:
+      - chroma      # identification par empreinte acoustique (fpcalc/AcoustID)
       - duplicates
       - fetchart
       - info

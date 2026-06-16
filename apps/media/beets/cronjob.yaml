@@ -26,10 +26,14 @@ spec:
             - name: beets
               image: lscr.io/linuxserver/beets:latest
               imagePullPolicy: IfNotPresent
-              # Import non-interactif : applique les matches sûrs, skip les douteux
-              # (quiet_fallback: skip dans la config) qui restent en attente d'une
-              # session interactive manuelle. incremental -> ne retraite pas l'acquis.
-              command: ["beet", "import", "-q", "/music/Musique_sync"]
+              # -s : mode SINGLETON (chaque fichier = un morceau individuel, pas un
+              #      album) — adapté au vrac YouTube de Musique_sync. Sans -s, beets
+              #      traite tout le dossier comme un seul album et skippe tout.
+              # -q : non-interactif (applique les matches sûrs, skip les douteux via
+              #      quiet_fallback: skip -> ils restent pour une session manuelle).
+              # incremental (config) -> ne retraite pas l'acquis.
+              command:
+                ["beet", "-c", "/config-secret/acoustid.yaml", "import", "-q", "-s", "/music/Musique_sync"]
               env:
                 - name: BEETSDIR
                   value: /config
@@ -44,6 +48,9 @@ spec:
                 - name: music
                   mountPath: /music/Musique_sync
                   subPath: Musique_sync
+                - name: acoustid
+                  mountPath: /config-secret
+                  readOnly: true
               resources:
                 requests:
                   memory: "256Mi"
@@ -61,3 +68,6 @@ spec:
             - name: music
               persistentVolumeClaim:
                 claimName: pvc-media-data
+            - name: acoustid
+              secret:
+                secretName: beets-acoustid
