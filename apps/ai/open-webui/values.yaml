@@ -7,6 +7,9 @@ ollama:
   enabled: false
 ollamaUrls:
   - http://10.0.0.15:11434
+  # Ollama CPU dans le cluster : sert le task model (génération de requête,
+  # titres, tags) sur CPU → 0 VRAM, n'éjecte pas gpt-oss du GPU.
+  - http://ollama-cpu:11434
 
 # Pipelines (plugins Python) non nécessaires pour un usage chat simple.
 pipelines:
@@ -72,12 +75,14 @@ extraEnvVars:
   # Loader = Playwright (navigateur distant) : récupère le TEXTE COMPLET des
   # articles (le loader requests par défaut échoue ; l'image OWUI n'a pas de
   # navigateur). Le serveur Playwright est déployé à part (apps/ai/playwright).
-  # gpt-oss (format harmony) ne renvoie pas une requête JSON propre quand
-  # OpenWebUI lui demande de générer une requête de recherche → "Aucune requête
-  # générée" → la recherche est annulée. On désactive la génération : OpenWebUI
-  # utilise la phrase de l'utilisateur comme requête (suffisant ici).
+  # Génération de requête réactivée, mais déléguée à un TASK MODEL dédié sur CPU
+  # (qwen2.5:3b via ollama-cpu) : modèle instruct non-raisonnant → JSON propre,
+  # contrairement à gpt-oss (harmony) qui cassait la génération. Tourne sur CPU
+  # (0 VRAM, n'éjecte pas gpt-oss du GPU).
   - name: ENABLE_SEARCH_QUERY_GENERATION
-    value: "false"
+    value: "true"
+  - name: TASK_MODEL
+    value: "qwen2.5:3b"
   - name: WEB_LOADER_ENGINE
     value: "playwright"
   - name: PLAYWRIGHT_WS_URL
