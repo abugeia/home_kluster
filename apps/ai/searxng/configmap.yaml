@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: searxng-settings
+  namespace: ai
+  labels:
+    app: searxng
+data:
+  # settings.yml monté en RO sur /etc/searxng/settings.yml.
+  # use_default_settings: true → on hérite des défauts SearXNG et on surcharge.
+  settings.yml: |
+    use_default_settings: true
+
+    server:
+      # secret_key signe les cookies de préférences / l'intégrité du limiter.
+      # Instance interne (pas d'ingress public, pas de données users) → faible
+      # sensibilité. À sceller (sealed-secret) si on expose un jour SearXNG.
+      secret_key: "6462eb0e1a0b8a452b10055fb429edae3c5cec73052cbd12b3638529827f5185"
+      # limiter désactivé → pas besoin de Redis/Valkey (usage mono-utilisateur
+      # interne via OpenWebUI). À réactiver + Redis si exposition multi-users.
+      limiter: false
+      image_proxy: true
+
+    search:
+      # JSON OBLIGATOIRE : sans ça SearXNG renvoie 403 aux requêtes OpenWebUI
+      # (cf. doc OpenWebUI provider SearXNG).
+      formats:
+        - html
+        - json
+      safe_search: 0
