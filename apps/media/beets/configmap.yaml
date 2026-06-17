@@ -17,6 +17,9 @@ data:
     # duplicates : LISTE seulement (défaut keep:0, aucune suppression auto).
     # fetchart : pochettes. info : commande d'inspection.
     plugins:
+      - aitagcleaner  # nettoie artist/title via LLM (Ollama) AVANT le matching :
+                      # "Artiste - Titre (Official Video)" -> "Titre". Plugin maison
+                      # (github.com/abugeia/beets-ai-tagcleaner), inclus dans l'image.
       - musicbrainz   # backend MusicBrainz (en beets 2.x c'est un plugin à activer
                       # explicitement — sans lui, l'autotagger ne trouve AUCUN candidat)
       - chroma        # identification par empreinte acoustique (fpcalc/AcoustID),
@@ -26,6 +29,10 @@ data:
       - duplicates
       - fetchart
       - info
+
+    aitagcleaner:
+      url: http://10.0.0.15:11434/api/generate   # Ollama (VM 815)
+      model: qwen2.5:3b                           # léger, rapide, ~0.3s/titre
 
     # Seules déviations volontaires aux défauts beets :
     import:
