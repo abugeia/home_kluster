@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ollama-cpu
+  namespace: ai
+  labels:
+    app: ollama-cpu
+spec:
+  type: ClusterIP
+  selector:
+    app: ollama-cpu
+  ports:
+    - name: http
+      port: 11434
+      targetPort: http
