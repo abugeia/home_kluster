@@ -147,10 +147,18 @@ flowchart TD
       l'auto-cache Symfonium sur une smart playlist `filepath ~ /Musique_sync/`
       (cf. `docs/playlists/`). Navidrome scanne les deux dossiers (biblio unique).
 - [x] **Tagging beets** : CronJob déployé (`apps/media/beets/`), 10:00, mode
-      *singleton* auto (`quiet`/`skip`), plugins `musicbrainz`+`chroma`+`duplicates`
-      +`fetchart`, `strong_rec_thresh: 0.20`, `incremental: no` + `move` (reprise
-      auto après extinction), clé AcoustID en SealedSecret. ~97% de match mesuré.
+      *singleton* auto (`quiet`/`skip`), plugins `musicbrainz`+`chroma`+`fromfilename`
+      +`ftintitle`+`duplicates`+`fetchart`, `strong_rec_thresh: 0.30`/`rec_gap_thresh: 0.90`,
+      `incremental: no` + `move`, clé AcoustID en SealedSecret.
       CronJob durci pour l'extinction nocturne (Replace, startingDeadline, activeDeadline).
+- [x] **PATCH bug beets #6066** (⚠️ à surveiller) : beets ≥2.4 injecte un paramètre
+      `alias` parasite dans la recherche MusicBrainz de recordings → pollue les titres
+      multi-mots (« Love Today » → « Today Today », tubes skippés de façon
+      *non-déterministe*). Le CronJob applique un **patch défensif au démarrage** (sed
+      qui retire `, "alias": name` de `beetsplug/musicbrainz.py`), d'où l'**image pinnée
+      par digest** (tout upgrade = PR Renovate → réévaluer le patch). Le patch vérifie
+      le motif et logue une alerte s'il a disparu (jamais bloquant). Cause prouvée :
+      2.3.1 (sans alias) matche parfait/déterministe ; à reporter upstream.
 - [~] **Import initial `Musique_sync`** : 1ère passe EN COURS (job manuel). Rangé en
       `Musique_sync/Non-Album/$artist/$title`. Les ~3% douteux restent à plat →
       session interactive plus tard (`beet import` sans `-q` en TTY via un pod).
