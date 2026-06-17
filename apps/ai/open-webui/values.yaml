@@ -83,6 +83,10 @@ extraEnvVars:
     value: "true"
   - name: TASK_MODEL
     value: "qwen2.5:3b"
+  # Aligne les threads torch (embedding RAG) sur la limite CPU (6) → évite la
+  # sur-souscription 6 threads / 2 cœurs qui causait le throttling.
+  - name: OMP_NUM_THREADS
+    value: "6"
   - name: WEB_LOADER_ENGINE
     value: "playwright"
   - name: PLAYWRIGHT_WS_URL
@@ -108,7 +112,10 @@ resources:
     cpu: 100m
     memory: 1Gi
   limits:
-    cpu: "2"
+    # 6 (= cœurs du node) : torch lance 6 threads pour l'embedding RAG ; à 2
+    # cœurs il y avait sur-souscription + throttling CFS (~40s pour 30 chunks).
+    # Aligné sur 6 → embedding ~3-6s. Node quasi idle, burst court.
+    cpu: "6"
     # 1Gi était trop juste (frontend + embedding RAG ~800Mio-1Go) → /api/config
     # timeout au chargement. 2Gi = marge confortable pour RAG/recherche web.
     memory: 2Gi
