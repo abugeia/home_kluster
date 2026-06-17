@@ -83,6 +83,13 @@ extraEnvVars:
     value: "true"
   - name: TASK_MODEL
     value: "qwen2.5:3b"
+  # Mode "agentic search" : le modèle décide lui-même requête + lecture de pages
+  # (search_web / fetch_url), itère — comme un vrai agent. Supprime la query-gen
+  # par task model (requêtes corrompues) et l'étape embedding. gpt-oss sait faire
+  # du tool-calling natif ; à valider (la doc prévient que les petits modèles
+  # locaux peuvent peiner sur le multi-étapes).
+  - name: DEFAULT_MODEL_PARAMS
+    value: '{"function_calling": "native"}'
   # Aligne les threads torch (embedding RAG) sur la limite CPU (6) → évite la
   # sur-souscription 6 threads / 2 cœurs qui causait le throttling.
   - name: OMP_NUM_THREADS

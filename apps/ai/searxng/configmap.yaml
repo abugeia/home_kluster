@@ -37,3 +37,12 @@ data:
       max_request_timeout: 12.0
       pool_connections: 100
       pool_maxsize: 20
+
+    # Désactive les moteurs qui timeoutaient systématiquement (3s) et
+    # polluaient les résultats. Les moteurs dev (github, stackoverflow) et
+    # généraux (duckduckgo, brave) restent actifs par défaut.
+    engines:
+      - name: startpage
+        disabled: true
+      - name: wikidata
+        disabled: true
