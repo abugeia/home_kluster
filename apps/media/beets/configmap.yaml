@@ -66,6 +66,14 @@ data:
       # Mesure : fait passer le taux de match auto de ~82% à ~93%, qualité conservée.
       strong_rec_thresh: 0.30
       rec_gap_thresh: 0.90
+      # Durée peu fiable sur les rips YouTube (intro/outro, silences, jingles de
+      # chaîne) : on divise par 2 le poids de track_length (défaut 2.0). Sans ça,
+      # un morceau pourtant correctement identifié (bon artiste + bon titre) était
+      # SKIPPÉ pour ~0.2 d'écart de durée. Mesuré : "Charlotte Cardin - The Way We
+      # Touch" passe de dist 0.333 (>seuil, skip) à 0.250 (match). track_length
+      # reste >0 donc continue de départager deux versions homonymes.
+      distance_weights:
+        track_length: 1.0
 
     # Reste = défauts beets : write:yes, autotag:yes, quiet_fallback:skip,
     # paths Artiste/Album/$track $title, ignore ['.*', ...].
