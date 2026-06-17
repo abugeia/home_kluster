@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: playwright
+  namespace: ai
+  labels:
+    app: playwright
+spec:
+  type: ClusterIP
+  selector:
+    app: playwright
+  ports:
+    - name: ws
+      port: 3000
+      targetPort: ws
