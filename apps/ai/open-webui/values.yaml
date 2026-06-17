@@ -69,6 +69,18 @@ extraEnvVars:
     value: "searxng"
   - name: SEARXNG_QUERY_URL
     value: "http://searxng:8080/search?q=<query>"
+  # Les sites de news bloquent le scraper d'OpenWebUI (lemonde 402, etc.) → tous
+  # les fetch échouaient = "Aucune source trouvée". On bypasse le web loader :
+  # OpenWebUI utilise directement les extraits (snippets) renvoyés par SearXNG.
+  - name: BYPASS_WEB_SEARCH_WEB_LOADER
+    value: "true"
+  # Injecte les snippets directement dans le contexte du LLM sans passer par
+  # l'embedding/vector DB (pas de modèle d'embedding à charger sur le pod CPU).
+  - name: BYPASS_WEB_SEARCH_EMBEDDING_AND_RETRIEVAL
+    value: "true"
+  # Modèle proposé par défaut dans l'UI.
+  - name: DEFAULT_MODELS
+    value: "gpt-oss:20b"
 
 # CLIENT_ID/SECRET OAuth injectés depuis le sealed-secret.
 extraEnvFrom:
