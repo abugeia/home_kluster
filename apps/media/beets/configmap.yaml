@@ -31,7 +31,10 @@ data:
       - info
 
     aitagcleaner:
-      url: http://10.0.0.15:11434/api/generate   # Ollama (VM 815)
+      # Ollama CPU (service in-cluster, ns ai) : évite de mobiliser la VRAM du
+      # GPU (VM 815) pour cette tâche légère. FQDN cross-namespace obligatoire
+      # (beets tourne dans le ns media).
+      url: http://ollama-cpu.ai:11434/api/generate
       model: qwen2.5:3b                           # léger, rapide, ~0.3s/titre
 
     # Seules déviations volontaires aux défauts beets :
