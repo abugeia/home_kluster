@@ -31,16 +31,29 @@ spec:
           # le conteneur tourne donc en root -> écriture OK sur le NFS root:root.
           containers:
             - name: beets
-              image: lscr.io/linuxserver/beets:latest
+              # Image PINNÉE par digest (sortie de :latest) : tout upgrade devient
+              # une PR Renovate qu'on review — c'est le garde-fou du patch ci-dessous.
+              # = lscr.io/linuxserver/beets:latest au 2026-06-17 (beets 2.11.0).
+              image: lscr.io/linuxserver/beets@sha256:bb73b8be1142a7b22e13d6f76f986bec99e60761a967714b098f8d766f88ca37
               imagePullPolicy: IfNotPresent
-              # -s : mode SINGLETON (chaque fichier = un morceau individuel, pas un
-              #      album) — adapté au vrac YouTube de Musique_sync. Sans -s, beets
-              #      traite tout le dossier comme un seul album et skippe tout.
-              # -q : non-interactif (applique les matches sûrs, skip les douteux via
-              #      quiet_fallback: skip -> ils restent pour une session manuelle).
-              # incremental (config) -> ne retraite pas l'acquis.
-              command:
-                ["beet", "-c", "/config-secret/acoustid.yaml", "import", "-q", "-s", "/music/Musique_sync"]
+              # PATCH DÉFENSIF du bug beets >=2.4 (issue beetbox/beets#6066) : le
+              # backend MusicBrainz ajoute un paramètre `alias` parasite à la recherche
+              # de recordings, qui pollue les titres multi-mots (ex "Love Today" ->
+              # "Today Today"). On le retire AU DÉMARRAGE. Le patch vérifie d'abord le
+              # motif : s'il a disparu (beets corrigé/changé), il NE TOUCHE À RIEN et
+              # logue une alerte — il ne casse jamais l'import. cf docs/music_architecture.md
+              # Puis : -s singleton (vrac), -q non-interactif (skip douteux).
+              command: ["sh", "-c"]
+              args:
+                - |
+                  MB=$(ls /lsiopy/lib/python*/site-packages/beetsplug/musicbrainz.py 2>/dev/null | head -1)
+                  if [ -n "$MB" ] && grep -q '"recording": name, "alias": name' "$MB"; then
+                    sed -i 's/"recording": name, "alias": name/"recording": name/' "$MB"
+                    echo "[patch-alias] applique (bug beets#6066 neutralise)"
+                  else
+                    echo "[patch-alias] ATTENTION motif introuvable -> beets a peut-etre corrige le bug, REEVALUER ce patch (docs/music_architecture.md)"
+                  fi
+                  exec beet -c /config-secret/acoustid.yaml import -q -s /music/Musique_sync
               env:
                 - name: BEETSDIR
                   value: /config

@@ -17,9 +17,12 @@ data:
     # duplicates : LISTE seulement (défaut keep:0, aucune suppression auto).
     # fetchart : pochettes. info : commande d'inspection.
     plugins:
-      - musicbrainz # backend MusicBrainz (en beets 2.x c'est un plugin à activer
-                    # explicitement — sans lui, l'autotagger ne trouve AUCUN candidat)
-      - chroma      # identification par empreinte acoustique (fpcalc/AcoustID)
+      - musicbrainz   # backend MusicBrainz (en beets 2.x c'est un plugin à activer
+                      # explicitement — sans lui, l'autotagger ne trouve AUCUN candidat)
+      - chroma        # identification par empreinte acoustique (fpcalc/AcoustID),
+                      # indispensable pour les fichiers SANS tags
+      - fromfilename  # devine artiste/titre depuis le NOM du fichier si tags absents
+      - ftintitle     # déplace les featurings ("feat. X") du titre vers l'artiste
       - duplicates
       - fetchart
       - info
