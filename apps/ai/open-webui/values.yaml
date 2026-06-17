@@ -57,6 +57,18 @@ extraEnvVars:
     value: "openid email profile groups"
   - name: ENABLE_LOGIN_FORM
     value: "false"
+  # --- Recherche web via SearXNG self-hosted (namespace ai, interne) ---
+  # SearXNG doit avoir `formats: [html, json]` (sinon 403). Le /search?q=<query>
+  # est obligatoire. <query> est un placeholder littéral remplacé par OpenWebUI.
+  # NB : ces clés sont des PersistentConfig → l'env n'amorce la DB que si la
+  # conf web search est encore vide (c'était le cas). Vérifier le toggle dans
+  # Admin → Paramètres → Recherche web après le 1er sync.
+  - name: ENABLE_WEB_SEARCH
+    value: "true"
+  - name: WEB_SEARCH_ENGINE
+    value: "searxng"
+  - name: SEARXNG_QUERY_URL
+    value: "http://searxng:8080/search?q=<query>"
 
 # CLIENT_ID/SECRET OAuth injectés depuis le sealed-secret.
 extraEnvFrom:
