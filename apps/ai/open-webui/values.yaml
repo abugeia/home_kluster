@@ -72,6 +72,12 @@ extraEnvVars:
   # Loader = Playwright (navigateur distant) : récupère le TEXTE COMPLET des
   # articles (le loader requests par défaut échoue ; l'image OWUI n'a pas de
   # navigateur). Le serveur Playwright est déployé à part (apps/ai/playwright).
+  # gpt-oss (format harmony) ne renvoie pas une requête JSON propre quand
+  # OpenWebUI lui demande de générer une requête de recherche → "Aucune requête
+  # générée" → la recherche est annulée. On désactive la génération : OpenWebUI
+  # utilise la phrase de l'utilisateur comme requête (suffisant ici).
+  - name: ENABLE_SEARCH_QUERY_GENERATION
+    value: "false"
   - name: WEB_LOADER_ENGINE
     value: "playwright"
   - name: PLAYWRIGHT_WS_URL
