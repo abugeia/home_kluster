@@ -69,15 +69,20 @@ extraEnvVars:
     value: "searxng"
   - name: SEARXNG_QUERY_URL
     value: "http://searxng:8080/search?q=<query>"
-  # Les sites de news bloquent le scraper d'OpenWebUI (lemonde 402, etc.) → tous
-  # les fetch échouaient = "Aucune source trouvée". On bypasse le web loader :
-  # OpenWebUI utilise directement les extraits (snippets) renvoyés par SearXNG.
+  # Loader = Playwright (navigateur distant) : récupère le TEXTE COMPLET des
+  # articles (le loader requests par défaut échoue ; l'image OWUI n'a pas de
+  # navigateur). Le serveur Playwright est déployé à part (apps/ai/playwright).
+  - name: WEB_LOADER_ENGINE
+    value: "playwright"
+  - name: PLAYWRIGHT_WS_URL
+    value: "ws://playwright:3000/"
+  # On NE bypasse PLUS le loader : on veut lire le vrai contenu via Playwright.
   - name: BYPASS_WEB_SEARCH_WEB_LOADER
-    value: "true"
-  # Injecte les snippets directement dans le contexte du LLM sans passer par
-  # l'embedding/vector DB (pas de modèle d'embedding à charger sur le pod CPU).
+    value: "false"
+  # Embedding/retrieval actif : on découpe le contenu des articles et on ne
+  # garde que les passages pertinents (évite de saturer le contexte). RAM OK (2Gi).
   - name: BYPASS_WEB_SEARCH_EMBEDDING_AND_RETRIEVAL
-    value: "true"
+    value: "false"
   # Modèle proposé par défaut dans l'UI.
   - name: DEFAULT_MODELS
     value: "gpt-oss:20b"
