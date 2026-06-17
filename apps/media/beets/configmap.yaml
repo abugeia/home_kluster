@@ -37,6 +37,15 @@ data:
       # surcoût), et traite bien les nouveaux fichiers déposés par MeTube.
       incremental: no
       log: /config/import_sync.log
+      # Anti-doublon robuste : si (artiste, titre) est DÉJÀ dans la bibliothèque, le
+      # fichier est SKIPPÉ au lieu d'être ré-importé en copie suffixée (.1, .2…).
+      # Sans ça, un fichier resté à plat dont le morceau est déjà taggé serait
+      # re-déplacé à chaque passage du CronJob → doublons physiques. Clé par
+      # (artist,title) et non mb_trackid (plus robuste au non-déterminisme des éditions).
+      duplicate_action: skip
+      duplicate_keys:
+        item: artist title
+        album: albumartist album
 
     match:
       # Calibré empiriquement sur le vrai contenu (tubes YouTube) :
