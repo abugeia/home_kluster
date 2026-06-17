@@ -17,7 +17,7 @@ spec:
       annotations:
         # Force le redémarrage du pod quand settings.yml change (sinon le
         # ConfigMap monté est mis à jour mais SearXNG ne le relit pas).
-        checksum/settings: searxng-settings-v2
+        checksum/settings: searxng-settings-v3
     spec:
       # CRUCIAL : sans ça, k8s injecte SEARXNG_PORT=tcp://<svc-ip>:8080 (env de
       # service legacy, car le Service s'appelle "searxng") → le serveur granian
