@@ -28,3 +28,12 @@ data:
         - html
         - json
       safe_search: 0
+
+    # Le timeout par défaut (3.0s) est trop court pour l'egress du cluster :
+    # Google/Startpage/Wikidata expiraient → résultats dégradés (pages de
+    # dossier au lieu d'articles). On laisse plus de temps aux moteurs.
+    outgoing:
+      request_timeout: 8.0
+      max_request_timeout: 12.0
+      pool_connections: 100
+      pool_maxsize: 20
