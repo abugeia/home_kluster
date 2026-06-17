@@ -89,8 +89,10 @@ extraEnvFrom:
 
 resources:
   requests:
-    cpu: 50m
-    memory: 256Mi
-  limits:
-    cpu: "1"
+    cpu: 100m
     memory: 1Gi
+  limits:
+    cpu: "2"
+    # 1Gi était trop juste (frontend + embedding RAG ~800Mio-1Go) → /api/config
+    # timeout au chargement. 2Gi = marge confortable pour RAG/recherche web.
+    memory: 2Gi
