@@ -28,24 +28,36 @@ spec:
             - "sh"
             - "-c"
             - |
+              set -u
               echo 'Fixing permissions for ASA server directories...'
-              # On corrige le dossier racine (Propriétaire + Droits de base)
-              chown -R 7777:7777 /home/pok/arkserver
+              # On corrige le dossier racine (Propriétaire + Droits de base).
+              # root n'est PAS squashé sur ce NFS, donc le chown doit aboutir.
+              chown -R 7777:7777 /home/pok/arkserver || echo '[WARN] chown serverfiles incomplet'
               chmod -R 755 /home/pok/arkserver
-              
+
               # On force spécifiquement sur les points de montage des PVCs pour éviter l'écrasement par k8s
-              chown -R 7777:7777 /home/pok/arkserver/ShooterGame/Saved
-              chown -R 7777:7777 /home/pok/arkserver/ShooterGame/Saved/clusters
+              chown -R 7777:7777 /home/pok/arkserver/ShooterGame/Saved || echo '[WARN] chown Saved incomplet'
+              chown -R 7777:7777 /home/pok/arkserver/ShooterGame/Saved/clusters || echo '[WARN] chown clusters incomplet'
               chmod -R 775 /home/pok/arkserver/ShooterGame/Saved
-              
+
               # Suppression des flags de blocage potentiels liés à un arrêt brutal (extinction 1h)
               rm -f /home/pok/arkserver/updating.flag
 
               # Nettoyage des vieux backups pour protéger l'espace disque du host (VM)
               echo 'Pruning old backups (keeping last 10)...'
               ls -t /home/pok/arkserver/ShooterGame/Saved/SavedArks/TheIsland_WP/*.arkrbf 2>/dev/null | tail -n +11 | xargs -r rm
-              
-              echo 'Permissions, flags and backups fixed.'
+
+              # Garde-fou : 7777 DOIT pouvoir écrire à la racine du PVC. Si le chown a
+              # échoué (NFS lent, mount pas prêt...), le serveur partirait en CrashLoop
+              # opaque au moment d'écrire updating.flag lors d'un update Steam. On échoue
+              # ici, fort et explicite (Init:Error + log clair), plutôt que plus tard.
+              OWNER=$(stat -c '%u' /home/pok/arkserver)
+              if [ "$OWNER" != "7777" ]; then
+                echo "[FATAL] Racine du PVC possédée par UID $OWNER (attendu 7777) : le chown a échoué."
+                echo "        Le serveur ne pourra pas s'auto-updater (updating.flag). Abandon de l'init."
+                exit 1
+              fi
+              echo 'Permissions, flags and backups fixed (racine OK, owner 7777).'
           volumeMounts:
             - name: asa-serverfiles
               mountPath: /home/pok/arkserver
