@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: droit-compare-api
+  namespace: dinum
+  labels:
+    app.kubernetes.io/name: droit-compare-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: droit-compare-api
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: droit-compare-api
+    spec:
+      imagePullSecrets:
+        - name: harbor-cicd-secret # répliqué par Reflector (label ns replicate-harbor-cicd)
+      containers:
+        - name: api
+          image: harbor.valab.top/prod/droit-compare:main
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: droit-compare-db       # DATABASE_URL (+ POSTGRES_* ignorés par le backend)
+            - secretRef:
+                name: droit-compare-secrets   # LEGIFRANCE_* + clés LLM (vides en Vertex)
+          env:
+            - name: LLM_PROVIDER
+              value: "gemini"
+            - name: LLM_MODEL
+              value: "gemini-3.5-flash"
+            - name: LLM_MODEL_CHEAP
+              value: "gemini-3.1-flash-lite"
+            - name: GEMINI_USE_VERTEX
+              value: "true"
+            - name: GOOGLE_CLOUD_PROJECT
+              value: "prj-dinum-exp-p-bq-608d"
+            - name: GOOGLE_CLOUD_LOCATION
+              value: "global"
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: "/secrets/gcp-sa.json"
+            - name: COMPARISON_MODE
+              value: "distinct"
+            - name: FEWSHOT_REFERENCE_DOC
+              value: "/app/fewshot_reference.md"
+            - name: DRAFTING_LIMIT
+              value: "12"
+            - name: DRAFTING_CONCURRENCY
+              value: "5"
+          ports:
+            - name: http
+              containerPort: 8000
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "512Mi"
+              cpu: "1000m"
+          volumeMounts:
+            - name: gcp-sa
+              mountPath: /secrets
+              readOnly: true
+            - name: fewshot
+              mountPath: /app/fewshot_reference.md
+              subPath: fewshot_reference.md
+              readOnly: true
+      volumes:
+        - name: gcp-sa
+          secret:
+            secretName: droit-compare-gcp-sa
+            items:
+              - key: gcp-sa.json
+                path: gcp-sa.json
+        - name: fewshot
+          configMap:
+            name: droit-compare-fewshot
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: droit-compare-api
+  namespace: dinum
+  labels:
+    app.kubernetes.io/name: droit-compare-api
+spec:
+  selector:
+    app.kubernetes.io/name: droit-compare-api
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http
