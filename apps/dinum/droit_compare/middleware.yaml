@@ -1,0 +1,11 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: droit-compare-basicauth
+  namespace: dinum
+spec:
+  basicAuth:
+    # Secret "droit-compare-basicauth" (clé "users", format htpasswd) fourni via
+    # SealedSecret -> secrets/sealed/droit-compare-basicauth.yaml
+    secret: droit-compare-basicauth
+    realm: "droit-compare - acces restreint"
