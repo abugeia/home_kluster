@@ -38,3 +38,23 @@ extraObjects:
               imageName: harbor.valab.top/prod/vfnc-api:main
             - alias: web
               imageName: harbor.valab.top/prod/vfnc-web:main
+  - apiVersion: argocd-image-updater.argoproj.io/v1alpha1
+    kind: ImageUpdater
+    metadata:
+      name: droit-compare
+    spec:
+      # tag :main mutable -> on suit le digest (sha256) derrière main
+      commonUpdateSettings:
+        updateStrategy: digest
+      # write-back GitOps via la deploy key SSH (SealedSecret image-updater-git-creds)
+      writeBackConfig:
+        method: "git:secret:argocd/image-updater-git-creds"
+        gitConfig:
+          repository: git@github.com:abugeia/home_kluster.git
+          branch: main
+      # cible : l'Application argocd "droit-compare" (même namespace que cette CR : argocd)
+      applicationRefs:
+        - namePattern: droit-compare
+          images:
+            - alias: app
+              imageName: harbor.valab.top/prod/droit-compare:main
