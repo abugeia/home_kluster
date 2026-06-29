@@ -1,0 +1,27 @@
+# Un seul backend sert le frontend (/) et l'API (/api/*) : un seul Ingress suffit.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: droit-compare
+  namespace: dinum
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.middlewares: dinum-droit-compare-basicauth@kubernetescrd
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - droit-compare.valab.top
+      secretName: droit-compare-tls
+  rules:
+    - host: droit-compare.valab.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: droit-compare-api
+                port:
+                  number: 8000
