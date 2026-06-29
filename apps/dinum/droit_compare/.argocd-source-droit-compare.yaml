@@ -1,2 +1,3 @@
 kustomize:
-  images: []
+  images:
+  - harbor.valab.top/prod/droit-compare:main@sha256:a5c0fc687c0503512faa809b4ed7d2f2536085c491ee19a1fd0a7ed4453b7e3e
