@@ -49,6 +49,15 @@ spec:
               value: "12"
             - name: DRAFTING_CONCURRENCY
               value: "5"
+            # Alignement sémantique par embeddings (Vertex, déjà branché ci-dessus).
+            # Poids hybride et seuil de couverture gardent leurs défauts applicatifs
+            # (0.6 / 0.55, cf. config.py) ; surchargeables ici au besoin.
+            - name: USE_EMBEDDINGS
+              value: "true"
+            - name: EMBEDDING_PROVIDER
+              value: "gemini"
+            - name: EMBEDDING_MODEL
+              value: "gemini-embedding-001"
           ports:
             - name: http
               containerPort: 8000
