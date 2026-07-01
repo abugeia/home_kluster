@@ -503,6 +503,218 @@
       "type": "timeseries"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_VICTORIAMETRICS}"
+      },
+      "description": "Coût électrique sur la période affichée (time range). Énergie intégrée sur le range × tarif. N'est compté que lorsque NUT remonte la conso (serveur up).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "suffix:F"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 14,
+        "w": 8,
+        "h": 4
+      },
+      "id": 14,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value_and_name"
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_VICTORIAMETRICS}"
+          },
+          "editorMode": "code",
+          "expr": "avg_over_time(network_ups_tools_ups_realpower[$__range]) * $__range_s / 3600 / 1000 * $tarif",
+          "instant": false,
+          "legendFormat": "Coût période",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Coût période affichée",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_VICTORIAMETRICS}"
+      },
+      "description": "Coût mensuel extrapolé à partir de la conso moyenne de la période affichée (× 730 h/mois × tarif).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 2000
+              },
+              {
+                "color": "red",
+                "value": 5000
+              }
+            ]
+          },
+          "unit": "suffix:F/mois"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 8,
+        "y": 14,
+        "w": 8,
+        "h": 4
+      },
+      "id": 15,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value_and_name"
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_VICTORIAMETRICS}"
+          },
+          "editorMode": "code",
+          "expr": "avg_over_time(network_ups_tools_ups_realpower[$__range]) * 730 / 1000 * $tarif",
+          "instant": false,
+          "legendFormat": "Coût / mois",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Coût / mois (extrapolé)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_VICTORIAMETRICS}"
+      },
+      "description": "Coût annuel extrapolé à partir de la conso moyenne de la période affichée (× 8760 h/an × tarif).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 24000
+              },
+              {
+                "color": "red",
+                "value": 60000
+              }
+            ]
+          },
+          "unit": "suffix:F/an"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 16,
+        "y": 14,
+        "w": 8,
+        "h": 4
+      },
+      "id": 16,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value_and_name"
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_VICTORIAMETRICS}"
+          },
+          "editorMode": "code",
+          "expr": "avg_over_time(network_ups_tools_ups_realpower[$__range]) * 8760 / 1000 * $tarif",
+          "instant": false,
+          "legendFormat": "Coût / an",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Coût / an (extrapolé)",
+      "type": "stat"
+    },
+    {
       "id": 9,
       "type": "row",
       "title": "🎮 GPU — RTX 5070 Ti (PVE host / VMs gaming)",
@@ -511,7 +723,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 14
+        "y": 18
       },
       "panels": []
     },
@@ -569,7 +781,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 15,
+        "y": 19,
         "w": 24,
         "h": 7
       },
@@ -645,7 +857,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 22,
+        "y": 26,
         "w": 6,
         "h": 5
       },
@@ -728,7 +940,7 @@
       },
       "gridPos": {
         "x": 6,
-        "y": 22,
+        "y": 26,
         "w": 6,
         "h": 5
       },
@@ -806,7 +1018,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 22,
+        "y": 26,
         "w": 6,
         "h": 5
       },
@@ -878,7 +1090,7 @@
       },
       "gridPos": {
         "x": 18,
-        "y": 22,
+        "y": 26,
         "w": 6,
         "h": 5
       },
@@ -947,6 +1159,27 @@
         "regex": "",
         "skipUrlSync": false,
         "type": "datasource"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "37",
+          "value": "37"
+        },
+        "description": "Tarif électrique en F/kWh (franc CFP).",
+        "hide": 0,
+        "label": "Tarif (F/kWh)",
+        "name": "tarif",
+        "options": [
+          {
+            "selected": true,
+            "text": "37",
+            "value": "37"
+          }
+        ],
+        "query": "37",
+        "skipUrlSync": false,
+        "type": "textbox"
       }
     ]
   },
