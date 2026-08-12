@@ -35,7 +35,7 @@ data:
       # GPU (VM 815) pour cette tâche légère. FQDN cross-namespace obligatoire
       # (beets tourne dans le ns media).
       url: http://ollama-cpu.ai:11434/api/generate
-      model: qwen2.5:3b                           # léger, rapide, ~0.3s/titre
+      model: llama3.2:3b                          # modèle présent sur ollama-cpu
 
     # Seules déviations volontaires aux défauts beets :
     import:
