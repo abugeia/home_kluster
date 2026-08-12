@@ -9,7 +9,12 @@ le JSON exporté pour pérenniser).
 
 | Fichier | UID | Contenu |
 |---|---|---|
-| `homelab-power-env.json` | `homelab-power-env` | Conso/état RTX 5070 Ti (PVE host / ai-gaming / windows-11) + onduleur NUT + capteurs température/humidité pi0 |
+| `homelab-power-env.json` | `homelab-power-env` | Conso/état RTX 5070 Ti (PVE host / ai-gaming / windows-11) + onduleur NUT + capteurs température/humidité pi0 + refroidissement hôte PVE (ventilos, températures CPU/boîtier) |
+
+> ⚠️ Piège hwmon : les LXC partagent `/sys` avec l'hôte, donc `10.0.0.12/13/14`
+> remontent les **mêmes capteurs physiques** que `10.0.0.10`. Toute requête
+> `node_hwmon_*` doit filtrer `instance="10.0.0.10:9100"`, sinon on obtient 4×
+> chaque série (24 séries pour 6 ventilos).
 
 ### Workflow d'ajout / édition
 
