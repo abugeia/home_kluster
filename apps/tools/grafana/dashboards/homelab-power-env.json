@@ -15,7 +15,7 @@
       }
     ]
   },
-  "description": "Conso & état de la RTX 5070 Ti (PVE host / ai-gaming / windows-11), onduleur NUT et capteurs température/humidité pi0. Centralise tout ce qui touche à l'énergie et l'environnement du homelab.",
+  "description": "Conso & état de la RTX 5070 Ti (PVE host / ai-gaming / windows-11), onduleur NUT, capteurs température/humidité pi0 et refroidissement de l'hôte PVE (ventilos + températures CPU/boîtier). Centralise tout ce qui touche à l'énergie et l'environnement du homelab.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -1125,6 +1125,201 @@
       ],
       "title": "Idle Power Average (24h)",
       "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 31
+          },
+      "id": 20,
+      "panels": [],
+      "title": "🌀 Refroidissement — hôte PVE (pve1)",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_VICTORIAMETRICS}"
+      },
+      "description": "Tachymètres du Super I/O NCT6799D-R de la carte mère. Le driver n'expose pas de libellé par connecteur : le mapping fanN → CPU_FAN / CHA_FAN n'est pas déductible côté logiciel. Relevé au repos le 2026-08-11 : fan1 ~590, fan2 ~610, fan3 ~800, fan5 ~610 rpm ; fan4 et fan7 à 0 (connecteurs libres).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "rpm",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "opacity",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "showPoints": "never",
+            "spanNulls": 600000,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "rotrpm"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+            "x": 0,
+            "y": 32,
+            "w": 12,
+            "h": 8
+          },
+      "id": 21,
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_VICTORIAMETRICS}"
+          },
+          "editorMode": "code",
+          "expr": "node_hwmon_fan_rpm{instance=\"10.0.0.10:9100\"}",
+          "instant": false,
+          "legendFormat": "{{sensor}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Ventilos (RPM)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_VICTORIAMETRICS}"
+      },
+      "description": "Tctl = sonde de pilotage du Ryzen, Tccd1/2 = dies. SYSTIN = ambiant boîtier, CPUTIN = sonde socket de la carte mère. Les températures GPU sont dans la row GPU, celles des NVMe/HDD ne sont pas collectées ici.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "°C",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "opacity",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "showPoints": "never",
+            "spanNulls": 600000,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
+            ]
+          },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+            "x": 12,
+            "y": 32,
+            "w": 12,
+            "h": 8
+          },
+      "id": 22,
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_VICTORIAMETRICS}"
+          },
+          "editorMode": "code",
+          "expr": "node_hwmon_temp_celsius{instance=\"10.0.0.10:9100\"} * on(instance,chip,sensor) group_left(label) node_hwmon_sensor_label{instance=\"10.0.0.10:9100\",label=~\"Tctl|Tccd1|Tccd2|SYSTIN|CPUTIN\"}",
+          "instant": false,
+          "legendFormat": "{{label}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Températures CPU & boîtier",
+      "type": "timeseries"
     }
   ],
   "refresh": "30s",
