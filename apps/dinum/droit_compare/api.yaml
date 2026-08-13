@@ -56,8 +56,14 @@ spec:
               value: "true"
             - name: EMBEDDING_PROVIDER
               value: "gemini"
+            # gemini-embedding-001 est déprécié (remplacé par gemini-embedding-2 ;
+            # arrêt annoncé au 14/05/2028). Surtout, c'est le défaut applicatif
+            # depuis que l'alignement a été recalé dessus : garder 001 ici faisait
+            # calculer la prod avec un autre modèle que celui sur lequel les seuils
+            # sont réglés. Changement indolore tant que les vecteurs ne sont pas
+            # stockés — il coûtera une réindexation complète après pgvector.
             - name: EMBEDDING_MODEL
-              value: "gemini-embedding-001"
+              value: "gemini-embedding-2"
           ports:
             - name: http
               containerPort: 8000
