@@ -9,6 +9,16 @@
 # Version alignée sur `sigs.k8s.io/gateway-api` embarqué par le binaire Traefik
 # (v3.7.11 -> v1.4.0). À faire évoluer avec lui, pas indépendamment.
 #
+# Canal `experimental` et non `standard`, par obligation : Traefik watche TLSRoute
+# et TCPRoute inconditionnellement, sans attendre
+# `--providers.kubernetesgateway.experimentalChannel=true`. Avec le seul canal
+# standard, qui ne définit pas ces types, son informer boucle sur
+#   Failed to watch *v1.TLSRoute: the server could not find the requested resource
+# et le provider ne s'initialise jamais : GatewayClass et Gateway restent
+# `Accepted=Unknown` / "Waiting for controller", et les HTTPRoute sans statut.
+# Le canal experimental est un sur-ensemble du standard (mêmes 6 CRDs + TLSRoute,
+# TCPRoute, UDPRoute et les extensions x-k8s.io).
+#
 # ServerSideApply : obligatoire, pas une précaution. La CRD httproutes pèse ~345 Ko,
 # soit 131 % de la limite de 262144 octets de l'annotation last-applied-configuration
 # -> un apply client-side échoue sur `metadata.annotations: Too long`.
@@ -31,7 +41,7 @@ spec:
   source:
     repoURL: https://github.com/kubernetes-sigs/gateway-api
     targetRevision: v1.4.0
-    path: config/crd/standard
+    path: config/crd/experimental
   destination:
     server: https://kubernetes.default.svc
     namespace: kube-system
