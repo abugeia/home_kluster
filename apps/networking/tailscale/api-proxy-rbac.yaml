@@ -1,0 +1,57 @@
+# Droits accordés aux utilisateurs du tailnet arrivant par le proxy API server.
+#
+# Le proxy n'accorde par lui-même AUCUN droit : il impersonate le groupe Kubernetes
+# nommé dans le grant ACL (ici `tailnet-readers`), et c'est le RBAC ci-dessous qui
+# décide de ce que ce groupe peut faire. Sans ces bindings, un accès réseau au
+# proxy ne permet rien — ce qui limite aussi la portée du grant, `tag:k8s-operator`
+# étant partagé par les operators de home-kluster et d'orarm.
+#
+# Lecture seule volontaire : le diagnostic et l'observation n'ont pas besoin
+# d'écrire, et les déploiements passent de toute façon par ArgoCD.
+---
+# Le ClusterRole intégré `view` couvre les ressources natives et, notamment,
+# EXCLUT les secrets. On s'appuie dessus plutôt que de réécrire ses règles.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: tailnet-readers-view
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: view
+subjects:
+  - apiGroup: rbac.authorization.k8s.io
+    kind: Group
+    name: tailnet-readers
+---
+# `view` ne connaît pas les CRDs : sans ce complément, ni les HTTPRoute/Gateway,
+# ni les Middleware Traefik, ni les Certificate cert-manager ne seraient lisibles
+# — soit précisément ce qu'on a besoin d'observer.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: tailnet-readers-crds
+rules:
+  - apiGroups:
+      - gateway.networking.k8s.io
+      - traefik.io
+      - cert-manager.io
+      - acme.cert-manager.io
+      - argoproj.io
+      - apiextensions.k8s.io
+      - tailscale.com
+    resources: ["*"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: tailnet-readers-crds
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: tailnet-readers-crds
+subjects:
+  - apiGroup: rbac.authorization.k8s.io
+    kind: Group
+    name: tailnet-readers
