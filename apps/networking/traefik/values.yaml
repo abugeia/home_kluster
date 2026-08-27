@@ -1,11 +1,17 @@
 # Configuration officielle du chart Traefik (Simplifiée via cert-manager)
 # Référence: https://github.com/traefik/traefik-helm-chart
 
+# strictTLSOptions : désactive le repli silencieux sur les TLSOptions par défaut
+# en cas de conflit entre routers servant le même hostname (GHSA-g55h-rg46-x9c5,
+# CVSS 8.2). Le correctif est opt-in : `false` par défaut MÊME sur une version
+# patchée, il faut donc l'activer explicitement. Requiert traefik v3.7.11+.
+core:
+  strictTLSOptions: true
+
 deployment:
   podAnnotations:
     prometheus.io/port: "8082"
     prometheus.io/scrape: "true"
-  priorityClassName: "system-cluster-critical"
   # Sources du plugin Sablier stockées sur un PVC persistant (cf. extraObjects).
   additionalVolumes:
     - name: plugins-local
@@ -55,6 +61,11 @@ deployment:
         - name: plugins-local
           mountPath: /plugins-local
 
+# priorityClassName est une clé RACINE du chart (et non `deployment.*`, où elle
+# était placée jusqu'ici : acceptée par le schéma mais jamais appliquée, donc
+# Traefik tournait sans priorité garantie face à l'éviction).
+priorityClassName: "system-cluster-critical"
+
 # fsGroup : indispensable pour que l'initContainer non-root (uid 65532) puisse
 # écrire dans le PVC traefik-plugins fraîchement provisionné (sinon root:root).
 podSecurityContext:
@@ -82,9 +93,11 @@ providers:
       enabled: true
     allowEmptyServices: true
 
-logs:
-  access:
-    enabled: true
+# Renommé depuis `logs.access` : le chart v41 aligne ses clés sur la syntaxe
+# upstream (`logs.general` -> `log`, `logs.access` -> `accessLog`). La racine du
+# schéma étant désormais stricte, l'ancien nom ferait échouer le rendu Helm.
+accessLog:
+  enabled: true
 
 # PVC dédié aux SOURCES du plugin Sablier (mode localPlugins).
 # Provisionné une fois, conservé ensuite (survit aux reboots) : aucun
@@ -106,8 +119,12 @@ ports:
     forwardedHeaders:
       insecure: true
   websecure:
-    tls:
-      enabled: true
+    # `tls` est passé sous le niveau `http` avec le chart v39 (les options HTTP
+    # d'un entrypoint y sont désormais imbriquées). L'ancien emplacement est
+    # rejeté par le schéma. La valeur reste explicite bien qu'elle soit le défaut.
+    http:
+      tls:
+        enabled: true
     forwardedHeaders:
       insecure: true
 
