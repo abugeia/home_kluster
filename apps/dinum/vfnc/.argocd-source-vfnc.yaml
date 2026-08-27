@@ -1,4 +1,4 @@
 kustomize:
   images:
   - harbor.valab.top/prod/vfnc-api:main@sha256:68e783038c4253532a4f1292af869c07272fe0db4a876ed540d14b01f1519d39
-  - harbor.valab.top/prod/vfnc-web:main@sha256:6ff4f469d4a3bcdcd3591dfc36c3e12dcbdbd9f29df49b03982f49b3ed599902
+  - harbor.valab.top/prod/vfnc-web:main@sha256:725bc949213e36e6e3475de70a83df96c17b0428e4f31921f914dd6a091912e1
