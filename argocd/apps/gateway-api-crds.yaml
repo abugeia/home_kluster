@@ -1,0 +1,44 @@
+# CRDs Gateway API (canal standard) — installées ici et non plus par le chart Traefik.
+#
+# Historique : le chart traefik <= 39.x livrait `crds/gateway-standard-install.yaml`
+# (Gateway API v1.4.0 standard). La release 40.0.0 a arrêté de les fournir. Comme
+# l'Application `traefik` tourne en `prune: true`, l'upgrade vers 41.x supprimerait
+# ces CRDs : cette Application doit donc exister et avoir pris le tracking ArgoCD
+# AVANT le bump du chart.
+#
+# Version alignée sur `sigs.k8s.io/gateway-api` embarqué par le binaire Traefik
+# (v3.7.11 -> v1.4.0). À faire évoluer avec lui, pas indépendamment.
+#
+# ServerSideApply : obligatoire, pas une précaution. La CRD httproutes pèse ~345 Ko,
+# soit 131 % de la limite de 262144 octets de l'annotation last-applied-configuration
+# -> un apply client-side échoue sur `metadata.annotations: Too long`.
+#
+# Pas de `finalizers: resources-finalizer.argocd.argoproj.io` ici, volontairement :
+# sur une App de CRDs, supprimer l'App entraînerait la suppression en cascade de
+# TOUS les objets Gateway/HTTPRoute du cluster.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gateway-api-crds
+  namespace: argocd
+  annotations:
+    # Wave négative : root-app synchronise cette Application avant celle de Traefik,
+    # pour que le tracking ArgoCD des CRDs soit transféré ici avant que le chart
+    # cesse de les déclarer (sinon son `prune` les emporte).
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/kubernetes-sigs/gateway-api
+    targetRevision: v1.4.0
+    path: config/crd/standard
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+  syncPolicy:
+    automated:
+      # prune désactivé : on ne laisse pas ArgoCD supprimer des CRDs cluster-scoped.
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
