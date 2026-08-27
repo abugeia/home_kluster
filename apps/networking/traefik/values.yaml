@@ -84,6 +84,13 @@ tolerations:
     effect: "NoSchedule"
 
 providers:
+  # Provider Gateway API : lit les Gateway / HTTPRoute (CRDs v1.4.0, fournies par
+  # l'Application `gateway-api-crds` depuis que le chart a cessé de les livrer).
+  # Cohabite avec kubernetesCRD et kubernetesIngress : les Ingress existants
+  # continuent d'être servis, seul whoami passe par un HTTPRoute (pilote).
+  kubernetesGateway:
+    enabled: true
+
   kubernetesCRD:
     enabled: true
     # Permet de référencer des Middlewares situés dans d'autres namespaces (ex: security, tools)
@@ -99,6 +106,37 @@ providers:
 accessLog:
   enabled: true
 
+# Gateway déployé par le chart (nom par défaut `traefik-gateway`, dans le namespace
+# du release donc kube-system ; gatewayClassName `traefik`).
+#
+# Les ports doivent correspondre à ceux déclarés dans `ports` (le template échoue
+# sinon) : ce sont les ports INTERNES du conteneur, 8000/8443, et non 80/443.
+#
+# namespacePolicy -> allowedRoutes.namespaces. Sans lui, un Gateway n'accepte que
+# les routes de SON namespace (défaut `Same`) et le HTTPRoute de whoami serait
+# rejeté. `All` est l'équivalent, côté Gateway API, du `allowCrossNamespace=true`
+# déjà en place pour le provider kubernetesCRD.
+#
+# Le listener HTTPS exige certificateRefs (le template échoue sans) : cert-manager
+# tournant sans --enable-gateway-api, il ignorerait une annotation sur le Gateway.
+# On fabrique donc le certificat via un objet Certificate explicite (extraObjects).
+# Le secret doit vivre dans le namespace du Gateway, sinon il faudrait un
+# ReferenceGrant.
+gateway:
+  listeners:
+    web:
+      port: 8000
+      protocol: HTTP
+      namespacePolicy:
+        from: All
+    websecure:
+      port: 8443
+      protocol: HTTPS
+      certificateRefs:
+        - name: gateway-valab-tls
+      namespacePolicy:
+        from: All
+
 # PVC dédié aux SOURCES du plugin Sablier (mode localPlugins).
 # Provisionné une fois, conservé ensuite (survit aux reboots) : aucun
 # téléchargement réseau requis au démarrage de Traefik.
@@ -113,6 +151,22 @@ extraObjects:
       resources:
         requests:
           storage: 1Gi
+  # Certificat du listener websecure du Gateway. Émis explicitement (et non via
+  # l'annotation cert-manager.io/cluster-issuer, qu'un Gateway ne déclenche pas
+  # tant que cert-manager tourne sans --enable-gateway-api). Rendu dans le
+  # namespace du release (kube-system), là où le Gateway peut le référencer sans
+  # ReferenceGrant.
+  - apiVersion: cert-manager.io/v1
+    kind: Certificate
+    metadata:
+      name: gateway-valab-tls
+    spec:
+      secretName: gateway-valab-tls
+      issuerRef:
+        name: letsencrypt
+        kind: ClusterIssuer
+      dnsNames:
+        - whoami.valab.top
 
 ports:
   web:
