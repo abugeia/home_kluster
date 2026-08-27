@@ -12,3 +12,16 @@ operator:
 #oauth:
 #  clientId: ""
 #  clientSecret: ""
+
+# Proxy API server : expose l'API Kubernetes sur le tailnet, authentifiée par les
+# grants ACL plutôt que par un kubeconfig copié. Évite de faire circuler le
+# certificat client admin de /etc/rancher/k3s/k3s.yaml, qui n'expire pas et dont
+# la révocation imposerait de régénérer les CA du cluster.
+#
+# mode "true" = auth mode : le proxy impersonate des users/groups Kubernetes selon
+# les grants du tailnet. allowImpersonation provisionne le RBAC dont l'operator a
+# besoin pour cela. Les droits effectifs sont définis côté cluster dans
+# api-proxy-rbac.yaml : sans ClusterRoleBinding, un accès au proxy ne donne rien.
+apiServerProxyConfig:
+  mode: "true"
+  allowImpersonation: "true"
