@@ -6,18 +6,22 @@
 # ces CRDs : cette Application doit donc exister et avoir pris le tracking ArgoCD
 # AVANT le bump du chart.
 #
-# Version alignée sur `sigs.k8s.io/gateway-api` embarqué par le binaire Traefik
-# (v3.7.11 -> v1.4.0). À faire évoluer avec lui, pas indépendamment.
+# Version v1.5.1 imposée par Traefik v3.7.x, et NON alignée sur la lib
+# gateway-api que son binaire embarque (v1.4.0) : le provider watche TLSRoute
+# inconditionnellement (pkg/provider/kubernetes/gateway/client.go, l'informer est
+# enregistré hors du bloc `if c.experimentalChannel`) et la liste via le package
+# `v1` (`ListTLSRoutes() []*gatev1.TLSRoute`). Or TLSRoute n'est servie en `v1`
+# qu'à partir de Gateway API v1.5.0 ; jusqu'en v1.4.0 elle n'existe qu'en
+# v1alpha2/v1alpha3, y compris dans le canal experimental.
 #
-# Canal `experimental` et non `standard`, par obligation : Traefik watche TLSRoute
-# et TCPRoute inconditionnellement, sans attendre
-# `--providers.kubernetesgateway.experimentalChannel=true`. Avec le seul canal
-# standard, qui ne définit pas ces types, son informer boucle sur
-#   Failed to watch *v1.TLSRoute: the server could not find the requested resource
-# et le provider ne s'initialise jamais : GatewayClass et Gateway restent
-# `Accepted=Unknown` / "Waiting for controller", et les HTTPRoute sans statut.
-# Le canal experimental est un sur-ensemble du standard (mêmes 6 CRDs + TLSRoute,
-# TCPRoute, UDPRoute et les extensions x-k8s.io).
+# Conséquence de l'absence : WatchAll appelle WaitForCacheSync sur tous les
+# informers au démarrage, celui de TLSRoute ne se synchronise jamais, l'event loop
+# ne démarre pas et le provider reste inerte — GatewayClass et Gateway bloqués sur
+# "Waiting for controller" (Accepted=Unknown), HTTPRoute sans statut. Le tout sans
+# qu'aucun TLSRoute ne soit utilisé. Traefik v3.6 tolérait cette absence, v3.7 non.
+#
+# Canal standard suffisant : TCPRoute, elle, n'est watchée que si
+# experimentalChannel est activé, ce qui n'est pas le cas ici.
 #
 # ServerSideApply : obligatoire, pas une précaution. La CRD httproutes pèse ~345 Ko,
 # soit 131 % de la limite de 262144 octets de l'annotation last-applied-configuration
@@ -40,8 +44,8 @@ spec:
   project: default
   source:
     repoURL: https://github.com/kubernetes-sigs/gateway-api
-    targetRevision: v1.4.0
-    path: config/crd/experimental
+    targetRevision: v1.5.1
+    path: config/crd/standard
   destination:
     server: https://kubernetes.default.svc
     namespace: kube-system
