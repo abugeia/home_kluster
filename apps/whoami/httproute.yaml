@@ -1,0 +1,38 @@
+# Pilote Gateway API : whoami est la seule app routée par un HTTPRoute, les 17
+# autres restent en Ingress. Les deux providers Traefik cohabitent.
+#
+# Remplace apps/whoami/ingress.yaml (supprimé) : même hostname, bascule franche.
+#
+# Pas de sectionName : la route s'attache à tous les listeners compatibles du
+# Gateway, soit web et websecure — l'équivalent de l'ancien
+# `router.entrypoints: web,websecure`.
+#
+# Le TLS ne se déclare plus ici (contrairement au bloc `tls:` d'un Ingress) mais
+# sur le listener du Gateway, une fois pour toutes les routes.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: whoami
+  namespace: whoami
+spec:
+  parentRefs:
+    - name: traefik-gateway
+      namespace: kube-system
+  hostnames:
+    - whoami.valab.top
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        # Équivalent de l'annotation router.middlewares. Voir tinyauth-middleware.yaml
+        # pour la raison du middleware local plutôt que celui de `security`.
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: tinyauth-protect
+      backendRefs:
+        - name: whoami
+          port: 80
