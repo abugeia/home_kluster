@@ -87,7 +87,7 @@ server:
         main:
           resources:
             requests:
-              memory: "128Mi"
+              memory: "256Mi"
               cpu: "50m"
             limits:
               # 2Gi provoquait des OOMKill en boucle pendant les gros imports
