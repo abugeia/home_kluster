@@ -8,6 +8,12 @@
 #
 # Lecture seule volontaire : le diagnostic et l'observation n'ont pas besoin
 # d'écrire, et les déploiements passent de toute façon par ArgoCD.
+#
+# L'AUTRE MOITIÉ DU DISPOSITIF EST DANS UN AUTRE REPO : le grant ACL qui nomme
+# `tailnet-readers` vit dans `infra_proxmox/terraform/tailscale.tf`
+# (`tailscale_acl.infrastructure`, grant `autogroup:admin` → `tag:k8s-operator`).
+# Les deux doivent bouger ensemble : renommer le groupe ici sans toucher au grant,
+# ou l'inverse, coupe l'accès sans que rien ne le signale.
 ---
 # Le ClusterRole intégré `view` couvre les ressources natives et, notamment,
 # EXCLUT les secrets. On s'appuie dessus plutôt que de réécrire ses règles.
