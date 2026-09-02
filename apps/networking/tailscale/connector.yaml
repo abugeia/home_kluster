@@ -7,3 +7,14 @@ spec:
   # Activer le mode Exit Node
   exitNode: true
   hostname: home-kluster-vpn
+  # Chemin rapide vers le LAN, en doublon du pi0 (qui annonce 10.0.0.0/27).
+  # Deux /28 plutôt qu'un /27 identique : à préfixe égal Tailscale désigne un
+  # primaire arbitraire (haute dispo, pas répartition de charge) et on ne peut pas
+  # le forcer — on risquerait de retomber sur le Pi Zero. Plus spécifiques, ces
+  # /28 gagnent au longest-prefix-match tant que le cluster tourne ; quand pve1
+  # est éteint ils disparaissent du tailnet et tout retombe sur le /27 du pi0.
+  # Les routes doivent être approuvées dans l'admin console Tailscale.
+  subnetRouter:
+    advertiseRoutes:
+      - 10.0.0.0/28
+      - 10.0.0.16/28
