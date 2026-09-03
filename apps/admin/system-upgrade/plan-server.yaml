@@ -34,8 +34,8 @@ spec:
   serviceAccountName: system-upgrade
   upgrade:
     image: rancher/k3s-upgrade
-  # Épinglé sur la version DÉJÀ installée : ce premier déploiement est volontairement
-  # un no-op. Le contrôleur se pose, résout la version, constate que le nœud est à
-  # jour et ne crée aucun Job. Le commit suivant, qui passera cette ligne à
-  # v1.34.11+k3s1, sera le vrai déclencheur.
-  version: v1.34.2+k3s1
+  # Un palier par commit, jamais de saut de minor : le contrôleur ne protège pas contre
+  # un k3s qui sauterait une minor, et Cilium non plus. Palier courant : dernier patch
+  # de la série 1.34 déjà installée — le premier upgrade réellement piloté par un Plan,
+  # volontairement le moins risqué possible pour éprouver la mécanique.
+  version: v1.34.11+k3s1
