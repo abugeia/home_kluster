@@ -1,0 +1,33 @@
+# system-upgrade-controller : les montées de version de k3s deviennent déclaratives.
+#
+# Avant, la version vivait dans le rôle Ansible `k3s` (infra_proxmox), qui relançait le
+# script d'installation dès qu'elle différait de l'installé. Ce script réécrit l'unit
+# systemd ET son .env à partir de l'environnement fourni : oublier une variable, c'est
+# perdre K3S_DATASTORE_ENDPOINT et donc le datastore Postgres. Le Job du contrôleur, lui,
+# se contente de remplacer le binaire et de redémarrer le service.
+#
+# Le rôle Ansible est désormais cantonné à l'amorçage (installer si k3s est absent) ;
+# sans ce garde-fou il redescendrait le nœud à sa propre valeur au prochain run.
+#
+# Le namespace `system-upgrade` n'est PAS dans conf/namespaces.yaml : il est livré par
+# system-upgrade-controller.yaml, avec le label pod-security `enforce: privileged` dont
+# les Jobs d'upgrade ont besoin. Le déclarer aux deux endroits donnerait deux
+# Applications propriétaires du même objet.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: system-upgrade
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/abugeia/home_kluster.git'
+    targetRevision: main
+    path: apps/admin/system-upgrade
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: system-upgrade
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

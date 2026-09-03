@@ -1,0 +1,41 @@
+# Montée de version de k3s, pilotée déclarativement.
+#
+# Un Plan est « an outstanding intent to mutate nodes » : il n'y a pas de bouton
+# pour le lancer. Le contrôleur résout la version, en calcule un hash, et le compare
+# au label `plan.upgrade.cattle.io/server-plan` porté par le nœud. Dès que les deux
+# diffèrent, il crée un Job qui remplace le binaire k3s et redémarre le service.
+# Bumper le champ `version:` ci-dessous EST le déclencheur — et `git revert` l'annule.
+#
+# `version:` et jamais `channel:` : un canal (`stable`) pointerait aujourd'hui sur
+# v1.36.x, or Cilium 1.18.4 n'est testé que jusqu'à k8s 1.33 (on est déjà hors matrice
+# en 1.34). Toute montée au-delà de 1.34 suppose Cilium 1.19 puis 1.20 au préalable.
+# La doc k3s le rappelle : le contrôleur ne protège PAS contre un saut de minor.
+#
+# Le Job remplace le binaire et redémarre k3s sans toucher à l'unit systemd ni à son
+# .env — le K3S_DATASTORE_ENDPOINT vers Postgres est donc préservé, contrairement à ce
+# que ferait une réexécution du script d'installation.
+apiVersion: upgrade.cattle.io/v1
+kind: Plan
+metadata:
+  name: server-plan
+spec:
+  concurrency: 1
+  # `cordon` seul, surtout pas `drain` : le cluster n'a qu'un nœud, drainer
+  # chercherait à évincer 87 pods sans nulle part où les remettre. Cordonner se
+  # contente de suspendre l'ordonnancement le temps du Job ; les pods en place
+  # continuent de tourner pendant l'arrêt de k3s.
+  cordon: true
+  nodeSelector:
+    matchExpressions:
+      # `Exists` plutôt que In/["true"] : on ne parie pas sur la valeur du label,
+      # seulement sur le fait que le nœud est un control-plane.
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+  serviceAccountName: system-upgrade
+  upgrade:
+    image: rancher/k3s-upgrade
+  # Épinglé sur la version DÉJÀ installée : ce premier déploiement est volontairement
+  # un no-op. Le contrôleur se pose, résout la version, constate que le nœud est à
+  # jour et ne crée aucun Job. Le commit suivant, qui passera cette ligne à
+  # v1.34.11+k3s1, sera le vrai déclencheur.
+  version: v1.34.2+k3s1
