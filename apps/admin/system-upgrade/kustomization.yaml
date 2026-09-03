@@ -1,0 +1,35 @@
+# Manifestes amont repris VERBATIM du tag v0.20.1 (crd.yaml vient de l'asset de
+# release, les trois autres de manifests/). Ne pas les éditer : au prochain bump on
+# les remplace tels quels, et le diff montre exactement ce qui change côté Rancher.
+# Tout ce qui nous est propre vit dans ce fichier, dans le patch et dans plan-server.yaml.
+#
+# La kustomization amont n'est PAS réutilisable : elle épingle l'image sur v0.14.0
+# (un reliquat de dev) et n'inclut pas la CRD.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: system-upgrade
+
+resources:
+  - crd.yaml
+  - clusterrole.yaml
+  - clusterrolebinding.yaml
+  - system-upgrade-controller.yaml
+  - plan-server.yaml
+
+images:
+  # Le Deployment amont porte lui aussi v0.14.0 en dur. La release courante est v0.20.1.
+  - name: rancher/system-upgrade-controller
+    newTag: v0.20.1
+
+patches:
+  - path: patch-job-kubectl-image.yaml
+  # Supprimer cette Application ne doit pas emporter la CRD : ArgoCD supprimerait
+  # alors en cascade les Plan du cluster. Même précaution que sur gateway-api-crds.
+  - target:
+      kind: CustomResourceDefinition
+      name: plans.upgrade.cattle.io
+    patch: |-
+      - op: add
+        path: /metadata/annotations/argocd.argoproj.io~1sync-options
+        value: Prune=false

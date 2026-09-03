@@ -1,0 +1,10 @@
+# L'image kubectl que le contrôleur injecte dans ses Jobs (pour cordon/uncordon) est
+# figée sur v1.30.3 en amont, soit quatre minors sous notre API server en 1.34 — hors
+# de la fenêtre de skew supportée par Kubernetes (±1). On l'aligne sur le cluster.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: default-controller-env
+  namespace: system-upgrade
+data:
+  SYSTEM_UPGRADE_JOB_KUBECTL_IMAGE: "rancher/kubectl:v1.34.9"
