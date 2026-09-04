@@ -22,6 +22,33 @@ images:
   - name: rancher/system-upgrade-controller
     newTag: v0.20.1
 
+# Le contrôleur lit son env par `envFrom: configMapRef` : la valeur est capturée au
+# démarrage du pod, donc changer la ConfigMap ne suffit pas — il faut que le Deployment
+# bouge. Ce replacement recopie l'image kubectl dans une annotation du pod template :
+# éditer la ConfigMap change l'annotation, donc le podTemplateHash, donc déclenche le
+# rollout. Sans ça, un bump de cette image est appliqué par ArgoCD mais reste sans
+# effet jusqu'au prochain redémarrage fortuit du pod — silencieusement.
+#
+# Pas de piste `images:` ni d'argocd-image-updater ici : la valeur est une chaîne dans
+# le `data` d'une ConfigMap, pas le champ image d'un conteneur, donc invisible pour
+# l'un comme pour l'autre. Et ce serait la mauvaise cible : cette image doit rester à
+# ±1 minor de l'API server, pas suivre la dernière publiée.
+replacements:
+  - source:
+      kind: ConfigMap
+      name: default-controller-env
+      fieldPath: data.SYSTEM_UPGRADE_JOB_KUBECTL_IMAGE
+    targets:
+      - select:
+          kind: Deployment
+          name: system-upgrade-controller
+        fieldPaths:
+          # Clé sans point ni slash : kustomize interprète le point comme un séparateur
+          # de chemin et les crochets comme un accès de liste.
+          - spec.template.metadata.annotations.kubectl-image
+        options:
+          create: true
+
 patches:
   - path: patch-job-kubectl-image.yaml
   # Supprimer cette Application ne doit pas emporter la CRD : ArgoCD supprimerait
