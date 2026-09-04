@@ -27,7 +27,7 @@ spec:
         # Prépare /config : fichiers d'include vides + installe l'add-on OIDC
         # (full GitOps, sans HACS). Idempotent + auto-réparateur.
         - name: bootstrap-config
-          image: alpine:3.20
+          image: alpine:3.24
           env:
             - name: OIDC_VERSION
               value: "v1.1.0" # christiaangoossens/hass-oidc-auth
