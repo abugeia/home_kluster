@@ -20,7 +20,10 @@
       "automerge": true
     },
     {
-      "matchFileNames": ["apps/admin/system-upgrade/system-upgrade-controller.yaml"],
+      "matchFileNames": [
+        "apps/admin/system-upgrade/system-upgrade-controller.yaml",
+        "apps/ai/playwright/deployment.yaml"
+      ],
       "enabled": false
     },
     {
