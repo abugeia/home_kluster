@@ -16,6 +16,20 @@
       "groupName": "all non-major dependencies",
       "groupSlug": "all-minor-patch",
       "automerge": true
+    },
+    {
+      "matchDatasources": ["helm"],
+      "matchPackageNames": [
+        "argo-cd",
+        "cert-manager",
+        "csi-driver-nfs",
+        "metallb",
+        "traefik",
+        "tailscale-operator"
+      ],
+      "groupName": "infrastructure critique",
+      "groupSlug": "infra-critique",
+      "automerge": false
     }
   ],
   "argocd": {
