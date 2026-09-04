@@ -41,6 +41,11 @@ spec:
               value: "global"
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: "/secrets/gcp-sa.json"
+            # Service OCR (déploiement `ocr.yaml`). S'il ne répond pas, l'API
+            # continue sur la couche texte existante et le signale : la détection
+            # d'une couche douteuse est locale, seule la réparation en dépend.
+            - name: OCR_SERVICE_URL
+              value: "http://droit-compare-ocr:8080"
             - name: COMPARISON_MODE
               value: "distinct"
             - name: FEWSHOT_REFERENCE_DOC

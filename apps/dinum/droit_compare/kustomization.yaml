@@ -4,6 +4,7 @@ namespace: dinum
 resources:
   - db.yaml
   - api.yaml
+  - ocr.yaml
   - middleware.yaml
   - ingress.yaml
 # ConfigMap du document de travail few-shot (monté en /app/fewshot_reference.md).
@@ -18,4 +19,6 @@ generatorOptions:
 # Le digest courant du tag :main est inscrit via .argocd-source-droit-compare.yaml.
 images:
   - name: harbor.valab.top/prod/droit-compare
+    newTag: main
+  - name: harbor.valab.top/prod/droit-compare-ocr
     newTag: main

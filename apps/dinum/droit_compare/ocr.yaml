@@ -1,0 +1,97 @@
+# Service OCR — répare les PDF dont la couche texte n'est pas fiable.
+#
+# Déploiement SÉPARÉ de l'API, et c'est le fond du sujet : `ocrmypdf` fait mâcher
+# du PDF fourni par l'utilisateur à Ghostscript et à Tesseract, deux parseurs C.
+# Ce pod n'a donc DÉLIBÉRÉMENT aucun des secrets que porte `droit-compare-api` —
+# ni le compte de service GCP, ni les identifiants Postgres, ni les clés LLM. Il
+# n'a pas non plus d'`envFrom` : ajouter un `secretRef` ici annulerait la raison
+# d'être de ce découpage.
+#
+# Son absence n'est pas bloquante : l'API détecte les couches texte douteuses par
+# elle-même (analyse locale) et se contente de signaler que la réparation est
+# indisponible.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: droit-compare-ocr
+  namespace: dinum
+  labels:
+    app.kubernetes.io/name: droit-compare-ocr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: droit-compare-ocr
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: droit-compare-ocr
+    spec:
+      imagePullSecrets:
+        - name: harbor-cicd-secret # répliqué par Reflector (label ns replicate-harbor-cicd)
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+      containers:
+        - name: ocr
+          image: harbor.valab.top/prod/droit-compare-ocr:main
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 15
+            # Un OCR long occupe le worker : la sonde doit être plus patiente que
+            # sur l'API, sinon un document de 150 pages ferait redémarrer le pod
+            # au milieu de son propre travail.
+            periodSeconds: 60
+            timeoutSeconds: 10
+            failureThreshold: 5
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              # Tesseract et Ghostscript travaillent page par page ; le pic vient
+              # de la rastérisation d'une page à 300 dpi, pas du nombre de pages.
+              memory: "2Gi"
+              cpu: "2000m"
+          volumeMounts:
+            # Racine en lecture seule : ocrmypdf écrit ses fichiers intermédiaires
+            # dans un tmpfs dédié, qui disparaît avec le pod.
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 2Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: droit-compare-ocr
+  namespace: dinum
+  labels:
+    app.kubernetes.io/name: droit-compare-ocr
+spec:
+  selector:
+    app.kubernetes.io/name: droit-compare-ocr
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
