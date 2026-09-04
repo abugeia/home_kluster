@@ -62,10 +62,23 @@ redis:
   commonLabels:
     sablier.enable: "true"
     sablier.group: "superset.valab.top"
-  # ✅ Validé : Utiliser ECR est recommandé pour éviter les rate-limits Docker Hub
+  # Bitnami a vidé son catalogue gratuit : `public.ecr.aws/bitnami/redis` ne répond plus
+  # que NAME_UNKNOWN (le dépôt entier a disparu, pas seulement le tag), et
+  # `docker.io/bitnami/redis:7.2.4-debian-12-r9` renvoie 404. Seule
+  # `docker.io/bitnamilegacy/redis` sert encore ce tag exact — vérifié.
+  #
+  # Le pod ne tournait plus que par le cache containerd du nœud : au prochain pull réel
+  # (GC de containerd, nœud reprovisionné, changement de tag) c'était ImagePullBackOff,
+  # et Superset sans son broker Celery.
+  #
+  # ⚠️ `bitnamilegacy` est une ARCHIVE FIGÉE : plus aucun correctif de sécurité. C'est
+  # un dépannage, pas une destination. À trancher : miroir dans Harbor, ou sortir du
+  # Redis Bitnami. Le commentaire précédent — « utiliser ECR pour éviter les
+  # rate-limits Docker Hub » — n'est plus qu'un souvenir de l'époque où ce dépôt
+  # existait.
   image:
-    registry: public.ecr.aws
-    repository: bitnami/redis
+    registry: docker.io
+    repository: bitnamilegacy/redis
     tag: 7.2.4-debian-12-r9
   auth:
     enabled: false # OK pour un homelab interne
