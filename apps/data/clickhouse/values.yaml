@@ -67,7 +67,16 @@ clickhouse:
       grants:
         - "GRANT SELECT ON *.*"
 
-  # Profils personnalisés
+  # Profils personnalisés — référencés par `users[].profile` (ici l'user `superset`).
+  #
+  # Forme IMBRIQUÉE, pas aplatie : depuis le chart 0.3.13 un values.schema.json impose
+  # aux noms de profils de matcher `^[a-zA-Z0-9_]+$`, donc sans `/`. C'est le template
+  # qui construit la notation ClickHouse `<profil>/<paramètre>` :
+  #   {{ $profile }}/{{ $key }}: "{{ $value }}"
+  # Le rendu final est identique à l'ancien `readonly/readonly: "1"` — seule l'écriture
+  # côté values change. En 0.3.8 la forme aplatie passait, faute de schéma pour la
+  # refuser et de `range` imbriqué pour l'exploiter.
   profiles:
-    readonly/readonly: "1"
+    readonly:
+      readonly: "1"
 
