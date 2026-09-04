@@ -19,6 +19,7 @@ La configuration est définie dans `renovate.json` :
 *   **Regroupement** : 
     *   Toutes les mises à jour "non-majeures" (patchs, mineures) sont **regroupées** dans une seule Pull Request pour éviter le spam.
     *   Les mises à jour majeures (v1.0.0 -> v2.0.0) restent séparées pour attirer l'attention.
+    *   **Une PR par palier de majeure** (`separateMultipleMajor`) : voir ci-dessous.
 *   **Dashboard** : Une "Issue" spéciale appelée "Dependency Dashboard" sera créée pour lister les mises à jour en attente et permettre de forcer une vérification manuelle.
 
 ## 🛠️ Utilisation au quotidien
@@ -52,6 +53,24 @@ se réveiller*, il lui interdit d'agir **hors** de la fenêtre. Avec l'App hébe
 c'est Mend qui décide de l'heure des jobs — si aucun ne tombe dans cette heure-là,
 Renovate ne crée jamais rien. La fenêtre couvre désormais la journée du mardi, ce qui
 garde l'intention (un lot hebdomadaire, pas de bruit quotidien) sans le pari horaire.
+
+## Les majeures se montent par paliers
+
+`separateMajorMinor` est à `true` par défaut : Renovate propose bien les majeures, dans
+leurs propres PR, et rien ne les automerge. Mais `separateMultipleMajor` est à `false`
+par défaut, et c'est le piège : face à une dépendance en retard de **deux** majeures, il
+propose un seul bond direct vers la dernière. ArgoCD (8.5.10 → 10.7.1) arriverait en une
+PR sautant toute la branche 9.x, et open-webui (14 → 16) de même.
+
+C'est exactement ce qu'on s'interdit ailleurs : Cilium comme k3s ne supportent pas les
+sauts de minor, et le rôle Ansible a un assert pour le refuser. Un chart Helm n'a pas
+d'assert, mais les migrations intermédiaires — RBAC, CRD, renommages de values — sont
+bien réelles. `separateMultipleMajor: true` donne donc une PR par palier : 9.x d'abord,
+10.x ensuite.
+
+`prConcurrentLimit` passe de 10 (défaut) à 20 : le rattrapage initial représente une PR
+de lot non-majeur, une de `infra-critique`, et une par palier de majeure — la limite par
+défaut aurait tronqué le lot sans le dire.
 
 ## Autres corrections de la même passe (2026-09-04)
 

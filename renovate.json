@@ -8,6 +8,8 @@
     "on tuesday"
   ],
   "prHourlyLimit": 0,
+  "prConcurrentLimit": 20,
+  "separateMultipleMajor": true,
   "rangeStrategy": "bump",
   "dependencyDashboard": true,
   "packageRules": [
