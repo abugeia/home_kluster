@@ -67,6 +67,13 @@ sans objet, en éditant un fichier que la convention du dépôt interdit de touc
 version se bump donc dans le `kustomization.yaml`, à la main, comme le reste de la
 surcouche.
 
+**`playwright/deployment.yaml` est désactivé pour Renovate.** Sa version n'est pas
+libre non plus : elle doit matcher le client Playwright bundlé dans OpenWebUI (`pip show
+playwright` dans le pod, 1.58.0 aujourd'hui), sinon le protocole de connexion casse et
+la recherche web d'OpenWebUI tombe. Renovate proposait `v1.62.1` — et de façon
+incohérente, puisqu'il ne voyait que l'image et laissait `playwright@1.58.0` dans les
+`args` du conteneur. La version se réaligne à la main, quand OpenWebUI monte.
+
 **`gateway-api-crds.yaml` rejoint le groupe `infra-critique`.** Sa version n'est pas
 libre : elle est **imposée par Traefik**, dont le provider Gateway API watche `TLSRoute`
 inconditionnellement et reste inerte si l'API ne lui convient pas — `GatewayClass` et
