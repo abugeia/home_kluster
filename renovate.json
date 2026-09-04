@@ -1,7 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base"
+    "config:recommended"
   ],
   "timezone": "Pacific/Noumea",
   "schedule": [
@@ -18,13 +18,13 @@
       "automerge": true
     }
   ],
-  "kubernetes": {
-    "fileMatch": ["\\.yaml$"]
+  "argocd": {
+    "managerFilePatterns": ["argocd/apps/*.yaml"]
   },
-  "flux": {
-    "fileMatch": ["\\.yaml$"]
+  "kubernetes": {
+    "managerFilePatterns": ["**/*.yaml"]
   },
   "helm-values": {
-    "fileMatch": ["values.yaml$"]
+    "managerFilePatterns": ["**/values.yaml"]
   }
 }
