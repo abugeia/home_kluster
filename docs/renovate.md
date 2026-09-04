@@ -15,7 +15,7 @@ Pour activer Renovate sur ce dépôt :
 
 La configuration est définie dans `renovate.json` :
 
-*   **Planning** : Les recherches de mises à jour se font uniquement le **Mardi matin entre 8h00 et 9h00** (Heure de Nouméa).
+*   **Planning** : Les recherches de mises à jour se font le **mardi** (heure de Nouméa), sur la journée entière.
 *   **Regroupement** : 
     *   Toutes les mises à jour "non-majeures" (patchs, mineures) sont **regroupées** dans une seule Pull Request pour éviter le spam.
     *   Les mises à jour majeures (v1.0.0 -> v2.0.0) restent séparées pour attirer l'attention.
@@ -43,6 +43,15 @@ retard, dont 5 majeures — dont ArgoCD lui-même, à deux majeures.
 
 Le manager est désormais déclaré sur `argocd/apps/*.yaml`, où vivent les 55
 Applications du dépôt.
+
+## Le schedule doit rester large
+
+La configuration d'origine n'ouvrait qu'**une heure par semaine** (« after 8am and
+before 9am on tuesday »). C'est fragile : le `schedule` ne dit pas à Renovate *quand
+se réveiller*, il lui interdit d'agir **hors** de la fenêtre. Avec l'App hébergée,
+c'est Mend qui décide de l'heure des jobs — si aucun ne tombe dans cette heure-là,
+Renovate ne crée jamais rien. La fenêtre couvre désormais la journée du mardi, ce qui
+garde l'intention (un lot hebdomadaire, pas de bruit quotidien) sans le pari horaire.
 
 ## Autres corrections de la même passe (2026-09-04)
 
