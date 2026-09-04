@@ -58,3 +58,5 @@ extraObjects:
           images:
             - alias: app
               imageName: harbor.valab.top/prod/droit-compare:main
+            - alias: ocr
+              imageName: harbor.valab.top/prod/droit-compare-ocr:main
