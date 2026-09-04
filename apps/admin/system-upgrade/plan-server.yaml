@@ -35,7 +35,7 @@ spec:
   upgrade:
     image: rancher/k3s-upgrade
   # Un palier par commit, jamais de saut de minor : le contrôleur ne protège pas contre
-  # un k3s qui sauterait une minor, et Cilium non plus. Palier courant : première minor
-  # de la série, après un 1.34.11 qui a validé la mécanique (Job Complete en 47 s,
-  # nœud décordonné, datastore Postgres préservé).
-  version: v1.35.8+k3s1
+  # un k3s qui sauterait une minor, et Cilium non plus. Palier courant : dernière minor
+  # publiée, borne haute de la matrice Cilium 1.20 (k8s 1.33 → 1.36). Aller au-delà
+  # supposera d'abord une Cilium 1.21.
+  version: v1.36.4+k3s1
