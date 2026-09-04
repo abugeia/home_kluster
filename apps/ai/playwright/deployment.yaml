@@ -21,12 +21,18 @@ spec:
       containers:
         - name: playwright
           # Version DOIT matcher le client playwright bundlé dans OpenWebUI
-          # (pip show playwright dans le pod open-webui = 1.58.0). Sinon le
-          # protocole de connexion casse.
-          image: mcr.microsoft.com/playwright:v1.58.0-noble
+          # (`pip show playwright` dans le pod open-webui = 1.60.0 depuis l'app
+          # 0.11.0). Sinon le protocole de connexion casse.
+          #
+          # Les DEUX références ci-dessous doivent bouger ensemble : l'image fournit
+          # les navigateurs, la commande npx installe le client qui les pilote. Ce
+          # fichier est exclu de Renovate (renovate.json) parce que la version cible
+          # n'est pas la dernière publiée mais celle qu'OpenWebUI embarque — l'amont
+          # était en 1.62.1 quand il fallait 1.60.0.
+          image: mcr.microsoft.com/playwright:v1.60.0-noble
           command: ["/bin/sh", "-c"]
           args:
-            - npx -y playwright@1.58.0 run-server --port 3000 --host 0.0.0.0
+            - npx -y playwright@1.60.0 run-server --port 3000 --host 0.0.0.0
           ports:
             - name: ws
               containerPort: 3000
