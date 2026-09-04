@@ -73,10 +73,30 @@ Toutes les PR Renovate de ce dépôt datent du même jour (27/01/2026) et aucune
 ne tourne plus du tout, indépendamment de la config. Cela se vérifie sur
 <https://github.com/settings/installations> — l'API REST le refuse à un PAT.
 
-## À trancher : l'automerge
+## Automerge : oui, sauf sur six composants
 
 Les mises à jour non-majeures sont en `automerge: true`, et ArgoCD est en auto-sync :
-une PR mergée par le bot part donc en production sans relecture. C'est confortable pour
-Grafana ou Homepage, beaucoup moins pour l'infrastructure — une mineure de MetalLB, de
-csi-driver-nfs ou de Traefik touche respectivement l'attribution des IP, tous les PVC et
-l'ingress entier. Envisager un `packageRules` qui exclut ces composants de l'automerge.
+une PR mergée par le bot part en production sans relecture. C'est le bon compromis pour
+le catalogue applicatif — le pire cas est un service qui tombe et qu'on redresse — et
+c'est ce qui évite de laisser le retard s'accumuler.
+
+Six composants en sont exclus (groupe `infra-critique`, à merger à la main), parce
+qu'une **mineure** y suffit à couper l'accès à tout :
+
+| composant | ce qu'une régression casse |
+|---|---|
+| `csi-driver-nfs` | **tous** les PVC — Immich, les bases, les configs |
+| `metallb` | l'attribution des IP, dont le `10.0.0.101` du Gateway |
+| `traefik` | l'ingress entier |
+| `cert-manager` | le renouvellement TLS, en silence jusqu'à l'expiration |
+| `argo-cd` | l'outil qui déploie tout, rollback compris |
+| `tailscale-operator` | l'accès distant |
+
+Deux raisons concrètes plutôt que théoriques. Le serveur s'éteint de minuit à 10h : un
+lot mergé la nuit s'applique d'un bloc au réveil, et si ça casse on découvre un cluster
+en vrac sans savoir quel changement l'a causé. Et l'incident du 2026-09-04 l'a montré —
+ce qui a rendu le diagnostic possible, c'est de *savoir* qu'un upgrade venait de passer.
+
+L'ordre des `packageRules` compte : Renovate applique les règles dans l'ordre et les
+dernières gagnent. La règle `infra-critique` doit donc rester **après** celle qui active
+l'automerge des non-majeures, sans quoi elle serait sans effet.
