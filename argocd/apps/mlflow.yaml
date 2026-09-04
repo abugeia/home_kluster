@@ -7,7 +7,7 @@ spec:
   project: default
   sources:
     - repoURL: https://community-charts.github.io/helm-charts
-      targetRevision: 1.8.1
+      targetRevision: 1.11.6
       chart: mlflow
       helm:
         valueFiles:
