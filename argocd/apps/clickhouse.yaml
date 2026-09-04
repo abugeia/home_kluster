@@ -7,7 +7,7 @@ spec:
   project: default
   sources:
     - repoURL: https://helm.altinity.com
-      targetRevision: 0.3.8
+      targetRevision: 0.3.13
       chart: clickhouse
 
       helm:

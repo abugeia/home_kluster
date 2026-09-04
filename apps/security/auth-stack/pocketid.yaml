@@ -33,7 +33,7 @@ spec:
         runAsUser: 1000
       containers:
         - name: pocketid
-          image: ghcr.io/pocket-id/pocket-id:v2.0.2
+          image: ghcr.io/pocket-id/pocket-id:v2.14.0
           ports:
             - containerPort: 1411
           env:

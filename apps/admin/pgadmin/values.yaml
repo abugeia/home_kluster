@@ -14,7 +14,7 @@ commonLabels:
 image:
   registry: docker.io
   repository: dpage/pgadmin4
-  tag: "9.11"
+  tag: "9.17"
   pullPolicy: IfNotPresent
 
 # Default credentials (admin initial)
