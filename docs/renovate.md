@@ -54,6 +54,26 @@ c'est Mend qui décide de l'heure des jobs — si aucun ne tombe dans cette heur
 Renovate ne crée jamais rien. La fenêtre couvre désormais la journée du mardi, ce qui
 garde l'intention (un lot hebdomadaire, pas de bruit quotidien) sans le pari horaire.
 
+## Deux exclusions ciblées, apprises du premier lot réel
+
+Le premier run après réparation (2026-09-04) a produit une PR groupée de 27 dépendances
+qui contenait deux pièges. Les règles correspondantes sont dans `renovate.json`.
+
+**`system-upgrade-controller.yaml` est désactivé pour Renovate** (`enabled: false`). Le
+fichier est repris verbatim de l'amont, qui y laisse `v0.14.0` — un reliquat de dev — et
+c'est la surcharge `images:` du `kustomization.yaml` qui fixe la version réellement
+déployée. Renovate lisait le manifeste sans voir la surcharge : il proposait une montée
+sans objet, en éditant un fichier que la convention du dépôt interdit de toucher. La
+version se bump donc dans le `kustomization.yaml`, à la main, comme le reste de la
+surcouche.
+
+**`gateway-api-crds.yaml` rejoint le groupe `infra-critique`.** Sa version n'est pas
+libre : elle est **imposée par Traefik**, dont le provider Gateway API watche `TLSRoute`
+inconditionnellement et reste inerte si l'API ne lui convient pas — `GatewayClass` et
+`Gateway` bloqués sur « Waiting for controller », sans qu'aucun TLSRoute ne soit
+utilisé. Un bump automergé de ces CRDs peut donc éteindre l'ingress Gateway en silence.
+Il se relit à la main, contre la version de Traefik installée.
+
 ## Les majeures se montent par paliers
 
 `separateMajorMinor` est à `true` par défaut : Renovate propose bien les majeures, dans
