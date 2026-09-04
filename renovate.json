@@ -20,6 +20,16 @@
       "automerge": true
     },
     {
+      "matchFileNames": ["apps/admin/system-upgrade/system-upgrade-controller.yaml"],
+      "enabled": false
+    },
+    {
+      "matchFileNames": ["argocd/apps/gateway-api-crds.yaml"],
+      "groupName": "infrastructure critique",
+      "groupSlug": "infra-critique",
+      "automerge": false
+    },
+    {
       "matchDatasources": ["helm"],
       "matchPackageNames": [
         "argo-cd",
