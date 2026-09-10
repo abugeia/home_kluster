@@ -1,4 +1,4 @@
 kustomize:
   images:
-  - harbor.valab.top/prod/droit-compare:main@sha256:01b4e2adc7183bbc16f7eca1ebe2da9aa508817d0136b026b69011ffbd524668
-  - harbor.valab.top/prod/droit-compare-ocr:main@sha256:bcced9847d22d69b0fff335bc1a5633b8f1db8e22d48acb55a93039e2202eb51
+  - harbor.valab.top/prod/droit-compare:main@sha256:9e7b6b0bf71dd8297e3e6c3f6631519108d243b03b1d2e5cb742691109dd7d63
+  - harbor.valab.top/prod/droit-compare-ocr:main@sha256:bf754939d58c33f777660f9a1c81f6f0fea3385ea9f6cc73b3cdb6e4b718a466
