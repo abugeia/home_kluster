@@ -45,6 +45,13 @@
       "groupName": "infrastructure critique",
       "groupSlug": "infra-critique",
       "automerge": false
+    },
+    {
+      "description": "Chart Immich : 0.13.0 impose un values.schema.json (breaking) et fait passer l'appVersion en v3, qui exige VectorChord et un CPU x86-64-v2. Revue manuelle obligatoire malgré le semver mineur.",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["ghcr.io/immich-app/immich-charts/immich"],
+      "groupName": null,
+      "automerge": false
     }
   ],
   "argocd": {

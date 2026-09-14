@@ -12,8 +12,12 @@ spec:
       path: apps/media/immich
       directory:
         include: '{pv,pvc,pv-import,pvc-import}.yaml'
-    # Source 2: Helm chart with values from Git
-    - repoURL: https://immich-app.github.io/immich-charts
+    # Source 2: Helm chart (registre OCI) with values from Git
+    # Le repo HTTP https://immich-app.github.io/immich-charts a été supprimé par
+    # l'upstream : il est figé à 0.12.0 et ne reçoit plus de mise à jour depuis
+    # que le chart est publié en OCI (0.13.0+). Argo CD traite un repoURL sans
+    # schéma comme un registre OCI — ne pas préfixer par "oci://".
+    - repoURL: ghcr.io/immich-app/immich-charts
       targetRevision: 0.12.0
       chart: immich
       helm:
