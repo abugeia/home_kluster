@@ -54,6 +54,16 @@
       "automerge": false
     }
   ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Tags d'images surchargés seuls dans un values.yaml Helm, quand le chart fournit déjà le repository (cas Immich : un seul tag pour le server et le machine-learning). Le manager helm-values ne détecte pas ces blocs car il exige repository + tag côté values.",
+      "managerFilePatterns": ["/(^|/)values\\.yaml$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+tag: (?<currentValue>\\S+)"
+      ]
+    }
+  ],
   "argocd": {
     "managerFilePatterns": ["argocd/apps/*.yaml"]
   },

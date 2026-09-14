@@ -8,8 +8,13 @@ controllers:
     containers:
       main:
         image:
+          # Tag partagé par le server et le machine-learning : le chart définit
+          # le `repository` de chaque composant, seul le tag se surcharge ici.
+          # Ne pas ajouter de `repository` à ce niveau, il écraserait aussi
+          # celui du machine-learning.
+          # Suivi par le customManager `helm-values-tag-only` de renovate.json.
           # renovate: datasource=docker depName=ghcr.io/immich-app/immich-server
-          tag: v2.6.3
+          tag: v3.2.1
         env:
           REDIS_HOSTNAME: '{{ printf "%s-valkey" .Release.Name }}'
           IMMICH_MACHINE_LEARNING_URL: '{{ printf "http://%s-machine-learning:3003" .Release.Name }}'
@@ -97,7 +102,11 @@ server:
   ingress:
     main:
       enabled: true
-      ingressClassName: traefik
+      # `className` et non `ingressClassName` : c'est le nom de la clé dans la
+      # common library bjw-s. `ingressClassName` était ignoré en silence (le
+      # cluster rattrapait via l'IngressClass traefik par défaut) ; le schéma
+      # de values ajouté au chart 0.13.0 le rejette désormais explicitement.
+      className: traefik
       annotations:
         gethomepage.dev/enabled: "true"
         gethomepage.dev/description: "Photo Management"
