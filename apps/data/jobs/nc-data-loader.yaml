@@ -11,6 +11,10 @@ spec:
         spec:
           containers:
           - name: loader
+            # :latest + Always est volontaire ici : chaque exécution du CronJob
+            # crée un pod neuf, qui re-pull. Pas d'épinglage ni de suivi
+            # argocd-image-updater — ce dernier ne verrait pas cette image, Argo CD
+            # n'extrayant les images que des Pods (aucun pod entre deux runs).
             image: harbor.valab.top/prod/dlt-dataloader:latest
             imagePullPolicy: Always
             env:
