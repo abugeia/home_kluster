@@ -37,7 +37,8 @@ spec:
               mountPath: /database
       containers:
         - name: filebrowser
-          image: filebrowser/filebrowser:latest
+          # Le versioning regex exclut les variantes -s6 et par architecture.
+          image: filebrowser/filebrowser:v2.63.23
           imagePullPolicy: IfNotPresent
           args:
             - --database

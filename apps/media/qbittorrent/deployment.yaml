@@ -36,7 +36,9 @@ spec:
               mountPath: /config
       containers:
         - name: qbittorrent
-          image: lscr.io/linuxserver/qbittorrent:latest
+          # Tag LinuxServer épinglé : <qbittorrent>_v<libtorrent>-ls<build>.
+          # Seuls qbittorrent et le build -ls sont comparés par Renovate.
+          image: lscr.io/linuxserver/qbittorrent:5.2.3_v2.0.14-ls476
           imagePullPolicy: IfNotPresent
           env:
             - name: PUID

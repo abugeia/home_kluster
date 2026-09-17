@@ -30,7 +30,9 @@ spec:
               mountPath: /config
       containers:
         - name: syncthing
-          image: lscr.io/linuxserver/syncthing:latest
+          # Tag LinuxServer épinglé : app version + build -ls, suivi par Renovate
+          # (versioning regex dédié). Retard constaté avant pin : 9 mois.
+          image: lscr.io/linuxserver/syncthing:v2.1.5-ls229
           imagePullPolicy: IfNotPresent
           env:
             # PUID/PGID=0 : Syncthing tourne en root pour pouvoir écrire sur le NFS

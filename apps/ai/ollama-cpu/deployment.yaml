@@ -19,7 +19,9 @@ spec:
     spec:
       containers:
         - name: ollama
-          image: ollama/ollama:latest
+          # Semver propre côté upstream ; le versioning regex exclut les
+          # préversions -rcN et les variantes -rocm.
+          image: ollama/ollama:0.34.1
           imagePullPolicy: IfNotPresent
           env:
             - name: OLLAMA_HOST
