@@ -47,6 +47,13 @@
       "automerge": false
     },
     {
+      "description": "MeTube publie des tags CalVer YYYY.MM.DD (zéro non significatif dans le mois et le jour) : la versioning docker par défaut ne les ordonne pas de façon fiable. Le regex borne aussi la détection aux tags à points, en ignorant les anciens tags à tirets (2025-03-27).",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["ghcr.io/alexta69/metube"],
+      "versioning": "regex:^(?<major>\\d{4})\\.(?<minor>\\d{2})\\.(?<patch>\\d{2})$",
+      "automerge": true
+    },
+    {
       "description": "Chart Immich : 0.13.0 impose un values.schema.json (breaking) et fait passer l'appVersion en v3, qui exige VectorChord et un CPU x86-64-v2. Revue manuelle obligatoire malgré le semver mineur.",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["ghcr.io/immich-app/immich-charts/immich"],
