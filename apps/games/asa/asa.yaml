@@ -67,7 +67,11 @@ spec:
               mountPath: /home/pok/arkserver/ShooterGame/Saved/clusters
       containers:
         - name: asa-server
-          image: acekorneya/asa_server:2_1_latest
+          # Upstream ne publie aucun tag versionné (2_1_latest, 2_1_beta, latest) :
+          # le digest est le seul point fixe possible. Renovate le suit.
+          # À noter : 2_1_latest n'étant pas littéralement « latest », Kubernetes
+          # applique IfNotPresent par défaut — d'où les 151 j de dérive constatés.
+          image: acekorneya/asa_server:2_1_latest@sha256:64a836b2e5f74f8bc4d9ef8e2e64580e09c7ef9764faad6c4e13fa4e304fd92d
           securityContext:
             runAsUser: 7777
             runAsGroup: 7777
