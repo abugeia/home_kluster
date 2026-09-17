@@ -47,6 +47,33 @@
       "automerge": false
     },
     {
+      "description": "Images LinuxServer : tags <version app>[-_v<libtorrent>]-ls<build>. Le numéro -ls s'incrémente à chaque rebuild et sert de départage ; les tags préfixés par architecture (arm64v8-…) et les tags version-… sont écartés par l'ancrage.",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": [
+        "lscr.io/linuxserver/syncthing",
+        "lscr.io/linuxserver/qbittorrent"
+      ],
+      "versioning": "regex:^v?(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)(?:_v[\\d.]+)?-ls(?<build>\\d+)$"
+    },
+    {
+      "description": "Home Assistant : CalVer YYYY.M.P. Le tag :stable était mutable donc invisible pour Renovate. Le regex écarte les préversions (2026.9.0b0) et les dev (2026.9.0.dev20260901).",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["ghcr.io/home-assistant/home-assistant"],
+      "versioning": "regex:^(?<major>\\d{4})\\.(?<minor>\\d+)\\.(?<patch>\\d+)$"
+    },
+    {
+      "description": "Ollama : semver propre, mais le dépôt publie aussi des -rcN et des variantes -rocm. Le regex ne retient que les versions stables du build CPU.",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["ollama/ollama"],
+      "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$"
+    },
+    {
+      "description": "Filebrowser : semver préfixée v. Le regex écarte les variantes -s6 et les tags par architecture (-arm64, -amd64, -armv7).",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["filebrowser/filebrowser"],
+      "versioning": "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$"
+    },
+    {
       "description": "MeTube publie des tags CalVer YYYY.MM.DD (zéro non significatif dans le mois et le jour) : la versioning docker par défaut ne les ordonne pas de façon fiable. Le regex borne aussi la détection aux tags à points, en ignorant les anciens tags à tirets (2025-03-27).",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["ghcr.io/alexta69/metube"],
