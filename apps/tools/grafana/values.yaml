@@ -111,6 +111,19 @@ envFromSecrets:
   - name: grafana-oidc-secret
   - name: grafana-pg-secret
 
-# Le mot de passe admin sera généré automatiquement
-# Récupérer avec: kubectl get secret -n observability grafana -o jsonpath="{.data.admin-password}" | base64 --decode
+# Identifiants admin repris d'un SealedSecret, et NON générés par le chart.
+# Sans ça, le helper `grafana.password` retombe sur `randAlphaNum 40` : son
+# `lookup` du Secret existant renvoie toujours vide en `helm template`, qui est
+# le mode de rendu d'ArgoCD. Résultat, un mot de passe neuf à chaque rendu, donc
+# une annotation `checksum/secret` neuve, donc un rollout du pod — 622 révisions
+# accumulées avant correction, et un mot de passe admin jamais utilisable.
+# Renseigner `admin.existingSecret` neutralise à la fois le rendu du Secret et
+# l'annotation checksum (même condition dans les templates du chart).
+#
+# Le secret vit dans secrets/clear/grafana.yaml (gitignored), aux côtés du secret
+# OIDC, scellé vers secrets/sealed/grafana.yaml et déployé par l'App `secret-app`.
+admin:
+  existingSecret: grafana-admin-secret
+  userKey: admin-user
+  passwordKey: admin-password
 
