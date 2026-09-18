@@ -36,42 +36,40 @@ config:
           action: keep_if_equal
 
     # 2. Scrape des noeuds Kubernetes (Kubelet / cAdvisor / Node Exporter si installé)
+    # Scrape DIRECT du kubelet : `role: node` pose déjà __address__ à
+    # <NodeInternalIP>:<port kubelet> (10250), on ne réécrit donc rien.
+    # Ne PAS repasser par le proxy de l'API server (/api/v1/nodes/$1/proxy/...) :
+    # ça exige la permission `nodes/proxy`, que le chart a retirée de son
+    # ClusterRole en 0.31.0 (escalade de privilèges). L'accès direct relève de
+    # `nodes/metrics`, toujours accordé — cf. la table d'autorisation kubelet.
     - job_name: 'kubernetes-nodes'
       scheme: https
       tls_config:
         ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        # Le certificat du kubelet est auto-signé, pas émis par le CA du cluster
         insecure_skip_verify: true
       bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      metrics_path: /metrics
       kubernetes_sd_configs:
         - role: node
       relabel_configs:
         - action: labelmap
           regex: __meta_kubernetes_node_label_(.+)
-        - target_label: __address__
-          replacement: kubernetes.default.svc:443
-        - source_labels: [__meta_kubernetes_node_name]
-          regex: (.+)
-          target_label: __metrics_path__
-          replacement: /api/v1/nodes/$1/proxy/metrics
 
     # 3. Scrape cAdvisor (Container metrics - CPU/RAM des pods)
+    # Même bascule que le job 2 : kubelet en direct sur :10250.
     - job_name: 'kubernetes-cadvisor'
       scheme: https
       tls_config:
         ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
         insecure_skip_verify: true
       bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      metrics_path: /metrics/cadvisor
       kubernetes_sd_configs:
         - role: node
       relabel_configs:
         - action: labelmap
           regex: __meta_kubernetes_node_label_(.+)
-        - target_label: __address__
-          replacement: kubernetes.default.svc:443
-        - source_labels: [__meta_kubernetes_node_name]
-          regex: (.+)
-          target_label: __metrics_path__
-          replacement: /api/v1/nodes/$1/proxy/metrics/cadvisor
 
     # 4. Scrape des hôtes externes (Proxmox + LXC)
     # 10.0.0.15 = VM ai-gaming (UP intermittente, GPU passthrough). Quand DOWN,
