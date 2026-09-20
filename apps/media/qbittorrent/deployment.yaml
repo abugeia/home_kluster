@@ -62,8 +62,24 @@ spec:
             - name: config
               mountPath: /config
             # Destinations de téléchargement = partages ZFS existants (read-write).
-            # Configure le "Default Save Path" de qBittorrent vers /video/downloads
-            # (ou /data/downloads) : déplacement atomique au sein du même montage NFS.
+            # Le "Default Save Path" est /video/Download (dossier réellement
+            # présent sur le partage ; /video/downloads et /data/downloads, que
+            # ce commentaire recommandait, n'ont jamais existé — le défaut
+            # pointait sur /downloads, absent du conteneur, et tout ajout sans
+            # chemin explicite échouait donc à écrire).
+            #
+            # Ce réglage vit dans le PVC de config, pas ici : il se change par
+            # l'UI ou par POST /api/v2/app/setPreferences. L'auth est bypassée
+            # depuis le réseau pod (WebUI\AuthSubnetWhitelist=10.42.0.0/24).
+            #
+            # Les catégories (Jeux, Ebooks, Musique, Films, Series,
+            # Documentaires, Formations) mappent chacune un sous-dossier de ces
+            # deux montages, et vivent elles aussi dans le PVC de config.
+            #
+            # Garder le dossier temporaire désactivé (temp_path_enabled=false) :
+            # /video et /data sont deux PVC distincts, donc un temp sur l'un et
+            # un save sur l'autre transformerait le déplacement final en copie
+            # intégrale — plusieurs dizaines de Go sur un gros jeu.
             - name: vol-video
               mountPath: /video
             - name: vol-data
