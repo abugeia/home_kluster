@@ -97,7 +97,10 @@ server:
             limits:
               # 2Gi provoquait des OOMKill en boucle pendant les gros imports
               # (metadataExtraction + thumbnails + ffmpeg concurrents)
-              memory: "3Gi"
+              # 3Gi ne suffisait pas non plus : un transcodage ffmpeg logiciel
+              # restait coincé en `active` dans la queue videoConversion et
+              # relançait l'OOMKill à chaque redémarrage du pod.
+              memory: "4Gi"
               cpu: "1000m"
   ingress:
     main:
