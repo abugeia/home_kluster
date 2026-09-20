@@ -35,6 +35,10 @@ spec:
               # patch du bug MusicBrainz #6066 (appliqué au build) + plugin aitagcleaner
               # (nettoyage artist/title via LLM Ollama avant matching). Le patch et le
               # plugin sont donc DANS l'image -> command simple, rien au démarrage.
+              # :latest + Always est volontaire ici : chaque exécution du CronJob
+              # crée un pod neuf, qui re-pull. Pas d'épinglage ni de suivi
+              # argocd-image-updater — ce dernier ne verrait pas cette image, Argo CD
+              # n'extrayant les images que des Pods (aucun pod entre deux runs).
               image: ghcr.io/abugeia/beets-ai-tagcleaner:latest
               imagePullPolicy: Always
               # -s singleton (vrac YouTube), -q non-interactif (skip douteux).
