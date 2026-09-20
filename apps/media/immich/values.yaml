@@ -101,7 +101,12 @@ server:
               # restait coincé en `active` dans la queue videoConversion et
               # relançait l'OOMKill à chaque redémarrage du pod.
               memory: "4Gi"
-              cpu: "1000m"
+              # Immich lit le quota cgroup pour dimensionner ses workers : à
+              # 1000m il affichait "Detected CPU Cores: 1" et faisait tourner
+              # ses 3 jobs thumbnail (concurrence par défaut) + ffmpeg sur un
+              # seul coeur. Les buffers restaient alloués d'autant plus
+              # longtemps, ce qui poussait le pic mémoire à 97% des 4Gi.
+              cpu: "3000m"
   ingress:
     main:
       enabled: true
