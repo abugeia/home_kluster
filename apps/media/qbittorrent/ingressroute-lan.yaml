@@ -1,0 +1,35 @@
+# Accès sans TinyAuth depuis le LAN, en complément de l'Ingress (qui garde
+# TinyAuth pour tout le reste, dont le tunnel Cloudflare).
+#
+# Pourquoi : après le login TinyAuth, le navigateur revient sur qBittorrent
+# avec `Referer: https://auth.valab.top/`, que la protection CSRF de
+# qBittorrent rejette (401, "Referer header & Target origin mismatch").
+# Sans passage par le login, pas de Referer étranger.
+#
+# Sûreté : ClientIP matche l'adresse TCP (RemoteAddr), jamais X-Forwarded-For
+# (doc Traefik + RemoteAddrStrategy dans le code v3.7) ; forwardedHeaders.insecure
+# n'y change rien. Le trafic du tunnel arrive depuis les pods cloudflared
+# (10.42.x) et ne peut donc pas matcher, même avec un XFF forgé. L'IP LAN réelle
+# est préservée par externalTrafficPolicy: Local sur le Service Traefik.
+#
+# Conséquence assumée : tout appareil de 10.0.0.0/24 a le contrôle total de
+# qBittorrent (son propre login est bypassé pour Traefik, cf. deployment.yaml).
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: qbittorrent-lan
+  namespace: media
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`qbittorrent.valab.top`) && ClientIP(`10.0.0.0/24`)
+      kind: Rule
+      # Au-dessus du router de l'Ingress (priorité = longueur de la règle).
+      priority: 1000
+      services:
+        - name: qbittorrent
+          port: 8080
+  tls:
+    # Certificat déjà émis par cert-manager via l'Ingress.
+    secretName: qbittorrent-tls
