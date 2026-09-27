@@ -17,6 +17,17 @@ deployment:
     - name: plugins-local
       persistentVolumeClaim:
         claimName: traefik-plugins
+    # Configuration dynamique lue par le file provider (cf. additionalArguments).
+    # Elle vit dans un SealedSecret (secrets/sealed/traefik-dynamic.yaml) parce
+    # qu'elle contient l'IP autorisée sur l'entrypoint public, qui ne doit pas
+    # apparaître en clair dans ce repo public.
+    # optional : si le secret manque, Traefik démarre quand même. Le middleware
+    # moonlight-allowlist@file n'existe alors pas, et le router qui le référence
+    # est désactivé : l'entrypoint public reste fermé plutôt qu'ouvert à tous.
+    - name: dynamic-config
+      secret:
+        secretName: traefik-dynamic
+        optional: true
   # Clone les sources du plugin Sablier UNE seule fois, puis le PVC les conserve.
   # Objectif : supprimer toute dépendance réseau au démarrage de Traefik.
   # Historique : en mode plugin distant, Traefik retéléchargeait le plugin depuis
@@ -60,6 +71,15 @@ deployment:
       volumeMounts:
         - name: plugins-local
           mountPath: /plugins-local
+
+additionalVolumeMounts:
+  - name: dynamic-config
+    mountPath: /etc/traefik/dynamic
+    readOnly: true
+
+additionalArguments:
+  - --providers.file.directory=/etc/traefik/dynamic
+  - --providers.file.watch=true
 
 # priorityClassName est une clé RACINE du chart (et non `deployment.*`, où elle
 # était placée jusqu'ici : acceptée par le schéma mais jamais appliquée, donc
@@ -170,9 +190,15 @@ extraObjects:
 
 ports:
   web:
+    # asDefault sur web et websecure : un router qui ne précise pas ses
+    # entrypoints ne s'attache qu'à ces deux-là, jamais à `public`. Sans ça,
+    # tous les Ingress du cluster deviendraient joignables depuis Internet par
+    # la redirection de la box.
+    asDefault: true
     forwardedHeaders:
       insecure: true
   websecure:
+    asDefault: true
     # `tls` est passé sous le niveau `http` avec le chart v39 (les options HTTP
     # d'un entrypoint y sont désormais imbriquées). L'ancien emplacement est
     # rejeté par le schéma. La valeur reste explicite bien qu'elle soit le défaut.
@@ -181,12 +207,38 @@ ports:
         enabled: true
     forwardedHeaders:
       insecure: true
+  # Seul entrypoint joignable depuis Internet : la box redirige son port 47443
+  # vers le Service `traefik-public` (10.0.0.105). Seuls les routers qui le
+  # demandent explicitement (`router.entrypoints: public`) y sont servis.
+  # Pas de forwardedHeaders.insecure ici : les X-Forwarded-* venant d'Internet
+  # ne sont pas dignes de confiance.
+  public:
+    port: 9443
+    exposedPort: 47443
+    protocol: TCP
+    expose:
+      default: false
+      public: true
+    http:
+      tls:
+        enabled: true
 
 service:
   spec:
     externalTrafficPolicy: Local
   annotations:
     metallb.io/load-balancer-ip: 10.0.0.101
+  additionalServices:
+    # IP dédiée, distincte de 10.0.0.101 : la box ne redirige que vers elle,
+    # donc les entrypoints web/websecure restent hors d'atteinte d'Internet.
+    # externalTrafficPolicy Local conserve l'IP source réelle, sans quoi
+    # l'ipAllowList de moonlight-web ne verrait que l'IP du nœud.
+    public:
+      spec:
+        type: LoadBalancer
+        externalTrafficPolicy: Local
+      annotations:
+        metallb.io/load-balancer-ip: 10.0.0.105
 
 experimental:
   # Plugin Sablier en mode LOCAL (sources sur PVC, cf. deployment.initContainers).
