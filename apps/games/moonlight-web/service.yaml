@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: moonlight-web
+  namespace: games
+  labels:
+    app: moonlight-web
+spec:
+  type: ClusterIP
+  selector:
+    app: moonlight-web
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
