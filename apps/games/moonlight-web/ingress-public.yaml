@@ -1,0 +1,38 @@
+# Accès direct depuis Internet, pour une machine dont l'UDP sortant est bloqué :
+# sans UDP, le tailnet passe par un relais DERP et coûte 70-100 ms de RTT, contre
+# ~10-15 ms en direct.
+#
+# Chaîne : box (port 47443) → Service traefik-public (10.0.0.105) → entrypoint
+# `public`, qui ne sert que les routers qui le demandent, donc celui-ci.
+# L'ipAllowList vient du file provider (SealedSecret traefik-dynamic) : l'IP
+# autorisée n'est pas publiée dans ce repo. Si le middleware est absent, Traefik
+# désactive le router et l'accès reste fermé.
+#
+# Le DNS `moonlight.valab.top` doit pointer en direct (DNS only) vers l'IP de la
+# maison : proxifié par Cloudflare, il repasserait par le tunnel et ses ~80 ms.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: moonlight-web-public
+  namespace: games
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: public
+    traefik.ingress.kubernetes.io/router.middlewares: moonlight-allowlist@file
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - moonlight.valab.top
+      secretName: moonlight-web-public-tls
+  rules:
+    - host: moonlight.valab.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: moonlight-web
+                port:
+                  name: http
