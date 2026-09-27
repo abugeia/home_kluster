@@ -1,0 +1,3 @@
+kustomize:
+  images:
+  - harbor.valab.top/prod/boten-anna:main@sha256:5f10fd4447fb8362b70e75a8aca5a2e50ab2b7f98a9c25bb0f94fcc105543a2f
