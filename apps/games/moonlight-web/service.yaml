@@ -1,0 +1,23 @@
+# Exposition sur le tailnet uniquement, via l'opérateur Tailscale : rien n'est
+# publié sur Internet. Pas d'ingress Traefik ni de port UDP WebRTC, parce que le
+# poste du boulot ne sort qu'en TCP. Le streaming passe donc par le transport
+# WebSocket, sur ce même port HTTP.
+apiVersion: v1
+kind: Service
+metadata:
+  name: moonlight-web-ts
+  namespace: games
+  labels:
+    app: moonlight-web
+  annotations:
+    tailscale.com/hostname: moonlight-web
+spec:
+  type: LoadBalancer
+  loadBalancerClass: tailscale
+  selector:
+    app: moonlight-web
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
