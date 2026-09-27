@@ -1,8 +1,8 @@
 # Exposition sur le tailnet uniquement : https://moonlight-web.<tailnet>.ts.net,
 # avec un certificat valide, donc un secure context (WebCodecs, Gamepad API,
 # Keyboard Lock). Pas d'ingress Traefik, donc rien de publié sur Internet.
-# Pas de port UDP WebRTC non plus : le poste du boulot ne sort qu'en TCP, et le
-# streaming passe donc par le transport WebSocket, dans cette même connexion HTTPS.
+# Pas de port UDP WebRTC non plus : certaines machines clientes ont l'UDP sortant
+# bloqué, et le streaming passe donc par le transport WebSocket, dans cette même connexion HTTPS.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
