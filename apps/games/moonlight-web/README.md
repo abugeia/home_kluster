@@ -1,0 +1,37 @@
+# Moonlight Web : jouer sur `ai-gaming` (815) depuis un navigateur
+
+[`moonlight-web-stream`](https://github.com/MrCreativ3001/moonlight-web-stream)
+est un client Moonlight qui tourne côté serveur. Il appaire Sunshine (VM 815,
+`10.0.0.15`) et renvoie le flux au navigateur. Il sert aux machines où l'on ne
+peut pas installer de client Moonlight natif, y compris celles dont l'UDP
+sortant est bloqué. Les autres gardent le client Moonlight natif sur le tailnet.
+
+Étude complète et mesures : `TODO_MOONLIGHT_WEB.md` du repo `infra_proxmox`.
+
+## Choix d'exposition
+
+- **Tailnet uniquement** (`ingress.yaml`, ingress de classe `tailscale`) :
+  `https://moonlight-web.tail6060fb.ts.net`. Rien n'est publié sur Internet,
+  il n'y a donc ni ingress Traefik ni TinyAuth.
+- **HTTPS fourni par Tailscale** : le certificat `*.ts.net` est valide, ce qui
+  fait de la page un *secure context*. WebCodecs, Gamepad API et Keyboard Lock
+  y fonctionnent.
+- **Transport WebSocket** : certaines machines clientes ont l'UDP
+  sortant bloqué, donc le WebRTC est exclu et aucun port UDP n'est exposé.
+
+## Mise en route (une fois)
+
+1. Démarrer une session graphique sur la 815 depuis SSH : `gpu-mode game`.
+2. Ouvrir l'UI. Le **premier compte créé devient admin**.
+3. Ajouter le PC `10.0.0.15`, puis saisir le PIN affiché dans l'UI Sunshine
+   de la 815.
+4. Dans les réglages du stream : **Data Transport → Web Sockets**.
+
+## Accès
+
+- **Machines du tailnet** (portable, téléphone) : ouvrir directement
+  `https://moonlight-web.tail6060fb.ts.net`.
+- **Machine sans client Tailscale natif** : faire tourner un nœud Tailscale
+  en mode userspace (par exemple dans un conteneur) avec son proxy HTTP
+  (`--outbound-http-proxy-listen`), puis router `*.ts.net` vers ce proxy dans
+  le navigateur, avec un fichier PAC ou une extension de proxy.
