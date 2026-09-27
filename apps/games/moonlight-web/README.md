@@ -35,3 +35,24 @@ sortant est bloqué. Les autres gardent le client Moonlight natif sur le tailnet
   en mode userspace (par exemple dans un conteneur) avec son proxy HTTP
   (`--outbound-http-proxy-listen`), puis router `*.ts.net` vers ce proxy dans
   le navigateur, avec un fichier PAC ou une extension de proxy.
+
+## Accès direct (hors tailnet)
+
+Sans UDP sortant, le tailnet passe par un relais DERP : 70-100 ms de RTT
+mesurés. Pour ces machines, `ingress-public.yaml` publie
+`https://moonlight.valab.top:47443` :
+
+- **Box** : redirection TCP `47443` → `10.0.0.105:47443` (Service
+  `traefik-public`). Rien d'autre n'est redirigé.
+- **Traefik** : l'entrypoint `public` ne sert que les routers qui le
+  demandent explicitement. `web` et `websecure` sont les entrypoints par
+  défaut, donc les autres Ingress du cluster n'y sont pas joignables.
+- **Filtrage par IP** : middleware `moonlight-allowlist@file`, lu depuis le
+  SealedSecret `traefik-dynamic` (`secrets/sealed/`). Pour changer l'IP
+  autorisée, éditer `secrets/clear/traefik-dynamic.yaml` puis le resceller
+  (`kubeseal … --cert secrets/clear/sealed-secrets.pem`).
+- **DNS** : `moonlight.valab.top` en enregistrement A **DNS only** vers l'IP
+  publique de la maison. Pas proxifié, sinon on repasse par Cloudflare.
+- **Navigateur** : si le navigateur passe par un proxy vers le tailnet,
+  exclure `moonlight.valab.top` de ce proxy, sinon l'IP source n'est plus celle
+  qui est autorisée.
