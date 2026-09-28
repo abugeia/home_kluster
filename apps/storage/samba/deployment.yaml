@@ -15,9 +15,15 @@ spec:
     spec:
       containers:
       - name: samba
-        image: dperson/samba
+        # Épinglée sur le digest en service : l'image n'a pas de tag de version et
+        # n'est plus maintenue depuis 2021 (remplacement à prévoir).
+        image: dperson/samba@sha256:66088b78a19810dd1457a8f39340e95e663c728083efa5fe7dc0d40b2478e869
+        # Pas de `-p` : il lance à chaque démarrage un chown -R + chmod récursif sur
+        # tous les partages. Sur Data_NVMe (racine de nfs-csi-nvme), il remettait
+        # en root:root les PV de toutes les applis non-root (valkey, pocketid,
+        # pgadmin, traefik…), qui perdaient l'écriture sur leurs propres données.
+        # `force user = root` suffit à Samba pour lire et écrire partout.
         args:
-          - "-p"
           - "-g"
           - "force user = root"
           - "-g"
@@ -47,8 +53,11 @@ spec:
           - "Data;/share/zfs/data;yes;no;no;user"
           - "-s"
           - "Video;/share/zfs/video;yes;no;no;user"
+          # Lecture seule : consultation des données d'applis depuis Windows. Un
+          # fichier écrit par ce partage deviendrait root:root dans le PV d'une
+          # appli non-root.
           - "-s"
-          - "Data_NVMe;/share/nvme;yes;no;no;user"
+          - "Data_NVMe;/share/nvme;yes;yes;no;user"
           # Syntaxe -u : "Utilisateur;MotDePasse"
           - "-u"
           - "user;$(SAMBA_PASSWORD)"
@@ -72,6 +81,7 @@ spec:
           mountPath: /share/zfs/data
         - name: nvme
           mountPath: /share/nvme
+          readOnly: true # doublon voulu du partage en lecture seule
         livenessProbe:
           exec:
             command:
