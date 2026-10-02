@@ -43,8 +43,9 @@ data:
       quiet: yes           # mode automatique (défaut = import interactif)
       # incremental DÉSACTIVÉ : inadapté à un dossier plat nettoyé en place — il fige
       # le dossier dès le 1er passage et saute les fichiers suivants. Sans lui, beets
-      # re-scanne tout mais saute sans lookup ce qui est déjà dans sa base (pas de
-      # surcoût), et traite bien les nouveaux fichiers déposés par MeTube.
+      # RÉ-IMPORTE (lookup + LLM) tout chemin qu'on lui passe, même déjà en base :
+      # le CronJob ne lui passe donc que les fichiers à plat de la racine (cf.
+      # cronjob.yaml), les morceaux déjà rangés sous Non-Album/ ne sont plus revus.
       incremental: no
       log: /config/import_sync.log
       # Anti-doublon robuste : si (artiste, titre) est DÉJÀ dans la bibliothèque, le
