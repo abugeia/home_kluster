@@ -42,8 +42,18 @@ spec:
               image: ghcr.io/abugeia/beets-ai-tagcleaner:latest
               imagePullPolicy: Always
               # -s singleton (vrac YouTube), -q non-interactif (skip douteux).
+              # On n'importe QUE les fichiers à plat à la racine (dépôts MeTube) :
+              # beets ne saute PAS les fichiers déjà en base lors d'un import de
+              # chemin — il les ré-identifie. Importer tout le dossier relançait
+              # chaque jour les ~560 morceaux déjà rangés sous Non-Album/ (1 appel
+              # LLM + lookup MusicBrainz chacun, ~47 min de CPU Ollama saturé).
+              # -r : rien à faire si la racine est vide.
               command:
-                ["beet", "-c", "/config-secret/acoustid.yaml", "import", "-q", "-s", "/music/Musique_sync"]
+                - sh
+                - -c
+                - >-
+                  find /music/Musique_sync -maxdepth 1 -type f -print0 |
+                  xargs -0 -r beet -c /config-secret/acoustid.yaml import -q -s
               env:
                 - name: BEETSDIR
                   value: /config
