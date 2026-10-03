@@ -42,8 +42,20 @@ spec:
               image: ghcr.io/abugeia/beets-ai-tagcleaner:latest
               imagePullPolicy: Always
               # -s singleton (vrac YouTube), -q non-interactif (skip douteux).
+              # On n'importe QUE les fichiers à la racine : c'est là que MeTube
+              # dépose (cf. OUTPUT_TEMPLATE_PLAYLIST), et beets range tout ce qu'il
+              # matche dans Non-Album/<Artiste>/. Passer le dossier entier ferait
+              # re-traiter toute la bibliothèque chaque jour (LLM + AcoustID +
+              # MusicBrainz par fichier) : beets ré-importe les fichiers déjà en
+              # base, il ne les saute pas. Rien à la racine -> beet n'est pas lancé.
+              # Restent à la racine (re-tentés chaque jour) : les fichiers non
+              # matchés et les doublons skippés — quelques fichiers, coût négligeable.
               command:
-                ["beet", "-c", "/config-secret/acoustid.yaml", "import", "-q", "-s", "/music/Musique_sync"]
+                - sh
+                - -c
+                - >-
+                  find /music/Musique_sync -maxdepth 1 -type f -print0
+                  | xargs -0 -r beet -c /config-secret/acoustid.yaml import -q -s
               env:
                 - name: BEETSDIR
                   value: /config
