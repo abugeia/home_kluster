@@ -8,11 +8,10 @@
 # autorisée n'est pas publiée dans ce repo. Si le middleware est absent, Traefik
 # désactive le router et l'accès reste fermé.
 #
-# TinyAuth passe après l'allowlist : l'IP autorisée est l'IP NAT du bureau,
-# partagée par tous les collègues. Sans lui, n'importe qui derrière cette IP
-# tomberait sur l'UI Moonlight ; avec, seulement sur une page de login neutre.
+# TinyAuth passe après l'allowlist : l'IP autorisée peut être une IP NAT
+# partagée par d'autres machines, qui ne doivent voir qu'une page de login.
 #
-# Nom neutre `vm.valab.top`. `moonlight.valab.top` reste servi le temps que
+# Nom public `vm.valab.top`. `moonlight.valab.top` reste servi le temps que
 # l'enregistrement DNS de `vm` soit appliqué (infra_proxmox, tofu), puis sera retiré.
 #
 # Le DNS `vm.valab.top` doit pointer en direct (DNS only) vers l'IP de la
