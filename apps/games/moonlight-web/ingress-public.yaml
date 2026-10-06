@@ -11,9 +11,6 @@
 # TinyAuth passe après l'allowlist : l'IP autorisée peut être une IP NAT
 # partagée par d'autres machines, qui ne doivent voir qu'une page de login.
 #
-# Nom public `vm.valab.top`. `moonlight.valab.top` reste servi le temps que
-# l'enregistrement DNS de `vm` soit appliqué (infra_proxmox, tofu), puis sera retiré.
-#
 # Le DNS `vm.valab.top` doit pointer en direct (DNS only) vers l'IP de la
 # maison : proxifié par Cloudflare, il repasserait par le tunnel et ses ~80 ms.
 apiVersion: networking.k8s.io/v1
@@ -30,20 +27,9 @@ spec:
   tls:
     - hosts:
         - vm.valab.top
-        - moonlight.valab.top
       secretName: moonlight-web-public-tls
   rules:
     - host: vm.valab.top
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: moonlight-web
-                port:
-                  name: http
-    - host: moonlight.valab.top
       http:
         paths:
           - path: /
