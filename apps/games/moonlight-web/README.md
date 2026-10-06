@@ -40,7 +40,8 @@ sortant est bloqué. Les autres gardent le client Moonlight natif sur le tailnet
 
 Sans UDP sortant, le tailnet passe par un relais DERP : 70-100 ms de RTT
 mesurés. Pour ces machines, `ingress-public.yaml` publie
-`https://moonlight.valab.top` (port 443) :
+`https://vm.valab.top` (port 443, nom volontairement neutre ;
+`moonlight.valab.top` reste servi pendant la transition DNS) :
 
 - **Box** : redirection TCP `443` externe → `10.0.0.105:47443` (Service
   `traefik-public`). Rien d'autre n'est redirigé.
@@ -51,8 +52,11 @@ mesurés. Pour ces machines, `ingress-public.yaml` publie
   SealedSecret `traefik-dynamic` (`secrets/sealed/`). Pour changer l'IP
   autorisée, éditer `secrets/clear/traefik-dynamic.yaml` puis le resceller
   (`kubeseal … --cert secrets/clear/sealed-secrets.pem`).
-- **DNS** : `moonlight.valab.top` en enregistrement A **DNS only** vers l'IP
+- **TinyAuth** : middleware `security-tinyauth-protect` après l'allowlist.
+  L'IP autorisée est l'IP NAT du bureau, partagée par tous les collègues :
+  sans login, ils verraient l'UI Moonlight.
+- **DNS** : `vm.valab.top` en enregistrement A **DNS only** vers l'IP
   publique de la maison. Pas proxifié, sinon on repasse par Cloudflare.
 - **Navigateur** : si le navigateur passe par un proxy vers le tailnet,
-  exclure `moonlight.valab.top` de ce proxy, sinon l'IP source n'est plus celle
+  exclure `vm.valab.top` de ce proxy, sinon l'IP source n'est plus celle
   qui est autorisée.

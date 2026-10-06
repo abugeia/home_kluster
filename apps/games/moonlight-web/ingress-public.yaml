@@ -2,13 +2,20 @@
 # sans UDP, le tailnet passe par un relais DERP et coûte 70-100 ms de RTT, contre
 # ~10-15 ms en direct.
 #
-# Chaîne : box (port 47443) → Service traefik-public (10.0.0.105) → entrypoint
+# Chaîne : box (port 443 externe → 47443) → Service traefik-public (10.0.0.105) → entrypoint
 # `public`, qui ne sert que les routers qui le demandent, donc celui-ci.
 # L'ipAllowList vient du file provider (SealedSecret traefik-dynamic) : l'IP
 # autorisée n'est pas publiée dans ce repo. Si le middleware est absent, Traefik
 # désactive le router et l'accès reste fermé.
 #
-# Le DNS `moonlight.valab.top` doit pointer en direct (DNS only) vers l'IP de la
+# TinyAuth passe après l'allowlist : l'IP autorisée est l'IP NAT du bureau,
+# partagée par tous les collègues. Sans lui, n'importe qui derrière cette IP
+# tomberait sur l'UI Moonlight ; avec, seulement sur une page de login neutre.
+#
+# Nom neutre `vm.valab.top`. `moonlight.valab.top` reste servi le temps que
+# l'enregistrement DNS de `vm` soit appliqué (infra_proxmox, tofu), puis sera retiré.
+#
+# Le DNS `vm.valab.top` doit pointer en direct (DNS only) vers l'IP de la
 # maison : proxifié par Cloudflare, il repasserait par le tunnel et ses ~80 ms.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -17,15 +24,26 @@ metadata:
   namespace: games
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: public
-    traefik.ingress.kubernetes.io/router.middlewares: moonlight-allowlist@file
+    traefik.ingress.kubernetes.io/router.middlewares: moonlight-allowlist@file,security-tinyauth-protect@kubernetescrd
     cert-manager.io/cluster-issuer: letsencrypt
 spec:
   ingressClassName: traefik
   tls:
     - hosts:
+        - vm.valab.top
         - moonlight.valab.top
       secretName: moonlight-web-public-tls
   rules:
+    - host: vm.valab.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: moonlight-web
+                port:
+                  name: http
     - host: moonlight.valab.top
       http:
         paths:
