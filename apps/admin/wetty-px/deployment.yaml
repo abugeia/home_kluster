@@ -20,7 +20,8 @@ spec:
     spec:
       containers:
         - name: wetty
-          image: wettyoss/wetty:latest
+          image: wettyoss/wetty:3.0.0
+          imagePullPolicy: IfNotPresent
           args:
             - "--base"
             - "/"
