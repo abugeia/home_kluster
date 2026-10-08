@@ -18,7 +18,8 @@ spec:
     spec:
       containers:
         - name: garage-webui
-          image: khairul169/garage-webui:latest
+          image: khairul169/garage-webui:1.1.0
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3909
           env:

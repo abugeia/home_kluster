@@ -28,7 +28,8 @@ spec:
         # croit qu'une instance tourne déjà et s'auto-termine en boucle. On nettoie
         # au démarrage pour casser ce cercle vicieux.
         - name: clean-lockfile
-          image: busybox:latest
+          image: busybox:1.38.0
+          imagePullPolicy: IfNotPresent
           command:
             ["sh", "-c", "rm -fv /config/qBittorrent/lockfile /config/qBittorrent/ipc-socket || true"]
           volumeMounts:
