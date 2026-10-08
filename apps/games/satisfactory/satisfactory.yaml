@@ -50,9 +50,11 @@ spec:
               value: "1000"
             - name: PGID
               value: "1000"
-            # Mise à jour du jeu via SteamCMD (anonyme) à chaque démarrage du pod
+            # Mises à jour bloquées : le serveur garde le build déjà installé
+            # dans satisfactory-gamefiles-pvc. Repasser à "false" pour mettre à
+            # jour via SteamCMD (anonyme) au prochain démarrage du pod.
             - name: SKIPUPDATE
-              value: "false"
+              value: "true"
             - name: STEAMBETA
               value: "false"
             - name: AUTOSAVENUM

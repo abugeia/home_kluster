@@ -9,7 +9,8 @@ pas de Wine/Proton.
   remonter la limite en fin de partie ou à 4+ joueurs.
 - **Stockage** :
   - `satisfactory-gamefiles-pvc` (`nfs-csi-nvme`, 30 Gi) : binaires du serveur
-    (~8 Go), re-téléchargés/mis à jour par SteamCMD à chaque démarrage.
+    (~8 Go). Mises à jour bloquées (`SKIPUPDATE=true`) : repasser à `false`
+    pour mettre à jour via SteamCMD au prochain démarrage.
   - `satisfactory-config-pvc-local` (`local-path`, 10 Gi) : saves, blueprints,
     config serveur et backups (`/config/saved`, `/config/backups`).
 
