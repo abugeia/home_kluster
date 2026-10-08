@@ -14,7 +14,7 @@ pas de Wine/Proton.
     config serveur et backups (`/config/saved`, `/config/backups`).
 
 ## 2. Réseau
-IP MetalLB **10.0.0.104** (partagée entre les Services TCP et UDP) :
+IP MetalLB **10.0.0.106** (partagée entre les Services TCP et UDP) :
 
 | Port | Proto | Usage |
 |------|-------|-------|
@@ -23,7 +23,7 @@ IP MetalLB **10.0.0.104** (partagée entre les Services TCP et UDP) :
 | 8888 | TCP   | Messaging fiable (depuis la 1.0) |
 
 ## 3. Première connexion
-1. En jeu : *Server Manager* → *Add Server* → `10.0.0.104`, port `7777`.
+1. En jeu : *Server Manager* → *Add Server* → `10.0.0.106`, port `7777`.
 2. Accepter le certificat auto-signé.
 3. Le premier joueur « réclame » le serveur : il définit son nom et le mot de
    passe admin, puis crée ou charge une partie.
