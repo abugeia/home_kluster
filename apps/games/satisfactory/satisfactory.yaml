@@ -114,7 +114,7 @@ metadata:
   name: satisfactory-server-udp
   namespace: games
   annotations:
-    metallb.io/loadBalancerIPs: 10.0.0.104
+    metallb.io/loadBalancerIPs: 10.0.0.106
     metallb.io/allow-shared-ip: "satisfactory-shared-ip"
 spec:
   type: LoadBalancer
@@ -134,7 +134,7 @@ metadata:
   name: satisfactory-server-tcp
   namespace: games
   annotations:
-    metallb.io/loadBalancerIPs: 10.0.0.104
+    metallb.io/loadBalancerIPs: 10.0.0.106
     metallb.io/allow-shared-ip: "satisfactory-shared-ip"
 spec:
   type: LoadBalancer
