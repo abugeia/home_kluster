@@ -4,7 +4,9 @@ metadata:
   name: satisfactory-server
   namespace: games
 spec:
-  replicas: 1
+  # Serveur arrêté (pas joué en ce moment) : remettre à 1 pour relancer.
+  # PVC et Services conservés, rien à recréer.
+  replicas: 0
   strategy:
     type: Recreate # Pas de rolling update pour un game server stateful
   selector:
