@@ -1,0 +1,152 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: satisfactory-server
+  namespace: games
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate # Pas de rolling update pour un game server stateful
+  selector:
+    matchLabels:
+      app: satisfactory-server
+  template:
+    metadata:
+      labels:
+        app: satisfactory-server
+    spec:
+      # L'autosave tourne en continu ; on laisse au serveur le temps de finir
+      # une écriture en cours à l'arrêt.
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: satisfactory-server
+          # Serveur dédié Linux natif (pas de Wine/Proton, contrairement à ASA).
+          # L'image démarre en root puis lance le serveur sous PUID:PGID.
+          image: robtme/satisfactory-server:v1.9.11@sha256:ac252dba41653eb21c6feed94b577f98fa152f5792b1aeff2ce11fe364355137
+          resources:
+            requests:
+              memory: "6Gi"
+              cpu: "1000m"
+            limits:
+              # Wiki officiel : 8-16 Go recommandés, à remonter en fin de partie
+              memory: "12Gi"
+              cpu: "4000m"
+          ports:
+            - name: api
+              containerPort: 7777
+              protocol: TCP
+            - name: game
+              containerPort: 7777
+              protocol: UDP
+            - name: messaging
+              containerPort: 8888
+              protocol: TCP
+          env:
+            - name: TZ
+              value: "Pacific/Noumea"
+            - name: MAXPLAYERS
+              value: "8"
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            # Mise à jour du jeu via SteamCMD (anonyme) à chaque démarrage du pod
+            - name: SKIPUPDATE
+              value: "false"
+            - name: STEAMBETA
+              value: "false"
+            - name: AUTOSAVENUM
+              value: "5"
+          livenessProbe:
+            exec:
+              command: ["/bin/sh", "-c", "/home/steam/healthcheck.sh"]
+            # Premier démarrage : téléchargement du serveur (~8 Go) avant écoute
+            initialDelaySeconds: 300
+            periodSeconds: 30
+            failureThreshold: 4
+          volumeMounts:
+            # /config : saves, blueprints, config serveur, backups, logs
+            - name: satisfactory-config
+              mountPath: /config
+            - name: satisfactory-gamefiles
+              mountPath: /config/gamefiles
+      volumes:
+        - name: satisfactory-config
+          persistentVolumeClaim:
+            claimName: satisfactory-config-pvc-local
+        - name: satisfactory-gamefiles
+          persistentVolumeClaim:
+            claimName: satisfactory-gamefiles-pvc
+---
+# PVC pour les binaires serveur (~8 Go, re-téléchargeables) - NFS
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: satisfactory-gamefiles-pvc
+  namespace: games
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-csi-nvme
+  resources:
+    requests:
+      storage: 30Gi
+---
+# PVC pour les saves/config - LOCAL-PATH (cf. docs/asa-storage-saves.md :
+# évite les soucis de permissions NFS sur les writes atomiques des saves)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: satisfactory-config-pvc-local
+  namespace: games
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 10Gi
+---
+# Service UDP (Game)
+apiVersion: v1
+kind: Service
+metadata:
+  name: satisfactory-server-udp
+  namespace: games
+  annotations:
+    metallb.io/loadBalancerIPs: 10.0.0.104
+    metallb.io/allow-shared-ip: "satisfactory-shared-ip"
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  selector:
+    app: satisfactory-server
+  ports:
+    - name: game
+      port: 7777
+      targetPort: 7777
+      protocol: UDP
+---
+# Service TCP (API HTTPS + messaging)
+apiVersion: v1
+kind: Service
+metadata:
+  name: satisfactory-server-tcp
+  namespace: games
+  annotations:
+    metallb.io/loadBalancerIPs: 10.0.0.104
+    metallb.io/allow-shared-ip: "satisfactory-shared-ip"
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  selector:
+    app: satisfactory-server
+  ports:
+    - name: api
+      port: 7777
+      targetPort: 7777
+      protocol: TCP
+    - name: messaging
+      port: 8888
+      targetPort: 8888
+      protocol: TCP
