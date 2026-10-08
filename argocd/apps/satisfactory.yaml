@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: satisfactory
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/abugeia/home_kluster.git'
+    targetRevision: main
+    path: apps/games/satisfactory
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: games
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
