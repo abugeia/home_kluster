@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paddleocr
+  namespace: ai
+  labels:
+    app: paddleocr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: paddleocr
+  template:
+    metadata:
+      labels:
+        app: paddleocr
+    spec:
+      containers:
+        - name: paddleocr
+          # OCR CPU (PaddleOCR, moteur PP-OCRv6) exposé en API HTTP. Image choisie
+          # pour trois raisons validées en smoke-test local (cf. PR) :
+          #  - CPU pur (PADDLEOCR_DEVICE=cpu), pas de GPU requis ;
+          #  - français natif (PADDLEOCR_LANG=fr) : accents et mots lus à ~0.99 ;
+          #  - modèles EMBARQUÉS dans l'image (PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK) :
+          #    testé `--network none`, aucun téléchargement au boot → aucun re-pull
+          #    de modèle au réveil matinal du cluster.
+          # Empreinte mesurée : ~0.9 Go RAM, ~1.9 s/image à chaud.
+          image: sllwakeup/paddleocr:1.0.2
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PADDLEOCR_LANG
+              value: "fr"
+            - name: PADDLEOCR_DEVICE
+              value: "cpu"
+            # Redondant avec l'ENV de l'image, explicité pour garantir qu'aucune
+            # vérification de source de modèle ne parte en réseau au démarrage.
+            - name: PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK
+              value: "true"
+          ports:
+            - name: http
+              containerPort: 8080
+          # Chargement des modèles ~10 s : la startupProbe protège le boot, puis
+          # readiness/liveness prennent le relais sur /health.
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 5
+            failureThreshold: 24 # jusqu'à 2 min pour charger
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "2"
+              memory: "2Gi"
