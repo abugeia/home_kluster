@@ -31,13 +31,15 @@ spec:
     spec:
       initContainers:
         - name: fix-permissions
-          image: busybox
+          image: busybox:1.38.0
+          imagePullPolicy: IfNotPresent
           command: ["sh", "-c", "chown -R 1000:1000 /config"]
           volumeMounts:
             - name: config
               mountPath: /config
         - name: cleanup-chrome-locks
-          image: busybox
+          image: busybox:1.38.0
+          imagePullPolicy: IfNotPresent
           command:
             - sh
             - -c
@@ -47,7 +49,11 @@ spec:
               mountPath: /config
       containers:
         - name: webtop
-          image: lscr.io/linuxserver/webtop:latest
+          # Webtop n'a pas de versioning sémantique : le tag choisit la saveur
+          # (distro + bureau), ici ubuntu-kde. On fige donc la saveur + le digest
+          # courant pour l'immutabilité ; Renovate suit les mises à jour de digest.
+          image: lscr.io/linuxserver/webtop:ubuntu-kde@sha256:22a6eb6e798abbbac3faed236dfb140b1451051b59fc58fd21eea097d1497ab9
+          imagePullPolicy: IfNotPresent
           tty: true
           stdin: true
           env:
