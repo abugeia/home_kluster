@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: paddleocr
+  namespace: ai
+  labels:
+    app: paddleocr
+  annotations:
+    # Appelé depuis les VM du LAN → IP MetalLB dédiée (pool 10.0.0.100-110,
+    # .107 libre). API : POST http://10.0.0.107/ocr/upload (multipart "file").
+    metallb.io/loadBalancerIPs: 10.0.0.107
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local # préserve l'IP source LAN
+  selector:
+    app: paddleocr
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
