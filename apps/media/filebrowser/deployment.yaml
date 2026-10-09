@@ -28,7 +28,8 @@ spec:
         runAsGroup: 0
       initContainers:
         - name: fix-permissions
-          image: busybox:latest
+          image: busybox:1.38.0
+          imagePullPolicy: IfNotPresent
           securityContext:
             runAsUser: 0
           command: ["sh", "-c", "chown -R 0:0 /database"]
