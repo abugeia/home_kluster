@@ -195,6 +195,16 @@ ports:
     # tous les Ingress du cluster deviendraient joignables depuis Internet par
     # la redirection de la box.
     asDefault: true
+    # insecure : Traefik garde les X-Forwarded-* reçus au lieu de les réécrire.
+    # Requis par le tunnel Cloudflare : cloudflared parle en HTTP à Traefik et
+    # transmet X-Forwarded-Proto: https. Sans confiance, Traefik le remplace par
+    # http, et TinyAuth / les callbacks OIDC fabriquent des URL en http://.
+    # Contrepartie : n'importe quel client peut forger X-Forwarded-For. Sans
+    # conséquence tant qu'aucune ACL ne s'y fie : ClientIP et ipAllowList de
+    # Traefik lisent l'adresse TCP réelle (RemoteAddr). En revanche, ne jamais
+    # utiliser les règles par IP de TinyAuth (TINYAUTH_APPS_*_IP_*), qui lisent
+    # l'IP la plus à gauche de X-Forwarded-For, donc forgeable même via
+    # Cloudflare (qui ajoute l'IP réelle sans écraser).
     forwardedHeaders:
       insecure: true
   websecure:
@@ -205,6 +215,7 @@ ports:
     http:
       tls:
         enabled: true
+    # Même raison que `web` ci-dessus.
     forwardedHeaders:
       insecure: true
   # Seul entrypoint joignable depuis Internet : la box redirige son port 47443
