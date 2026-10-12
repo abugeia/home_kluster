@@ -112,7 +112,9 @@ def render_helm_local(src, release, namespace):
 
 
 def render_kustomize(src):
-    return run(["kubectl", "kustomize", os.path.join(ROOT, src["path"])])
+    # --enable-helm : comme Argo CD (kustomize.buildOptions dans argocd/helm/values.yaml).
+    return run(["kubectl", "kustomize", "--enable-helm",
+                os.path.join(ROOT, src["path"])])
 
 
 def render_directory(src):

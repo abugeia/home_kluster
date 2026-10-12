@@ -1,0 +1,33 @@
+# Le chart jellyfin (<= 3.2.0) ne permet pas d'ajouter des labels au Deployment,
+# or Sablier découvre ses groupes uniquement via les labels du Deployment.
+# Kustomize rend le chart puis patche le Deployment.
+# Quand le chart publiera `deploymentLabels` (3.3.0+), on pourra revenir à une
+# Application Helm multi-source classique.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: media
+
+resources:
+  - pvc.yaml
+  - jellyfin-sso-setup-job.yaml
+
+helmCharts:
+  - name: jellyfin
+    repo: https://jellyfin.github.io/jellyfin-helm
+    version: 3.2.0
+    releaseName: jellyfin
+    namespace: media
+    valuesFile: values.yaml
+
+patches:
+  - target:
+      kind: Deployment
+      name: jellyfin
+    patch: |-
+      - op: add
+        path: /metadata/labels/sablier.enable
+        value: "true"
+      - op: add
+        path: /metadata/labels/sablier.group
+        value: jellyfin.valab.top
