@@ -52,7 +52,7 @@ spec:
           # Webtop n'a pas de versioning sémantique : le tag choisit la saveur
           # (distro + bureau), ici ubuntu-kde. On fige donc la saveur + le digest
           # courant pour l'immutabilité ; Renovate suit les mises à jour de digest.
-          image: lscr.io/linuxserver/webtop:ubuntu-kde@sha256:22a6eb6e798abbbac3faed236dfb140b1451051b59fc58fd21eea097d1497ab9
+          image: lscr.io/linuxserver/webtop:ubuntu-kde@sha256:ae4419f39bc0b84da2129100df2ee75cb8e2974e0372cfb6b122fdb8d22a0602
           imagePullPolicy: IfNotPresent
           tty: true
           stdin: true

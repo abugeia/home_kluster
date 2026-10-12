@@ -14,7 +14,7 @@ controllers:
           # celui du machine-learning.
           # Suivi par le customManager `helm-values-tag-only` de renovate.json.
           # renovate: datasource=docker depName=ghcr.io/immich-app/immich-server
-          tag: v3.2.1
+          tag: v3.3.1
         env:
           REDIS_HOSTNAME: '{{ printf "%s-valkey" .Release.Name }}'
           IMMICH_MACHINE_LEARNING_URL: '{{ printf "http://%s-machine-learning:3003" .Release.Name }}'
