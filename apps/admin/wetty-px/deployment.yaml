@@ -25,6 +25,11 @@ spec:
           args:
             - "--base"
             - "/"
+            # Exigé depuis la build de 2026-10 : origine autorisée pour le
+            # WebSocket (protection contre le détournement cross-site). Sans
+            # elle, wetty refuse de démarrer.
+            - "--allowed-origin"
+            - "https://px.valab.top"
             - "--command"
             - "ssh -o StrictHostKeyChecking=no -p 22 root@10.0.0.10"
           ports:
