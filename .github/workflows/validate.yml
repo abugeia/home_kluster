@@ -20,7 +20,7 @@ jobs:
       HELM_VERSION: v3.22.0
       KUBECONFORM_VERSION: v0.8.0
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Outils
         run: |
