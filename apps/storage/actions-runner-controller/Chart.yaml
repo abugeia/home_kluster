@@ -1,0 +1,11 @@
+apiVersion: v2
+name: actions-runner-controller
+description: Contrôleur ARC et ses CRDs, séparés des scale sets
+type: application
+version: 0.1.0
+dependencies:
+  # Doit rester à la même version que gha-runner-scale-set (actions-runner et
+  # actions-runner-orga) : Renovate les monte ensemble dans le lot non-majeur.
+  - name: gha-runner-scale-set-controller
+    version: 0.15.0
+    repository: oci://ghcr.io/actions/actions-runner-controller-charts

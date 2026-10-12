@@ -1,7 +1,3 @@
-gha-runner-scale-set-controller:
-  flags:
-    logLevel: info
-
 gha-runner-scale-set:
   githubConfigUrl: "https://github.com/abugeia/dlt_dataloader_img"
   githubConfigSecret: controller-manager

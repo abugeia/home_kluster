@@ -40,3 +40,6 @@ terraform.rc
 .terraform.lock.hcl
 secrets/clear
 *.code-workspace
+# Dépendances Helm téléchargées au rendu (helm dependency build, kustomize --enable-helm)
+apps/**/charts/
+apps/**/Chart.lock
