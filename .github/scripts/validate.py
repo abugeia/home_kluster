@@ -14,6 +14,7 @@ rend plus avec nos values, un schéma refusé, un YAML invalide.
 import fnmatch
 import glob
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -94,7 +95,11 @@ def render_helm_remote(src, release, namespace):
 
 def render_helm_local(src, release, namespace):
     helm = src.get("helm", {})
-    path = os.path.join(ROOT, src["path"])
+    # Copie temporaire : `helm dependency build` écrit charts/ et Chart.lock,
+    # qu'on ne versionne pas.
+    path = os.path.join(tempfile.mkdtemp(), os.path.basename(src["path"]))
+    shutil.copytree(os.path.join(ROOT, src["path"]), path,
+                    ignore=shutil.ignore_patterns("charts", "Chart.lock"))
     with open(os.path.join(path, "Chart.yaml")) as f:
         if yaml.safe_load(f).get("dependencies"):
             dep = run([HELM, "dependency", "build", path])
@@ -113,7 +118,7 @@ def render_helm_local(src, release, namespace):
 
 def render_kustomize(src):
     # --enable-helm : comme Argo CD (kustomize.buildOptions dans argocd/helm/values.yaml).
-    return run(["kubectl", "kustomize", "--enable-helm",
+    return run(["kubectl", "kustomize", "--enable-helm", "--helm-command", HELM,
                 os.path.join(ROOT, src["path"])])
 
 
