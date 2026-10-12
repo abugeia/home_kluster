@@ -1,0 +1,35 @@
+# Contrôleur ARC et ses CRDs, dans leur propre Application.
+#
+# Pourquoi séparé des scale sets : avec ServerSideApply, Argo CD calcule le diff
+# de toutes les ressources d'une app avec le schéma des CRDs *déjà installées*.
+# Quand une montée de version ajoute un champ (listenerConfig en 0.15.0), le
+# diff de l'AutoscalingRunnerSet échoue, la sync ne démarre pas, et la nouvelle
+# CRD - livrée dans la même sync - n'est jamais appliquée. Séparées, les CRDs
+# se mettent à jour ici d'abord ; les apps des scale sets se débloquent seules
+# au rafraîchissement suivant.
+#
+# releaseName actions-runner : conserve les noms existants
+# (actions-runner-gha-rs-controller), référencés par les scale sets.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: actions-runner-controller
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/abugeia/home_kluster.git'
+    targetRevision: HEAD
+    path: apps/storage/actions-runner-controller
+    helm:
+      releaseName: actions-runner
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: storage
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
