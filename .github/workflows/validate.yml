@@ -1,0 +1,36 @@
+# Rend chaque Application Argo CD et valide les manifests produits.
+# C'est ce check que Renovate attend pour automerger : sans lui, le statut
+# des PR reste « pending » et l'automerge ne se déclenche jamais.
+name: validate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  manifests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # Même branche que le Helm embarqué par Argo CD v3.1.
+      HELM_VERSION: v3.22.0
+      KUBECONFORM_VERSION: v0.8.0
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Outils
+        run: |
+          mkdir -p "$RUNNER_TEMP/bin"
+          curl -sSL "https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz" \
+            | tar xz -C "$RUNNER_TEMP/bin" --strip-components=1 linux-amd64/helm
+          curl -sSL "https://github.com/yannh/kubeconform/releases/download/${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz" \
+            | tar xz -C "$RUNNER_TEMP/bin" kubeconform
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+          pip install --quiet pyyaml
+
+      - name: Rendu et validation des Applications
+        run: python3 .github/scripts/validate.py
