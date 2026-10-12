@@ -20,7 +20,7 @@ resources:
 images:
   # Le Deployment amont porte lui aussi v0.14.0 en dur. La release courante est v0.20.1.
   - name: rancher/system-upgrade-controller
-    newTag: v0.20.1
+    newTag: v0.20.2
 
 # Le contrôleur lit son env par `envFrom: configMapRef` : la valeur est capturée au
 # démarrage du pod, donc changer la ConfigMap ne suffit pas — il faut que le Deployment
