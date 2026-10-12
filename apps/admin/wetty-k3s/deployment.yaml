@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: wetty
-          image: wettyoss/wetty:3.0.0
+          image: wettyoss/wetty:latest@sha256:c52dac712353f2376c39042771cb2bd89fc83c62dd096b05bca1b2c9eab7ee5d
           imagePullPolicy: IfNotPresent
           args:
             - "--base"
