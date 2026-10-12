@@ -14,10 +14,7 @@ spec:
     namespace: storage
   syncPolicy:
     automated:
-      # Temporaire, le temps que actions-runner-controller reprenne le
-      # contrôleur et les CRDs : sans ça, cette app pourrait les supprimer
-      # avant que l'autre ne les ait adoptés. À remettre à true ensuite.
-      prune: false
+      prune: true
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
