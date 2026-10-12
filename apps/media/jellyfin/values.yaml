@@ -67,3 +67,25 @@ resources:
   limits:
     cpu: 2000m
     memory: 2Gi
+
+# Pendant un scan de bibliothèque (ffprobe + SQLite sur NFS, 2 CPU), /health
+# peut mettre plusieurs secondes à répondre. Avec les défauts du chart (timeout
+# 1s × 3 échecs), le kubelet tuait Jellyfin en plein scan, qui reprenait de zéro.
+# Ici : ~2 min sans réponse avant redémarrage.
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 20
+  timeoutSeconds: 10
+  failureThreshold: 6
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
