@@ -63,7 +63,7 @@ spec:
         - name: home-assistant
           # :stable est un tag mutable — invisible pour Renovate et jamais
           # re-pull avec IfNotPresent. Épinglé sur la CalVer publiée.
-          image: ghcr.io/home-assistant/home-assistant:2026.9.2
+          image: ghcr.io/home-assistant/home-assistant:2026.10.1
           imagePullPolicy: IfNotPresent
           env:
             - name: TZ
