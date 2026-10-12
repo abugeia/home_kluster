@@ -19,3 +19,9 @@ extraArgs:
   - --sessions.expiration-interval=3m
   # Expose l'endpoint Prometheus /metrics (anciennement metrics.enabled: true).
   - --server.metrics.enabled=true
+
+# Sablier liste les clusters CloudNativePG lors de la découverte des groupes :
+# sans ce droit, la découverte échoue en boucle (« clusters.postgresql.cnpg.io
+# is forbidden ») et aucun nouveau groupe n'est jamais pris en compte.
+rbac:
+  cnpg: true
