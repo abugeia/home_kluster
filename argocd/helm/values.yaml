@@ -47,6 +47,13 @@ configs:
   params:
     server.insecure: true
   cm:
+    # Tracking par annotation (et non par label) : certains contrôleurs recopient
+    # le label argocd.argoproj.io/instance sur les ressources qu'ils créent au
+    # runtime (ex: ARC crée des RBAC *-gha-rs-controller-* dans le namespace des
+    # runners). Avec le tracking par label, ArgoCD les croit siennes, les voit
+    # absentes de Git et veut les pruner (OutOfSync permanent). L'annotation
+    # tracking-id n'est pas recopiée -> plus d'ambiguïté de propriété.
+    application.resourceTrackingMethod: annotation
     kustomize.buildOptions: "--enable-helm"
     # Désactiver l'exclusion par défaut des Endpoints pour pouvoir
     # gérer des Service + Endpoints manuels (services externes : Garage, etc.)
