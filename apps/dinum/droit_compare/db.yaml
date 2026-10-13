@@ -34,7 +34,10 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: postgres:18-alpine
+          # pgvector : passages vectorisés des sources de la LO (E-8). Image Debian :
+          # après la bascule depuis postgres:18-alpine, REINDEX DATABASE (l'ordre de
+          # tri du texte diffère entre musl et glibc). Fait le 13/10/2026.
+          image: pgvector/pgvector:pg18
           envFrom:
             - secretRef:
                 name: droit-compare-db
