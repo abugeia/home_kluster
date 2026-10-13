@@ -1,0 +1,105 @@
+# Synchronisation de la loi organique commentée (`python -m app.lo.sync --once`).
+#
+# 1. La feuille du groupe de travail, lue avec `droit-compare-sa` (à qui elle est
+#    partagée en lecture), rangée en base. Sans import en base, l'API refuse les
+#    analyses (503).
+# 2. Puis les documents qu'elle cite (avis du CE, décisions, pages web : E-8),
+#    découpés en passages et vectorisés — seulement si la base a pgvector ; sans
+#    lui, l'étape est sautée et la feuille reste importée.
+#    - Legifrance : identifiants PISTE de `droit-compare-secrets` ;
+#    - Drive : compte provisoire `sa-daj-cb-update-job` (`droit-compare-drive-sa`),
+#      le seul à voir le drive partagé des avis pour l'instant ;
+#    - embeddings : Vertex, avec `droit-compare-sa`, comme l'API.
+# Un import ou une source inchangés n'écrivent rien : la fréquence borne la
+# fraîcheur, pas la charge. Le backoffice (/backoffice.html) montre ce qui est pris
+# en compte.
+#
+# Même image que l'API, donc suivie par la même règle de l'ImageUpdater.
+# Premier import à la main :
+#   kubectl -n dinum create job --from=cronjob/droit-compare-lo-sync lo-sync-initial
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: droit-compare-lo-sync
+  namespace: dinum
+  labels:
+    app.kubernetes.io/name: droit-compare-lo-sync
+spec:
+  schedule: "0 3 * * 1" # le lundi à 3 h
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      # Un premier remplissage des sources lit ~530 documents : de l'ordre de
+      # l'heure. Les passages suivants ne relisent que ce qui a changé.
+      activeDeadlineSeconds: 14400
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: droit-compare-lo-sync
+        spec:
+          restartPolicy: OnFailure
+          imagePullSecrets:
+            - name: harbor-cicd-secret
+          containers:
+            - name: lo-sync
+              image: harbor.valab.top/prod/droit-compare:main
+              imagePullPolicy: Always
+              command: ["python", "-m", "app.lo.sync", "--once"]
+              envFrom:
+                - secretRef:
+                    name: droit-compare-db # DATABASE_URL
+                - secretRef:
+                    name: droit-compare-secrets # LEGIFRANCE_* (PISTE)
+              env:
+                - name: GOOGLE_APPLICATION_CREDENTIALS
+                  value: "/secrets/gcp-sa.json"
+                - name: LO_SOURCES_CREDENTIALS
+                  value: "/secrets-drive/drive-sa.json"
+                # Embeddings des passages : mêmes réglages que l'API (api.yaml).
+                - name: LLM_PROVIDER
+                  value: "gemini"
+                - name: GEMINI_USE_VERTEX
+                  value: "true"
+                - name: GOOGLE_CLOUD_PROJECT
+                  value: "prj-dinum-exp-p-bq-608d"
+                - name: GOOGLE_CLOUD_LOCATION
+                  value: "global"
+                - name: USE_EMBEDDINGS
+                  value: "true"
+                - name: EMBEDDING_PROVIDER
+                  value: "gemini"
+                - name: EMBEDDING_MODEL
+                  value: "gemini-embedding-2"
+                # PDF à la couche texte douteuse : réparés si le service répond.
+                - name: OCR_SERVICE_URL
+                  value: "http://droit-compare-ocr:8080"
+              resources:
+                requests:
+                  memory: "128Mi"
+                  cpu: "50m"
+                limits:
+                  memory: "512Mi"
+                  cpu: "500m"
+              volumeMounts:
+                - name: gcp-sa
+                  mountPath: /secrets
+                  readOnly: true
+                - name: drive-sa
+                  mountPath: /secrets-drive
+                  readOnly: true
+          volumes:
+            - name: gcp-sa
+              secret:
+                secretName: droit-compare-gcp-sa
+                items:
+                  - key: gcp-sa.json
+                    path: gcp-sa.json
+            - name: drive-sa
+              secret:
+                secretName: droit-compare-drive-sa
+                items:
+                  - key: drive-sa.json
+                    path: drive-sa.json

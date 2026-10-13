@@ -5,6 +5,7 @@ resources:
   - db.yaml
   - api.yaml
   - ocr.yaml
+  - lo-sync.yaml
   - middleware.yaml
   - ingress.yaml
 # ConfigMap du document de travail few-shot (monté en /app/fewshot_reference.md).
