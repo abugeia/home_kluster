@@ -42,4 +42,6 @@ secrets/clear
 *.code-workspace
 # Dépendances Helm téléchargées au rendu (helm dependency build, kustomize --enable-helm)
 apps/**/charts/
-apps/**/Chart.lock
+# Chart.lock versionné : Helm 4 exige un lock pour `helm dependency build`
+# (le fallback vers `dependency update` de Helm 3 a été supprimé). Renovate les
+# maintient à jour aux bumps de dépendances.
