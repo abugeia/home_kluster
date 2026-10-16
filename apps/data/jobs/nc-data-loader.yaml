@@ -4,6 +4,8 @@ metadata:
   name: nc-data-loader
   namespace: data # Assuming a namespace, or default
 spec:
+  # Suspendu : POC ClickHouse/Superset, en échec depuis le 2026-08-26.
+  suspend: true
   schedule: "0 19 * * *" # Runs at 06:00 NC Time (UTC+11) -> 19:00 UTC previous day
   jobTemplate:
     spec:
