@@ -1,7 +1,7 @@
 # Stack IA — pistes d'évolution
 
 État au 17/06/2026. Stack : OpenWebUI (k3s) → Ollama gpt-oss:20b (VM gaming GPU)
-+ recherche web SearXNG/Playwright + task model llama3.2:3b (ollama-cpu) + STT
++ recherche web SearXNG/Playwright + task model gemma3:4b (ollama-cpu) + STT
 speaches (VM). Ce qui marche, ce qui plafonne, et les leviers restants.
 
 ## Ce qui est résolu (ne pas y revenir)
@@ -9,8 +9,9 @@ speaches (VM). Ce qui marche, ce qui plafonne, et les leviers restants.
   6 threads sur 2 cœurs → throttling CFS).
 - SearXNG : timeout moteurs 3→8s, startpage/wikidata désactivés (timeouts).
 - Playwright : lit le contenu réel des pages (le loader `requests` par défaut échoue).
-- Query-gen : task model dédié CPU `llama3.2:3b` (qwen2.5:3b sortait des requêtes
-  corrompues ; les modèles 2026 à raisonnement OOM/garbage sur CPU).
+- Query-gen : task model dédié CPU `gemma3:4b` depuis le 16/10/2026 (avant : `llama3.2:3b`,
+  qui altérait les tags de beets ; qwen2.5:3b sortait des requêtes corrompues ;
+  les modèles 2026 à raisonnement OOM/garbage sur CPU).
 - gpt-oss : Ollama sépare bien thinking/content ; la fuite est côté OpenWebUI →
   workaround system prompt « réponds uniquement la réponse finale ».
 
@@ -55,8 +56,9 @@ ne corrige ça.
 
 ## Dette / à savoir
 - Config runtime OpenWebUI (moteur recherche, loader, bypass, task model, system
-  prompt) vit dans **Redis/DB** (PersistentConfig), PAS dans git : le `values.yaml`
-  ne fait que seeder. Toute valeur effective se règle via UI ou `redis-cli SET
-  open-webui:config:<KEY>`. Inhérent à OpenWebUI.
+  prompt) vit dans la table `config` de `webui.db` (PersistentConfig, pas Redis),
+  PAS dans git : le `values.yaml` ne fait que seeder. Toute valeur effective se règle via l'UI ou un UPDATE SQL
+  (ex. clé `task.model.default`). Inhérent à OpenWebUI.
 - ollama-cpu : limite 5Gi, `keep_alive=-1`. Ne pas charger 2 modèles 3B en même
-  temps (OOM). postStart pull llama3.2:3b uniquement.
+  temps (OOM). Un seul modèle, partagé avec beets : liste `MANAGED_MODELS` du
+  deployment, réconciliée au postStart (pull + suppression des modèles hors liste).

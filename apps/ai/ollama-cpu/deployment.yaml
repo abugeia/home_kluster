@@ -39,18 +39,38 @@ spec:
             # modèle chargé longtemps (tâches sporadiques : query-gen, titres).
             - name: OLLAMA_KEEP_ALIVE
               value: "-1"
+            # Source de vérité des modèles présents sur le PVC (séparés par des
+            # espaces). Le postStart pulle cette liste et SUPPRIME tout modèle
+            # hors liste : un `ollama pull` manuel ne survit pas au redémarrage.
+            # UN SEUL modèle partagé par beets (aitagcleaner) et le task model
+            # d'OpenWebUI : 2 modèles chargés ensemble dépassent la limite 5Gi.
+            # gemma3:4b retenu au banc d'essai du 2026-10-16 (0 tag propre altéré ;
+            # llama3.2:3b en altérait 14/21, qwen3.5:4b retire les « (… Remix) »,
+            # gemma4:e2b/e4b ne tiennent pas en 5Gi).
+            - name: MANAGED_MODELS
+              value: "gemma3:4b"
           ports:
             - name: http
               containerPort: 11434
-          # Pull du petit modèle de tâches au démarrage (idempotent : no-op si
-          # déjà dans le PVC). Non-harmony → JSON propre pour la query-gen.
+          # Réconcilie les modèles avec MANAGED_MODELS au démarrage (idempotent :
+          # pull no-op si déjà dans le PVC). Ne doit jamais échouer, sinon
+          # Kubernetes tue le conteneur.
           lifecycle:
             postStart:
               exec:
                 command:
                   - /bin/sh
                   - -c
-                  - "sleep 5; ollama pull llama3.2:3b || true"
+                  - |
+                    sleep 5
+                    for m in $MANAGED_MODELS; do ollama pull "$m" || true; done
+                    ollama list | awk 'NR>1 {print $1}' | while read -r m; do
+                      case " $MANAGED_MODELS " in
+                        *" $m "*) ;;
+                        *) ollama rm "$m" || true ;;
+                      esac
+                    done
+                    true
           readinessProbe:
             httpGet:
               path: /
