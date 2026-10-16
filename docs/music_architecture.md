@@ -162,9 +162,12 @@ flowchart TD
 - [~] **Import initial `Musique_sync`** : 1ère passe EN COURS (job manuel). Rangé en
       `Musique_sync/Non-Album/$artist/$title`. Les ~3% douteux restent à plat →
       session interactive plus tard (`beet import` sans `-q` en TTY via un pod).
-- [ ] **Traiter `Musique/` (74G)** : ajouter au CronJob un 2e passage (config + DB
-      dédiées, `directory: /music/Musique`) enchaîné APRÈS `Musique_sync` (un seul
-      beets à la fois — PVC config RWO). ~16h → reprise sur ~2 jours (fenêtre 10h-minuit).
+- [x] **Nettoyage LLM fiabilisé (2026-10-16)** : modèle unique `gemma3:4b` sur
+      `ollama-cpu` (l'ancien `llama3.2:3b` altérait 14/21 tags propres) ; plugin v2
+      qui envoie aussi le nom de fichier. Banc d'essai : `beets-ai-tagcleaner/bench/`.
+- [ ] **Traiter `Musique/` (74G, 13 590 fichiers)** → suivi dans
+      [#52](https://github.com/abugeia/home_kluster/issues/52) : 2e passage du CronJob
+      (config + DB dédiées) enchaîné APRÈS `Musique_sync` (PVC config RWO).
 - [ ] **Dédup** : `beet duplicates` (liste) puis suppression contrôlée, quand voulu.
 - [x] **qBittorrent** CrashLoopBackOff RÉSOLU : initContainer nettoyant le `lockfile`
       résiduel au démarrage (bug qBittorrent 5.2.x).
