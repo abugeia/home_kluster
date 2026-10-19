@@ -15,6 +15,7 @@ Le secret Kubernetes `auth-secrets` attend les clés suivantes :
 | `pocket-client-id` | Client ID OIDC pour TinyAuth | Interface Pocket ID |
 | `pocket-client-secret` | Client Secret OIDC pour TinyAuth | Interface Pocket ID |
 | `tinyauth-secret` | Clé de signature de session | Généré aléatoirement |
+| `oauth-whitelist` | Comptes autorisés par TinyAuth, adresses séparées par des virgules | Liste à tenir à jour |
 
 ## 1. Google OAuth (pour TinyAuth)
 

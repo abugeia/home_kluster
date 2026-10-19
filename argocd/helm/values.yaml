@@ -75,8 +75,9 @@ configs:
       clientSecret: $auth-secrets:pocket-argocd-client-secret
       requestedScopes: ["openid", "profile", "email", "groups"]
   rbac:
+    # Admin par groupe Pocket ID (claim `groups`) plutôt que par adresse mail.
     policy.csv: |
-      g, abugeia@gmail.com, role:admin
+      g, argocd-admins, role:admin
       p, role:homepage, applications, get, */*, allow
       g, homepage, role:homepage
     scopes: "[groups, email]"

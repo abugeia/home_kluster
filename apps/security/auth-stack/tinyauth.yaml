@@ -63,8 +63,13 @@ spec:
                   key: pocket-client-secret
             - name: TINYAUTH_OIDC_PRIVATEKEYPATH
               value: "/data/tinyauth_oidc_key"
+            # Liste des comptes autorisés (adresses séparées par des virgules),
+            # dans le SealedSecret pour ne pas publier d'adresses mail.
             - name: TINYAUTH_OAUTH_WHITELIST
-              value: "abugeia@gmail.com,admin@pocketid,sabrina-gournet@hotmail.fr"
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: oauth-whitelist
           livenessProbe:
             httpGet:
               path: /api/healthz
