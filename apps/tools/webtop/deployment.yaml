@@ -100,8 +100,14 @@ spec:
             limits:
               cpu: 2000m
               memory: 4Gi
+          # Pas de privileged : wrapped-chromium lit /proc/1/status et, sans
+          # seccomp (« Seccomp: 0 »), lance chromium AVEC son sandbox, qui exige
+          # des user namespaces refusés ici (« No usable sandbox! »). Avec le
+          # profil RuntimeDefault, il passe en --no-sandbox, comme sous Docker.
+          # Aucun GPU sur le nœud : privileged n'apportait rien.
           securityContext:
-            privileged: true # Often needed for webtop hardware acceleration/compatibility
+            seccompProfile:
+              type: RuntimeDefault
       volumes:
         - name: config
           persistentVolumeClaim:
