@@ -1,0 +1,77 @@
+# Banc d'essai : ordre des middlewares tinyauth -> Sablier.
+#
+# Les apps en scale-to-zero ont `sablier` AVANT `tinyauth` depuis af5436b
+# (« fix: middleware priority », migration tinyauth v5), sans raison documentée.
+# Conséquence : un client anonyme (ex. robot Google) démarre le pod et prolonge
+# la session Sablier avant d'être rejeté par tinyauth.
+#
+# Ici l'ordre est inversé (auth d'abord), sur un Ingress comme les vraies apps
+# (pas un HTTPRoute) pour reproduire le même chemin Traefik. Résultats attendus :
+#   - anonyme : redirection vers tinyauth, le pod reste à 0 ;
+#   - authentifié : page d'attente Sablier, puis whoami.
+# À supprimer une fois le verdict posé.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: whoami-sablier
+  namespace: whoami
+  labels:
+    app.kubernetes.io/name: whoami-sablier
+    sablier.enable: "true"
+    sablier.group: "whoami-sablier.valab.top"
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: whoami-sablier
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: whoami-sablier
+    spec:
+      containers:
+        - name: whoami
+          image: traefik/whoami
+          ports:
+            - name: http
+              containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: whoami-sablier
+  namespace: whoami
+  labels:
+    app.kubernetes.io/name: whoami-sablier
+spec:
+  selector:
+    app.kubernetes.io/name: whoami-sablier
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: whoami-sablier
+  namespace: whoami
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd,tools-sablier-whoami-sablier@kubernetescrd
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - whoami-sablier.valab.top
+      secretName: whoami-sablier-tls
+  rules:
+    - host: whoami-sablier.valab.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: whoami-sablier
+                port:
+                  name: http
