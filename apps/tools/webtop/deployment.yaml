@@ -1,7 +1,27 @@
+# Ancien profil (ubuntu-kde, hérité d'arch/alpine) : plus monté, gardé le temps
+# de récupérer ce qui sert. Laissé déclaré + Prune=false car la SC nfs-csi-nvme
+# est en reclaimPolicy Delete : le retirer du dépôt détruirait les données.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: webtop-config
+  namespace: tools
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-csi-nvme
+  resources:
+    requests:
+      storage: 10Gi
+---
+# Profil vierge pour debian-xfce : l'ancien mélangeait des profils chromium/KDE
+# de plusieurs distros, cause probable du navigateur qui ne démarre plus.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: webtop-config-v2
   namespace: tools
 spec:
   accessModes:
@@ -50,9 +70,11 @@ spec:
       containers:
         - name: webtop
           # Webtop n'a pas de versioning sémantique : le tag choisit la saveur
-          # (distro + bureau), ici ubuntu-kde. On fige donc la saveur + le digest
-          # courant pour l'immutabilité ; Renovate suit les mises à jour de digest.
-          image: lscr.io/linuxserver/webtop:ubuntu-kde@sha256:ae4419f39bc0b84da2129100df2ee75cb8e2974e0372cfb6b122fdb8d22a0602
+          # (distro + bureau), ici debian-xfce : X11 natif (Xvfb), sans le mode
+          # Wayland d'ubuntu-kde (kwin sans GPU, crash startwm à la reconnexion),
+          # avec chromium. On fige la saveur + le digest courant pour
+          # l'immutabilité ; Renovate suit les mises à jour de digest.
+          image: lscr.io/linuxserver/webtop:debian-xfce@sha256:dd8218828958988f88b3e0d9ddd97a6337189662eeca57bfa49d78688f5a3695
           imagePullPolicy: IfNotPresent
           tty: true
           stdin: true
@@ -83,7 +105,9 @@ spec:
       volumes:
         - name: config
           persistentVolumeClaim:
-            claimName: webtop-config
+            claimName: webtop-config-v2
         - name: dshm
           emptyDir:
             medium: Memory
+            # Équivalent du --shm-size=1gb recommandé par linuxserver.
+            sizeLimit: 1Gi
