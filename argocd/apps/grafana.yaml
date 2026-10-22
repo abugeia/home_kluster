@@ -20,7 +20,17 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: observability
+  # Sablier pilote les replicas (scale-to-zero) ; RespectIgnoreDifferences
+  # empêche un sync de les remettre à la valeur du manifest.
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      name: grafana
+      jsonPointers:
+        - /spec/replicas
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - RespectIgnoreDifferences=true

@@ -41,3 +41,13 @@ apps:
     duration: 1h
     group: "jellyfin.valab.top"
     theme: hacker-terminal
+  mlflow:
+    duration: 30m
+    group: "mlflow.valab.top"
+  # open-webui + searxng + playwright
+  open-webui:
+    duration: 1h
+    group: "chat.valab.top"
+  grafana:
+    duration: 30m
+    group: "grafana.valab.top"

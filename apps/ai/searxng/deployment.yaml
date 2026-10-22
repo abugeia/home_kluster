@@ -5,8 +5,11 @@ metadata:
   namespace: ai
   labels:
     app: searxng
+    # Démarré/arrêté avec open-webui (seul consommateur) : même groupe Sablier.
+    # Pas de `replicas` : c'est Sablier qui le pilote.
+    sablier.enable: "true"
+    sablier.group: "chat.valab.top"
 spec:
-  replicas: 1
   selector:
     matchLabels:
       app: searxng

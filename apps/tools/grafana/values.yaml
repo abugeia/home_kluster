@@ -28,12 +28,20 @@ securityContext:
 initChownData:
   enabled: true
 
+# Labels Sablier sur le Deployment (scale-to-zero).
+labels:
+  sablier.enable: "true"
+  sablier.group: "grafana.valab.top"
+
 # Ingress pour accès via Traefik
 ingress:
   enabled: true
   ingressClassName: traefik
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
+    # Pas de tinyauth : Grafana a son propre login. Pas d'alerting utilisé,
+    # donc rien ne tourne en tâche de fond : l'arrêt est sans effet de bord.
+    traefik.ingress.kubernetes.io/router.middlewares: tools-sablier-grafana@kubernetescrd
     # Homepage dashboard annotations
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Grafana"
