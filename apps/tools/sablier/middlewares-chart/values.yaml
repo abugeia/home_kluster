@@ -41,7 +41,3 @@ apps:
     duration: 1h
     group: "jellyfin.valab.top"
     theme: hacker-terminal
-  # Banc d'essai ordre tinyauth -> Sablier (apps/whoami/sablier-test.yaml), à retirer après.
-  whoami-sablier:
-    duration: 5m
-    group: "whoami-sablier.valab.top"
