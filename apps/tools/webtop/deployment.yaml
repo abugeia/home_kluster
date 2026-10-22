@@ -1,13 +1,11 @@
-# Ancien profil (ubuntu-kde, hérité d'arch/alpine) : plus monté, gardé le temps
-# de récupérer ce qui sert. Laissé déclaré + Prune=false car la SC nfs-csi-nvme
-# est en reclaimPolicy Delete : le retirer du dépôt détruirait les données.
+# Ancien profil (ubuntu-kde), plus monté, vide de toute donnée utile.
+# Suppression en deux temps : on retire d'abord Prune=false, puis le
+# manifest, pour qu'Argo le prune.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: webtop-config
   namespace: tools
-  annotations:
-    argocd.argoproj.io/sync-options: Prune=false
 spec:
   accessModes:
     - ReadWriteOnce
