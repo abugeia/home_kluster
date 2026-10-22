@@ -14,13 +14,6 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: whoami
-  # Sablier pilote les replicas du banc d'essai whoami-sablier.
-  ignoreDifferences:
-    - group: apps
-      kind: Deployment
-      name: whoami-sablier
-      jsonPointers:
-        - /spec/replicas
   syncPolicy:
     automated:
       prune: true
