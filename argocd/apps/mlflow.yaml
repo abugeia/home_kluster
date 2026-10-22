@@ -5,22 +5,27 @@ metadata:
   namespace: argocd
 spec:
   project: default
-  sources:
-    - repoURL: https://community-charts.github.io/helm-charts
-      targetRevision: 1.11.7
-      chart: mlflow
-      helm:
-        valueFiles:
-          - $values/apps/ai/mlflow/values.yaml
-    - repoURL: 'https://github.com/abugeia/home_kluster.git'
-      targetRevision: main
-      ref: values
+  # Kustomize (helmCharts + patch des labels Sablier sur le Deployment) :
+  # voir apps/ai/mlflow/kustomization.yaml
+  source:
+    repoURL: 'https://github.com/abugeia/home_kluster.git'
+    targetRevision: main
+    path: apps/ai/mlflow
   destination:
     server: https://kubernetes.default.svc
     namespace: ai
+  # Sablier pilote les replicas (scale-to-zero) ; RespectIgnoreDifferences
+  # empêche un sync de les remettre à la valeur du manifest.
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      name: mlflow
+      jsonPointers:
+        - /spec/replicas
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - RespectIgnoreDifferences=true

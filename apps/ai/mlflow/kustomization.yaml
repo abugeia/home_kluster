@@ -1,0 +1,27 @@
+# Le chart community-charts/mlflow ne permet pas d'ajouter des labels au
+# Deployment, or Sablier découvre ses groupes uniquement via ces labels.
+# Kustomize rend le chart puis patche le Deployment (même approche que jellyfin).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: ai
+
+helmCharts:
+  - name: mlflow
+    repo: https://community-charts.github.io/helm-charts
+    version: 1.11.7
+    releaseName: mlflow
+    namespace: ai
+    valuesFile: values.yaml
+
+patches:
+  - target:
+      kind: Deployment
+      name: mlflow
+    patch: |-
+      - op: add
+        path: /metadata/labels/sablier.enable
+        value: "true"
+      - op: add
+        path: /metadata/labels/sablier.group
+        value: mlflow.valab.top
