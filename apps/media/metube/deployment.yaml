@@ -37,7 +37,7 @@ spec:
           # Tag CalVer épinglé pour que Renovate puisse suivre les mises à jour
           # (avec :latest il n'y a pas de version à comparer, donc aucune PR).
           # Chaque release embarque une build récente de yt-dlp — ne pas laisser dormir.
-          image: ghcr.io/alexta69/metube:2026.10.09
+          image: ghcr.io/alexta69/metube:2026.10.27
           imagePullPolicy: IfNotPresent
           env:
             # UID/GID=0 : MeTube écrit en root sur le NFS (arborescence
