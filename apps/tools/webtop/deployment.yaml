@@ -56,7 +56,7 @@ spec:
           # Wayland d'ubuntu-kde (kwin sans GPU, crash startwm à la reconnexion),
           # avec chromium. On fige la saveur + le digest courant pour
           # l'immutabilité ; Renovate suit les mises à jour de digest.
-          image: lscr.io/linuxserver/webtop:debian-xfce@sha256:dd8218828958988f88b3e0d9ddd97a6337189662eeca57bfa49d78688f5a3695
+          image: lscr.io/linuxserver/webtop:debian-xfce@sha256:2de7b2cb2f9e55fde54e07a83ffeb4f09cac846f1219896dd3d44de7d0aa9731
           imagePullPolicy: IfNotPresent
           tty: true
           stdin: true
