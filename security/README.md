@@ -35,6 +35,38 @@ kubeseal \
 
 ```
 
+#### Clé du contrôleur
+
+Le contrôleur n'a qu'**une clé**, `sealed-secrets-keyd99fj` (créée le 2025-12-08,
+certificat valide jusqu'en 2035) : c'est elle qui scelle et déchiffre les 35
+SealedSecrets de `secrets/sealed/`. `secrets/clear/sealed-secrets.pem` est son
+certificat, et `--fetch-cert` renvoie le même.
+
+- **Rotation désactivée** (`keyrenewperiod: "0"` dans
+  `argocd/apps/sealed-secrets.yaml`, 2026-10-23). Par défaut le contrôleur
+  crée une clé tous les 30 jours ; comme on scelle toujours avec le `.pem`
+  figé, aucune des 10 clés générées ensuite n'avait servi. Elles ont été
+  supprimées.
+- **Sauvegardes de la clé privée** : coffre Bitwarden, note
+  `home_kluster-sealed-secrets-key (privée)` (YAML du Secret, prêt pour
+  `kubectl apply`) ; copie locale `infra_proxmox/ansible/secrets/sealed_secrets_keys.yaml`
+  écrite par le rôle Ansible `k3s`, qui sait aussi la restaurer.
+- **Sans cette clé, les 35 secrets du repo sont indéchiffrables** : sur un
+  cluster neuf, la restaurer avant de déployer le contrôleur (ou le redémarrer
+  après), cf. la note Bitwarden.
+
+Relire une valeur sans le dossier `clear/` (clé exportée depuis Bitwarden) :
+```
+kubeseal --recovery-unseal --recovery-private-key sealed-secrets-keyd99fj.yaml < secrets/sealed/xxx.yaml
+```
+
+Ajouter ou remplacer une seule clé d'un secret existant, sans son clair :
+```
+kubectl create secret generic <nom> -n <ns> --dry-run=client -o json \
+  --from-literal=<cle>=<valeur> | kubeseal --merge-into secrets/sealed/<fichier>.yaml
+```
+(`--merge-into` ne gère qu'un document par fichier.)
+
 ## Harbor
 
 Harbor est le registre de conteneurs privé du cluster. Deux secrets sont nécessaires pour son bon fonctionnement :
