@@ -7,5 +7,5 @@ dependencies:
   # Doit rester à la même version que gha-runner-scale-set (actions-runner et
   # actions-runner-orga) : Renovate les monte ensemble dans le lot non-majeur.
   - name: gha-runner-scale-set-controller
-    version: 0.15.0
+    version: 0.15.1
     repository: oci://ghcr.io/actions/actions-runner-controller-charts
