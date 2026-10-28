@@ -54,8 +54,8 @@ mesurés. Pour ces machines, `ingress-public.yaml` publie
 - **TinyAuth** : middleware `security-tinyauth-protect` après l'allowlist.
   L'IP autorisée peut être une IP NAT partagée par d'autres machines, qui
   ne doivent voir qu'une page de login.
-- **DNS** : `vm.valab.top` en enregistrement A **DNS only** vers l'IP
-  publique de la maison. Pas proxifié, sinon on repasse par Cloudflare.
+- **DNS** : `vm.valab.top` en enregistrement A **DNS only**. Pas proxifié,
+  sinon on repasse par Cloudflare.
 - **Navigateur** : si le navigateur passe par un proxy vers le tailnet,
   exclure `vm.valab.top` de ce proxy, sinon l'IP source n'est plus celle
   qui est autorisée.
