@@ -10,7 +10,7 @@ spec:
   sources:
     - chart: csi-driver-nfs
       repoURL: https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
-      targetRevision: 4.13.5
+      targetRevision: 4.13.6
       helm:
         valueFiles:
           - $values/apps/storage/csi-driver-nfs/values.yaml
