@@ -7,8 +7,9 @@
 #    découpés en passages et vectorisés — seulement si la base a pgvector ; sans
 #    lui, l'étape est sautée et la feuille reste importée.
 #    - Legifrance : identifiants PISTE de `droit-compare-secrets` ;
-#    - Drive : compte provisoire `sa-daj-cb-update-job` (`droit-compare-drive-sa`),
-#      le seul à voir le drive partagé des avis pour l'instant ;
+#    - Drive : `droit-compare-sa`, à qui la DAJ a partagé le dossier des avis du
+#      Conseil d'État (30/10/2026) ; les avis du TA ne le sont pas encore et
+#      restent en erreur (accès refusé) ;
 #    - embeddings : Vertex, avec `droit-compare-sa`, comme l'API.
 # Un import ou une source inchangés n'écrivent rien : la fréquence borne la
 # fraîcheur, pas la charge. Le backoffice (/backoffice.html) montre ce qui est pris
@@ -56,8 +57,6 @@ spec:
               env:
                 - name: GOOGLE_APPLICATION_CREDENTIALS
                   value: "/secrets/gcp-sa.json"
-                - name: LO_SOURCES_CREDENTIALS
-                  value: "/secrets-drive/drive-sa.json"
                 # Embeddings des passages : mêmes réglages que l'API (api.yaml).
                 - name: LLM_PROVIDER
                   value: "gemini"
@@ -87,9 +86,6 @@ spec:
                 - name: gcp-sa
                   mountPath: /secrets
                   readOnly: true
-                - name: drive-sa
-                  mountPath: /secrets-drive
-                  readOnly: true
           volumes:
             - name: gcp-sa
               secret:
@@ -97,9 +93,3 @@ spec:
                 items:
                   - key: gcp-sa.json
                     path: gcp-sa.json
-            - name: drive-sa
-              secret:
-                secretName: droit-compare-drive-sa
-                items:
-                  - key: drive-sa.json
-                    path: drive-sa.json
