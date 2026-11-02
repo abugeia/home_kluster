@@ -1,0 +1,16 @@
+# Nettoyage quotidien des images containerd que plus aucun workload ne
+# déclare : voir cleanup.py pour le pourquoi (GC kubelet aveugle aux apps
+# Sablier en veille, imageMaximumGCAge inopérant avec l'extinction nocturne).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: admin
+
+resources:
+  - rbac.yaml
+  - cronjob.yaml
+
+configMapGenerator:
+  - name: image-cleanup-script
+    files:
+      - cleanup.py
