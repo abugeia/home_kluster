@@ -3,9 +3,11 @@ kind: CronJob
 metadata:
   name: image-cleanup
 spec:
-  # Après le démarrage du matin (~07:53 NC). Si le cluster était éteint à
-  # l'heure dite, le job part au démarrage tant qu'on est dans la fenêtre.
-  schedule: "0 10 * * *"
+  # Lundi et jeudi, après le démarrage du matin (~07:53 NC) : deux passages
+  # par semaine suffisent face au rythme des vagues Renovate. Si le cluster
+  # était éteint à l'heure dite, le job part au démarrage tant qu'on est dans
+  # la fenêtre.
+  schedule: "0 10 * * 1,4"
   timeZone: Pacific/Noumea
   startingDeadlineSeconds: 43200
   concurrencyPolicy: Forbid
