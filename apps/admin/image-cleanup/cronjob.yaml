@@ -23,7 +23,7 @@ spec:
           restartPolicy: Never
           containers:
             - name: cleanup
-              image: python:3.14.10-alpine3.24
+              image: python:3.15.2-alpine3.24
               command: ["python3", "/scripts/cleanup.py"]
               env:
                 # "true" pour lister sans supprimer. Liste du premier passage

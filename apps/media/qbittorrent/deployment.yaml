@@ -39,7 +39,7 @@ spec:
         - name: qbittorrent
           # Tag LinuxServer épinglé : <qbittorrent>_v<libtorrent>-ls<build>.
           # Seuls qbittorrent et le build -ls sont comparés par Renovate.
-          image: lscr.io/linuxserver/qbittorrent:5.3.0_v2.1.2-ls485
+          image: lscr.io/linuxserver/qbittorrent:5.3.0_v2.1.2-ls486
           imagePullPolicy: IfNotPresent
           env:
             - name: PUID
