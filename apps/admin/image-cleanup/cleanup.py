@@ -20,7 +20,14 @@ import urllib.request
 
 SA = "/var/run/secrets/kubernetes.io/serviceaccount"
 API = "https://kubernetes.default.svc"
-CRICTL = ["/host-bin/crictl", "--runtime-endpoint", "unix:///run/k3s/containerd/containerd.sock"]
+# --timeout : le défaut (2 s) expire pendant que containerd libère les
+# snapshots d'une grosse image ; la suppression aboutit quand même, mais
+# crictl la signale en échec (DeadlineExceeded).
+CRICTL = [
+    "/host-bin/crictl",
+    "--runtime-endpoint", "unix:///run/k3s/containerd/containerd.sock",
+    "--timeout", "120s",
+]
 DRY_RUN = os.environ.get("DRY_RUN", "true").lower() != "false"
 PATHS = [
     "/apis/apps/v1/deployments",
