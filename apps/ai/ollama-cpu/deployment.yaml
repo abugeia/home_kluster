@@ -47,8 +47,15 @@ spec:
             # gemma3:4b retenu au banc d'essai du 2026-10-16 (0 tag propre altéré ;
             # llama3.2:3b en altérait 14/21, qwen3.5:4b retire les « (… Remix) »,
             # gemma4:e2b/e4b ne tiennent pas en 5Gi).
+            # TEMPORAIRE (banc 2026-11) : lfm3:1.7b ajouté pour le comparer à
+            # gemma3:4b (Job tagbench). Exige Ollama >= 0.40.12. À retirer avec le
+            # Job une fois le banc tranché.
             - name: MANAGED_MODELS
-              value: "gemma3:4b"
+              value: "gemma3:4b lfm3:1.7b"
+            # Un seul modèle en RAM à la fois : Ollama voit la RAM du nœud, pas la
+            # limite 5Gi du pod, et chargerait gemma3 + lfm3 ensemble → OOM.
+            - name: OLLAMA_MAX_LOADED_MODELS
+              value: "1"
           ports:
             - name: http
               containerPort: 11434
