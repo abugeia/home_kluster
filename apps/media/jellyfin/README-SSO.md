@@ -2,22 +2,30 @@
 
 Ce guide décrit les étapes pour configurer l'authentification SSO sur Jellyfin avec Pocket ID.
 
-## Prérequis
+## Plugin et version de Jellyfin
 
-Le plugin SSO doit être installé dans Jellyfin avant de pouvoir être configuré.
+- **Jellyfin 12.x** (chart 3.4.0+). Le plugin d'origine,
+  [9p4/jellyfin-plugin-sso](https://github.com/9p4/jellyfin-plugin-sso), est
+  archivé et s'arrête à la 10.11. On utilise son fork maintenu,
+  [K0lin/jellyfin-plugin-sso](https://github.com/K0lin/jellyfin-plugin-sso),
+  version **5.1.x** : même GUID, même API (`/sso/OID/...`), même URL de
+  redirection côté Pocket ID.
+- **Limite de la 5.1** : le SSO ne marche que dans l'interface web et les
+  clients qui gèrent [Quick Connect](https://jellyfin.org/docs/general/server/quick-connect)
+  (sur une TV : code à valider depuis le navigateur).
 
-## Étape 1: Installer le Plugin SSO dans Jellyfin
+## Étape 1: Plugin SSO — automatique
 
-1. Se connecter à Jellyfin : `https://jellyfin.valab.top`
-2. Aller dans **Dashboard** → **Plugins** → **Repositories**
-3. Cliquer sur **+** pour ajouter un nouveau repository
-4. Entrer :
-   - **Repository Name** : `SSO Auth`
-   - **Repository URL** : `https://raw.githubusercontent.com/9p4/jellyfin-plugin-sso/manifest-release/manifest.json`
-5. Cliquer sur **Save**
-6. Aller dans **Catalog** et chercher "SSO-Auth"
-7. Cliquer sur **Install**
-8. **Redémarrer Jellyfin** (Dashboard → Redémarrer)
+Rien à faire à la main : le job `jellyfin-sso-setup` (étape 5) déclare le dépôt
+de plugins K0lin, installe « SSO Authentication » à la version fixée dans le
+job (`PLUGIN_VERSION`), redémarre Jellyfin pour le charger, puis configure le
+fournisseur `pocketid`. Il est idempotent : le relancer ne réinstalle rien si
+le plugin est déjà à la bonne version.
+
+Pour monter de version le plugin : changer `PLUGIN_VERSION` dans
+`jellyfin-sso-setup-job.yaml` (versions publiées :
+`https://raw.githubusercontent.com/k0lin/jellyfin-plugin-sso/manifest-release/manifest.json`),
+puis relancer le job.
 
 ## Étape 2: Créer un Client OAuth dans Pocket ID
 
@@ -68,19 +76,18 @@ kubectl create secret generic jellyfin-sso-credentials \
   --dry-run=client -o yaml | kubectl apply -f -
 ```
 
-## Étape 5: Appliquer la Configuration
+## Étape 5: Lancer le job de configuration
+
+Le CronJob est suspendu : on le lance à la main, avec un accès admin au
+cluster. Jellyfin doit être réveillé (Sablier) : ouvrir
+`https://jellyfin.valab.top` juste avant, sinon le job abandonne après 10 min.
 
 ```bash
-# Commit et push les changements (si vous avez édité le fichier yaml)
-git add apps/media/jellyfin/
-git commit -m "feat: Configure SSO for Jellyfin with Pocket ID"
-git push
-
-# ArgoCD va automatiquement déployer et exécuter le Job de configuration
-# Vérifier le statut :
-kubectl get jobs -n media
-kubectl logs -n media job/jellyfin-sso-setup
+kubectl create job --from=cronjob/jellyfin-sso-setup jellyfin-sso-run -n media
+kubectl logs -n media job/jellyfin-sso-run -f
 ```
+
+Le journal doit se terminer par `SSO configuré. Fournisseurs OpenID : ['pocketid']`.
 
 ## Étape 6: Tester la Connexion SSO
 
@@ -100,24 +107,20 @@ Pour vérifier que la configuration SSO est active :
 API_KEY=$(kubectl get secret jellyfin-sso-credentials -n media -o jsonpath='{.data.api-key}' | base64 -d)
 
 # Vérifier la configuration SSO
-curl "https://jellyfin.valab.top/sso/OID/Get?api_key=${API_KEY}"
+# api_key en query n'est plus accepté (autorisation « legacy » désactivée)
+curl -H "Authorization: MediaBrowser Token=\"${API_KEY}\"" https://jellyfin.valab.top/sso/OID/Get
 ```
 
 Vous devriez voir la configuration JSON du provider `pocketid`.
 
 ## Reconfigurer le SSO
 
-Si vous devez modifier la configuration SSO :
+Modifier le corps envoyé à `/sso/OID/Add/pocketid` dans
+`jellyfin-sso-setup-job.yaml`, merger, puis relancer le job (étape 5) : `Add`
+écrase la configuration existante. Supprimer d'abord l'ancien job s'il porte
+le même nom (`kubectl delete job jellyfin-sso-run -n media`).
 
-```bash
-# Supprimer le Job existant
-kubectl delete job jellyfin-sso-setup -n media
-
-# Créer un nouveau Job manuellement
-kubectl create job --from=cronjob/jellyfin-sso-setup jellyfin-sso-setup-manual -n media
-
-# Ou faire un sync ArgoCD pour recréer le Job
-```
+### Bouton de connexion sur la page de login
 
 
 ### 1. Accéder aux Paramètres de Branding
