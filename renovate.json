@@ -86,6 +86,13 @@
       "matchPackageNames": ["ghcr.io/immich-app/immich-charts/immich"],
       "groupName": null,
       "automerge": false
+    },
+    {
+      "description": "Chart Jellyfin : ses mineures embarquent des majeures de l'application (chart 3.2 → 3.7 = Jellyfin 10.11 → 12.4, migration de base) et changent des valeurs par défaut (persistence.media.readOnly en 3.4.0). Revue manuelle obligatoire malgré le semver mineur.",
+      "matchDatasources": ["helm"],
+      "matchPackageNames": ["jellyfin"],
+      "groupName": null,
+      "automerge": false
     }
   ],
   "customManagers": [

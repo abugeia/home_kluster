@@ -6,6 +6,14 @@ metadata:
 spec:
   # CronJob suspendu - ne s'exécute jamais automatiquement
   # Pour lancer manuellement: kubectl create job --from=cronjob/jellyfin-sso-setup jellyfin-sso-run -n media
+  #
+  # Idempotent, de bout en bout (cf. README-SSO.md) :
+  #   1. dépôt de plugins K0lin déclaré (remplace celui de 9p4, archivé) ;
+  #   2. plugin « SSO Authentication » installé à la version voulue, puis
+  #      redémarrage de Jellyfin pour le charger ;
+  #   3. fournisseur OpenID pocketid configuré.
+  # Jellyfin doit être réveillé (Sablier) : ouvrir https://jellyfin.valab.top
+  # avant de lancer le job, sinon il échoue au bout de 10 min.
   suspend: true
   schedule: "0 0 31 2 *"  # Date impossible (31 février) pour éviter toute exécution
   successfulJobsHistoryLimit: 3
@@ -13,56 +21,30 @@ spec:
   jobTemplate:
     spec:
       ttlSecondsAfterFinished: 86400  # Garder les logs 24h
+      backoffLimit: 2
+      activeDeadlineSeconds: 1800
       template:
         spec:
           restartPolicy: OnFailure
           containers:
             - name: configure-sso
-              image: curlimages/curl:8.23.0
-              command:
-                - /bin/sh
-                - -c
-                - |
-                  set -e
-                  echo "Waiting for Jellyfin to be ready..."
-                  sleep 30
-                  
-                  echo "Configuring SSO plugin for Pocket ID..."
-                  
-                  # Configuration OpenID pour Pocket ID
-                  curl -v -X POST \
-                    -H "Content-Type: application/json" \
-                    -d '{
-                      "oidEndpoint": "https://auth-id.valab.top/.well-known/openid-configuration",
-                      "oidClientId": "'"${CLIENT_ID}"'",
-                      "oidSecret": "'"${CLIENT_SECRET}"'",
-                      "enabled": true,
-                      "enableAuthorization": false,
-                      "enableAllFolders": true,
-                      "enabledFolders": [],
-                      "adminRoles": [],
-                      "roles": [],
-                      "enableFolderRoles": false,
-                      "folderRoleMapping": [],
-                      "enableLiveTvRoles": false,
-                      "liveTvRoles": [],
-                      "liveTvManagementRoles": [],
-                      "enableLiveTv": true,
-                      "enableLiveTvManagement": false,
-                      "roleClaim": "groups",
-                      "oidScopes": ["openid", "profile", "email", "groups"],
-                      "defaultProvider": "",
-                      "defaultUsernameClaim": "email",
-                      "avatarUrlFormat": "@{picture}",
-                      "disableHttps": false,
-                      "doNotValidateEndpoints": true,
-                      "doNotValidateIssuerName": true,
-                      "schemeOverride": "https"
-                    }' \
-                    "http://jellyfin:8096/sso/OID/Add/pocketid?api_key=${API_KEY}"
-                  
-                  echo "SSO configuration completed successfully!"
+              # Python plutôt que curl : il faut lire les réponses JSON de
+              # l'API (plugins installés, dépôts), sans jq dans l'image curl.
+              image: python:3.13-alpine
               env:
+                - name: JELLYFIN_URL
+                  value: http://jellyfin:8096
+                # Fork maintenu de 9p4/jellyfin-plugin-sso (archivé, 10.11 max).
+                # 5.1.x cible Jellyfin >= 12 ; SSO limité à l'UI web et aux
+                # clients Quick Connect. Même GUID et même API que 9p4.
+                - name: PLUGIN_REPO_URL
+                  value: https://raw.githubusercontent.com/k0lin/jellyfin-plugin-sso/manifest-release/manifest.json
+                - name: PLUGIN_NAME
+                  value: SSO Authentication
+                - name: PLUGIN_GUID
+                  value: 505ce9d1-d916-42fa-86ca-673ef241d7df
+                - name: PLUGIN_VERSION
+                  value: "5.1.1"
                 - name: CLIENT_ID
                   valueFrom:
                     secretKeyRef:
@@ -78,3 +60,118 @@ spec:
                     secretKeyRef:
                       name: jellyfin-sso-credentials
                       key: api-key
+              command: ["python3", "-u", "-c"]
+              args:
+                - |
+                  import json, os, sys, time, urllib.error, urllib.parse, urllib.request
+
+                  J = os.environ["JELLYFIN_URL"]
+                  REPO = os.environ["PLUGIN_REPO_URL"]
+                  NAME = os.environ["PLUGIN_NAME"]
+                  GUID = os.environ["PLUGIN_GUID"].replace("-", "").lower()
+                  WANT = tuple(int(x) for x in os.environ["PLUGIN_VERSION"].split("."))
+                  # api_key en query n'est accepté qu'avec l'autorisation « legacy »,
+                  # désactivée par défaut depuis Jellyfin 10.11 : en-tête obligatoire.
+                  AUTH = 'MediaBrowser Token="%s"' % os.environ["API_KEY"]
+
+                  def call(method, path, body=None):
+                      data = None if body is None else json.dumps(body).encode()
+                      req = urllib.request.Request(J + path, data=data, method=method)
+                      req.add_header("Authorization", AUTH)
+                      if data is not None:
+                          req.add_header("Content-Type", "application/json")
+                      with urllib.request.urlopen(req, timeout=120) as r:
+                          raw = r.read()
+                          return json.loads(raw) if raw else None
+
+                  def healthy():
+                      try:
+                          with urllib.request.urlopen(J + "/health", timeout=5) as r:
+                              return r.read().decode().strip() == "Healthy"
+                      except Exception:
+                          return False
+
+                  def wait_up(what):
+                      for _ in range(60):
+                          if healthy():
+                              return
+                          time.sleep(10)
+                      sys.exit("Jellyfin injoignable après 10 min (%s). En veille Sablier ? "
+                               "Ouvrir https://jellyfin.valab.top puis relancer." % what)
+
+                  def version(v):
+                      return tuple(int(x) for x in v.split("."))[:len(WANT)]
+
+                  def plugin():
+                      for p in call("GET", "/Plugins"):
+                          if p["Id"].replace("-", "").lower() == GUID and p["Status"] == "Active":
+                              return p
+                      return None
+
+                  wait_up("démarrage")
+                  print("Jellyfin", call("GET", "/System/Info")["Version"])
+
+                  # 1. Dépôt de plugins : K0lin à la place de 9p4.
+                  repos = call("GET", "/Repositories")
+                  if not any(r["Url"] == REPO for r in repos):
+                      repos = [r for r in repos if "9p4/jellyfin-plugin-sso" not in r["Url"]]
+                      repos.append({"Name": "SSO Authentication (K0lin)", "Url": REPO, "Enabled": True})
+                      call("POST", "/Repositories", repos)
+                      print("Dépôt de plugins ajouté :", REPO)
+
+                  # 2. Plugin à la bonne version, chargé.
+                  p = plugin()
+                  if p and version(p["Version"]) >= WANT:
+                      print("Plugin déjà actif :", p["Name"], p["Version"])
+                  else:
+                      print("Installation de", NAME, os.environ["PLUGIN_VERSION"],
+                            "(actuel : %s)" % (p["Version"] if p else "absent"))
+                      q = urllib.parse.urlencode({"assemblyGuid": os.environ["PLUGIN_GUID"],
+                                                  "version": os.environ["PLUGIN_VERSION"],
+                                                  "repositoryUrl": REPO})
+                      try:
+                          call("POST", "/Packages/Installed/%s?%s" % (urllib.parse.quote(NAME), q))
+                      except urllib.error.HTTPError as e:
+                          sys.exit("Installation refusée (HTTP %s) : version introuvable ou "
+                                   "incompatible avec ce Jellyfin." % e.code)
+                      print("Redémarrage de Jellyfin pour charger le plugin...")
+                      call("POST", "/System/Restart")
+                      time.sleep(20)
+                      wait_up("redémarrage")
+                      p = plugin()
+                      if not p or version(p["Version"]) < WANT:
+                          sys.exit("Plugin non actif après redémarrage : %s" % p)
+                      print("Plugin actif :", p["Name"], p["Version"])
+
+                  # 3. Fournisseur OpenID pocketid (Add écrase : idempotent).
+                  call("POST", "/sso/OID/Add/pocketid", {
+                      "oidEndpoint": "https://auth-id.valab.top/.well-known/openid-configuration",
+                      "oidClientId": os.environ["CLIENT_ID"],
+                      "oidSecret": os.environ["CLIENT_SECRET"],
+                      "enabled": True,
+                      "enableAuthorization": False,
+                      "enableAllFolders": True,
+                      "enabledFolders": [],
+                      "adminRoles": [],
+                      "roles": [],
+                      "enableFolderRoles": False,
+                      "folderRoleMapping": [],
+                      "enableLiveTvRoles": False,
+                      "liveTvRoles": [],
+                      "liveTvManagementRoles": [],
+                      "enableLiveTv": True,
+                      "enableLiveTvManagement": False,
+                      "roleClaim": "groups",
+                      "oidScopes": ["openid", "profile", "email", "groups"],
+                      "defaultProvider": "",
+                      "defaultUsernameClaim": "email",
+                      "avatarUrlFormat": "@{picture}",
+                      "disableHttps": False,
+                      "doNotValidateEndpoints": True,
+                      "doNotValidateIssuerName": True,
+                      "schemeOverride": "https",
+                  })
+                  names = call("GET", "/sso/OID/GetNames")
+                  if "pocketid" not in names:
+                      sys.exit("Fournisseur pocketid absent après configuration : %s" % names)
+                  print("SSO configuré. Fournisseurs OpenID :", names)

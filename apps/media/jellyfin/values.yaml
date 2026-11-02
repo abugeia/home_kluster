@@ -40,7 +40,15 @@ persistence:
     enabled: true
     existingClaim: jellyfin-config
   media:
-    enabled: false # We use custom volumes/mounts for multiple media paths
+    # Deux PVC (vidéo, data) montés plus bas dans /media/video et /media/data :
+    # le volume media du chart n'en gère qu'un, on le désactive.
+    enabled: false
+    # Désactivé, le chart monte quand même un emptyDir sur /media, et nos deux
+    # PVC sont montés DEDANS : runc doit y créer video/ et data/, donc /media
+    # doit rester inscriptible. Le chart 3.4.0 a passé ce readOnly à true par
+    # défaut (pensé pour NFS, appliqué à tous les types) : conteneur bloqué sur
+    # « make mountpoint "/media/video": read-only file system ». Ne pas retirer.
+    readOnly: false
 
 volumes:
   - name: media-video
