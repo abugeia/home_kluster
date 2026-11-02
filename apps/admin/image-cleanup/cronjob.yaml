@@ -1,0 +1,68 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: image-cleanup
+spec:
+  # Lundi et jeudi, après le démarrage du matin (~07:53 NC) : deux passages
+  # par semaine suffisent face au rythme des vagues Renovate. Si le cluster
+  # était éteint à l'heure dite, le job part au démarrage tant qu'on est dans
+  # la fenêtre.
+  schedule: "0 10 * * 1,4"
+  timeZone: Pacific/Noumea
+  startingDeadlineSeconds: 43200
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      ttlSecondsAfterFinished: 604800
+      template:
+        spec:
+          serviceAccountName: image-cleanup
+          restartPolicy: Never
+          containers:
+            - name: cleanup
+              image: python:3.14.10-alpine3.24
+              command: ["python3", "/scripts/cleanup.py"]
+              env:
+                # Premier passage à blanc : passer à "false" après relecture
+                # de la liste dans les logs du job.
+                - name: DRY_RUN
+                  value: "true"
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 64Mi
+                limits:
+                  memory: 256Mi
+              # root pour le socket containerd (root:root 660). Pas de
+              # privileged : seuls le socket et crictl sont montés.
+              securityContext:
+                runAsUser: 0
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]
+              volumeMounts:
+                - name: script
+                  mountPath: /scripts
+                - name: containerd-sock
+                  mountPath: /run/k3s/containerd/containerd.sock
+                # crictl du nœud (lien vers le binaire k3s statique, même
+                # version que le containerd qu'il pilote).
+                - name: k3s-bin
+                  mountPath: /host-bin
+                  readOnly: true
+          volumes:
+            - name: script
+              configMap:
+                name: image-cleanup-script
+            - name: containerd-sock
+              hostPath:
+                path: /run/k3s/containerd/containerd.sock
+                type: Socket
+            - name: k3s-bin
+              hostPath:
+                path: /var/lib/rancher/k3s/data/current/bin
+                type: Directory
