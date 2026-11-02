@@ -26,10 +26,10 @@ spec:
               image: python:3.14.10-alpine3.24
               command: ["python3", "/scripts/cleanup.py"]
               env:
-                # Premier passage à blanc : passer à "false" après relecture
-                # de la liste dans les logs du job.
+                # "true" pour lister sans supprimer. Liste du premier passage
+                # à blanc (2026-11-02) relue : 71 images, 24,5 Gi.
                 - name: DRY_RUN
-                  value: "true"
+                  value: "false"
               resources:
                 requests:
                   cpu: 10m
