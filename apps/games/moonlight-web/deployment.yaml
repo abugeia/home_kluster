@@ -24,8 +24,10 @@ spec:
         fsGroup: 999
       containers:
         - name: moonlight-web
-          # v2.10.0 = dernière stable. La branche v3 n'existe qu'en prerelease
-          # et déplace l'endpoint WebSocket.
+          # v3 (2026-11) : endpoint WebSocket déplacé sous /api/host/stream/web_socket
+          # (nos Ingress routent tout `/`, rien à changer) ; config.json et
+          # data.json de la v2.10 relus tels quels, appairage Sunshine conservé.
+          # Retour possible en v2.10.0 en changeant seulement le tag.
           image: mrcreativ3001/moonlight-web-stream:v3.0.1
           imagePullPolicy: IfNotPresent
           env:
