@@ -3,6 +3,15 @@ jellyfin:
     - name: DOTNET_System_Globalization_Invariant
       value: "false"
 
+# Recreate : l'ancien pod s'arrête avant que le nouveau démarre. En
+# RollingUpdate, les deux Jellyfin partagent un moment /config (NFS) : les
+# DLL de plugins encore ouvertes par l'ancien deviennent des .nfs*, le
+# nouveau échoue à supprimer une version remplacée et charge les deux
+# (SSO-Auth 4.0.0.4 + 5.1.1 → AmbiguousMatchException sur /sso/OID/start).
+# Évite aussi deux processus sur la même base SQLite.
+deploymentStrategy:
+  type: Recreate
+
 podLabels:
   sablier.enable: "true"
   sablier.group: "jellyfin.valab.top"
