@@ -26,7 +26,7 @@ spec:
         - name: moonlight-web
           # v2.10.0 = dernière stable. La branche v3 n'existe qu'en prerelease
           # et déplace l'endpoint WebSocket.
-          image: mrcreativ3001/moonlight-web-stream:v2.10.0
+          image: mrcreativ3001/moonlight-web-stream:v3.0.1
           imagePullPolicy: IfNotPresent
           env:
             - name: TZ
