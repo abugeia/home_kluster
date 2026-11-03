@@ -20,6 +20,12 @@ metadata:
     app: pocketid
 spec:
   replicas: 1
+  # Recreate : l'ancien pod s'arrête avant que le nouveau démarre. En
+  # RollingUpdate, deux pods partagent un moment le volume : deux écrivains
+  # sur la même base SQLite. Cf. Jellyfin, plugin SSO chargé en double
+  # (PR #77).
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: pocketid

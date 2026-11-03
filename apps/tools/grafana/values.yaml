@@ -1,6 +1,14 @@
 # Configuration Grafana pour home_kluster
 # Documentation: https://github.com/grafana/helm-charts/tree/main/charts/grafana
 
+# Recreate : l'ancien pod s'arrête avant que le nouveau démarre. En
+# RollingUpdate, deux pods partagent un moment le volume (NFS) : deux
+# écrivains sur la même base SQLite, et sur NFS les fichiers encore ouverts
+# deviennent des .nfs* impossibles à supprimer. Cf. Jellyfin, plugin SSO
+# chargé en double (PR #77).
+deploymentStrategy:
+  type: Recreate
+
 # Persistence pour conserver dashboards et config
 persistence:
   enabled: true

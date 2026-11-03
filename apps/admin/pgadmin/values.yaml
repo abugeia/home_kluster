@@ -5,6 +5,14 @@
 
 replicaCount: 1
 
+# Recreate : l'ancien pod s'arrête avant que le nouveau démarre. En
+# RollingUpdate, deux pods partagent un moment le volume (NFS) : deux
+# écrivains sur la même base SQLite, et sur NFS les fichiers encore ouverts
+# deviennent des .nfs* impossibles à supprimer. Cf. Jellyfin, plugin SSO
+# chargé en double (PR #77).
+strategy:
+  type: Recreate
+
 # Labels pour Sablier au niveau du Deployment
 commonLabels:
   sablier.enable: "true"
