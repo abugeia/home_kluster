@@ -25,9 +25,9 @@ metadata:
 spec:
   # Recreate : l'ancien pod s'arrête avant que le nouveau démarre. En
   # RollingUpdate, deux pods partagent un moment le volume (NFS) : deux
-  # écrivains sur le même profil (verrous navigateur), et sur NFS les fichiers encore ouverts
-  # deviennent des .nfs* impossibles à supprimer. Cf. Jellyfin, plugin SSO chargé en
-  # double (PR #77).
+  # écrivains sur le même profil (verrous navigateur), et sur NFS les fichiers
+  # encore ouverts deviennent des .nfs* impossibles à supprimer. Cf. Jellyfin,
+  # plugin SSO chargé en double (PR #77).
   strategy:
     type: Recreate
   selector:
