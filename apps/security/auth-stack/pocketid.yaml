@@ -66,6 +66,29 @@ spec:
                 secretKeyRef:
                   name: auth-secrets
                   key: pocketid-encryption-key
+            # Base sur le Postgres du LXC 112 (10.0.0.12), couverte par le dump
+            # quotidien de pve1. Secret créé par Ansible (infra_proxmox,
+            # postgresql_databases → pocketid-pg-secret). Mot de passe
+            # alphanumérique : inséré tel quel dans l'URL.
+            - name: PG_USER
+              valueFrom:
+                secretKeyRef:
+                  name: pocketid-pg-secret
+                  key: username
+            - name: PG_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pocketid-pg-secret
+                  key: password
+            - name: DB_CONNECTION_STRING
+              value: "postgres://$(PG_USER):$(PG_PASSWORD)@10.0.0.12:5432/pocketid_db?sslmode=disable"
+            # Images (photos de profil, logos) stockées dans la base : plus
+            # rien à sauvegarder sur le volume.
+            - name: FILE_BACKEND
+              value: database
+          # Volume SQLite d'avant la migration : plus utilisé, gardé monté
+          # pour pouvoir revenir en arrière (revert de cette PR). À retirer
+          # une fois la migration validée (phase 4).
           volumeMounts:
             - name: data
               mountPath: /app/data
