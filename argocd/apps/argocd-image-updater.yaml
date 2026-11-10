@@ -9,7 +9,7 @@ spec:
   project: default
   sources:
     - repoURL: https://argoproj.github.io/argo-helm
-      targetRevision: 1.4.0
+      targetRevision: 1.4.2
       chart: argocd-image-updater
       helm:
         valueFiles:
