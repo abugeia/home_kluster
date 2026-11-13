@@ -27,7 +27,7 @@ spec:
         # Prépare /config : fichiers d'include vides + installe l'add-on OIDC
         # (full GitOps, sans HACS). Idempotent + auto-réparateur.
         - name: bootstrap-config
-          image: alpine:3.24
+          image: alpine:3.24@sha256:f59abe656b692d901e184be3445e084786602108599d2a51d229c0f5a48c71bf
           env:
             - name: OIDC_VERSION
               value: "v1.1.0" # christiaangoossens/hass-oidc-auth
@@ -63,7 +63,7 @@ spec:
         - name: home-assistant
           # :stable est un tag mutable — invisible pour Renovate et jamais
           # re-pull avec IfNotPresent. Épinglé sur la CalVer publiée.
-          image: ghcr.io/home-assistant/home-assistant:2026.11.1
+          image: ghcr.io/home-assistant/home-assistant:2026.11.1@sha256:6785d1eca68747a524c156faae1b139ed415c07357386ae6fe17291986e59e82
           imagePullPolicy: IfNotPresent
           env:
             - name: TZ

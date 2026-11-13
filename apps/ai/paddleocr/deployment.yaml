@@ -25,7 +25,7 @@ spec:
           #    testé `--network none`, aucun téléchargement au boot → aucun re-pull
           #    de modèle au réveil matinal du cluster.
           # Empreinte mesurée : ~0.9 Go RAM, ~1.9 s/image à chaud.
-          image: sllwakeup/paddleocr:1.0.2
+          image: sllwakeup/paddleocr:1.0.2@sha256:2887cfa1c698b6e6fd70f1875c689d415347c321cbe9927d3cf017c6f66fc088
           imagePullPolicy: IfNotPresent
           env:
             - name: PADDLEOCR_LANG

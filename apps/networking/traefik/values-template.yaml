@@ -773,7 +773,7 @@ global:
     enabled: false
     images:
       proxy:
-        image: traefik
+        image: traefik@sha256:c1ea95f3b3eab04ba8868d201b8494e12284e424f7cec2127e3194bca1c6641c
         tag: latest
         registry: docker.io/library
       hub:
@@ -1369,7 +1369,7 @@ oci_meta:
   repo: traefik
   images:
     proxy:
-      image: traefik
+      image: traefik@sha256:c1ea95f3b3eab04ba8868d201b8494e12284e424f7cec2127e3194bca1c6641c
       tag: latest
     hub:
       image: traefik-hub

@@ -37,7 +37,7 @@ spec:
           # pgvector : passages vectorisés des sources de la LO (E-8). Image Debian :
           # après la bascule depuis postgres:18-alpine, REINDEX DATABASE (l'ordre de
           # tri du texte diffère entre musl et glibc). Fait le 13/10/2026.
-          image: pgvector/pgvector:pg18
+          image: pgvector/pgvector:pg18@sha256:38681dc6eaf55308e2a4c6de392d131652dcfac70e1263e35cd9b5ea3fe39782
           envFrom:
             - secretRef:
                 name: droit-compare-db
