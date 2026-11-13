@@ -21,6 +21,9 @@ supersetNode:
 # 1. IMAGE & VERSION
 # ==========================================================
 image:
+  # Le chart fournit le repository : sans ce commentaire, Renovate ne voit pas
+  # ce tag seul (customManagers de renovate.json).
+  # renovate: datasource=docker depName=apache/superset
   tag: 6.0.0
   pullPolicy: IfNotPresent
 
