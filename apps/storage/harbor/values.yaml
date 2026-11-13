@@ -34,6 +34,14 @@ existingSecretAdminPassword: harbor-admin-secret
 existingSecretAdminPasswordKey: HARBOR_ADMIN_PASSWORD
 # harborAdminPassword: Harbor12345
 
+# Secrets internes figés dans le SealedSecret harbor-internal-secrets
+# (secrets/sealed/). Laissés au chart, ils étaient soit publics (secretKey,
+# identifiants du registry : valeurs par défaut du chart), soit tirés au hasard
+# à chaque rendu Argo CD (lookup vide en `helm template`), ce qui redéployait
+# Harbor à chaque commit du repo. secretKey chiffre des valeurs en base
+# (client secret OIDC…) : ne la changer qu'en les rechiffrant.
+existingSecretSecretKey: harbor-internal-secrets   # clé secretKey
+
 persistence:
   enabled: true
   resourcePolicy: "keep"
@@ -62,6 +70,9 @@ portal:
       cpu: 10m
 
 core:
+  existingSecret: harbor-internal-secrets      # clé secret
+  existingXsrfSecret: harbor-internal-secrets  # clé CSRF_KEY
+  secretName: harbor-internal-secrets          # tls.crt / tls.key (CA des tokens, jusqu'en 2036)
   startupProbe:
     initialDelaySeconds: 15
   resources:
@@ -72,6 +83,7 @@ core:
       cpu: 20m
 
 jobservice:
+  existingSecret: harbor-internal-secrets      # clé JOBSERVICE_SECRET
   resources:
     limits:
       memory: 256Mi
@@ -80,6 +92,9 @@ jobservice:
       cpu: 20m
 
 registry:
+  existingSecret: harbor-internal-secrets      # clé REGISTRY_HTTP_SECRET
+  credentials:
+    existingSecret: harbor-internal-secrets    # clés REGISTRY_PASSWD et REGISTRY_HTPASSWD
   registry:
     resources:
       limits:
