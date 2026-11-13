@@ -93,6 +93,17 @@
       "matchPackageNames": ["jellyfin"],
       "groupName": null,
       "automerge": false
+    },
+    {
+      "description": "Épingle les images des manifests bruts par digest : une image reconstruite sous le même tag (correctif de l'image de base) déclenche une PR digest, automergée par la règle non-major. Limité au manager kubernetes : en Helm, l'image reste pilotée par le chart, et un digest dans targetRevision casserait les charts OCI.",
+      "matchManagers": ["kubernetes"],
+      "matchDatasources": ["docker"],
+      "pinDigests": true
+    },
+    {
+      "description": "Images maison exclues de l'épinglage : Harbor est suivi par Argo CD Image Updater (et injoignable pour Renovate) ; les CronJobs :latest + Always (beets, dlt-dataloader) re-pullent à chaque exécution, c'est voulu.",
+      "matchPackageNames": ["harbor.valab.top/**", "ghcr.io/abugeia/**"],
+      "pinDigests": false
     }
   ],
   "customManagers": [
