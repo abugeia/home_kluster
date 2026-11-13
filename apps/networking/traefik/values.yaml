@@ -39,7 +39,7 @@ deployment:
   # les sources sont déjà présentes sur le PVC, Traefik démarre quand même.
   initContainers:
     - name: fetch-sablier-plugin
-      image: alpine/git:v2.54.0
+      image: alpine/git:v2.54.0@sha256:6a1fdb962814ca11508ca8d1bab94375b5b7ac4e4a9a40981c29fc32c02f095d
       command: ["/bin/sh", "-c"]
       args:
         - |

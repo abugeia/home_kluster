@@ -23,7 +23,7 @@ spec:
             value: "1" # Fix potential DNS resolution issues with external domains (avoiding search domain overhead)
       initContainers:
         - name: fix-permissions
-          image: busybox
+          image: busybox@sha256:a46257e06c82ad85242d0d38077d0a52d9896389ca60a1a59d3463db586e5fa4
           command: ["sh", "-c", "chown -R 0:0 /config"]
           volumeMounts:
             - name: config
@@ -32,7 +32,7 @@ spec:
         - name: syncthing
           # Tag LinuxServer épinglé : app version + build -ls, suivi par Renovate
           # (versioning regex dédié). Retard constaté avant pin : 9 mois.
-          image: lscr.io/linuxserver/syncthing:v2.1.7-ls236
+          image: lscr.io/linuxserver/syncthing:v2.1.7-ls236@sha256:e02e82c1d1f04085b2d9179c2ab1c8367835fdda64e875bd12dfe502061cf302
           imagePullPolicy: IfNotPresent
           env:
             # PUID/PGID=0 : Syncthing tourne en root pour pouvoir écrire sur le NFS

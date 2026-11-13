@@ -28,7 +28,7 @@ spec:
           # (nos Ingress routent tout `/`, rien à changer) ; config.json et
           # data.json de la v2.10 relus tels quels, appairage Sunshine conservé.
           # Retour possible en v2.10.0 en changeant seulement le tag.
-          image: mrcreativ3001/moonlight-web-stream:v3.0.1
+          image: mrcreativ3001/moonlight-web-stream:v3.0.1@sha256:30c5b954d1ee0abdf24493b8dcf8c89ed759fe57d17f5dc2a8e8fe485e64191f
           imagePullPolicy: IfNotPresent
           env:
             - name: TZ

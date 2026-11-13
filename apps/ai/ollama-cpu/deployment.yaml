@@ -21,7 +21,7 @@ spec:
         - name: ollama
           # Semver propre côté upstream ; le versioning regex exclut les
           # préversions -rcN et les variantes -rocm.
-          image: ollama/ollama:0.40.16
+          image: ollama/ollama:0.40.16@sha256:910d0d8107b538fb0894e63163eb195de0cc7aefcbc666dc62d3b18f71124592
           imagePullPolicy: IfNotPresent
           env:
             - name: OLLAMA_HOST
