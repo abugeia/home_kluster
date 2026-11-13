@@ -68,6 +68,12 @@
       "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$"
     },
     {
+      "description": "Superset : semver propre, mais Docker Hub publie aussi des -dev, des rcN et des variantes -pyXY. Le regex ne retient que les versions stables.",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["apache/superset"],
+      "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$"
+    },
+    {
       "description": "Filebrowser : semver préfixée v. Le regex écarte les variantes -s6 et les tags par architecture (-arm64, -amd64, -armv7).",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["filebrowser/filebrowser"],
