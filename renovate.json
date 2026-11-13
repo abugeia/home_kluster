@@ -104,6 +104,11 @@
       "description": "Images maison exclues de l'épinglage : Harbor est suivi par Argo CD Image Updater (et injoignable pour Renovate) ; les CronJobs :latest + Always (beets, dlt-dataloader) re-pullent à chaque exécution, c'est voulu.",
       "matchPackageNames": ["harbor.valab.top/**", "ghcr.io/abugeia/**"],
       "pinDigests": false
+    },
+    {
+      "description": "Plans du system-upgrade-controller : `image` est sans tag, le contrôleur y ajoute lui-même `:<version>`. Un digest donnerait `rancher/k3s-upgrade@sha256:…:v1.x`, référence invalide qui casserait la mise à jour de k3s.",
+      "matchFileNames": ["apps/admin/system-upgrade/**"],
+      "pinDigests": false
     }
   ],
   "customManagers": [
