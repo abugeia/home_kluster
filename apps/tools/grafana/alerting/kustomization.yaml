@@ -1,0 +1,25 @@
+# Alerting Grafana, fourni comme les dashboards : des fichiers de
+# provisioning bruts dans un ConfigMap labelisé, que le sidecar `alerts` du
+# chart charge (cf. sidecar.alerts dans ../values.yaml).
+#
+# Pourquoi pas la clé `alerting:` des values : le chart la passe dans `tpl`,
+# qui casserait les {{ ... }} des annotations.
+#
+# Dans ces fichiers, Grafana remplace $VAR / ${VAR} par l'environnement :
+# NTFY_TOKEN vient du Secret grafana-ntfy-secret. Les annotations n'utilisent
+# donc que la syntaxe .Labels / .Values, sans `$`.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: observability
+
+configMapGenerator:
+  - name: grafana-alerting
+    files:
+      - contact-points.yaml
+      - policies.yaml
+      - rules.yaml
+    options:
+      labels:
+        grafana_alert: "1"
+      disableNameSuffixHash: true

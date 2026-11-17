@@ -1,0 +1,16 @@
+# Une notification par règle (et par série en alerte), rappel toutes les 4 h
+# tant que le problème dure. Les règles severity=critical passent par le point
+# de contact en priorité maximale, et sont rappelées toutes les heures.
+apiVersion: 1
+policies:
+  - orgId: 1
+    receiver: ntfy
+    group_by: ["grafana_folder", "alertname"]
+    group_wait: 30s
+    group_interval: 5m
+    repeat_interval: 4h
+    routes:
+      - receiver: ntfy-critique
+        object_matchers:
+          - ["severity", "=", "critical"]
+        repeat_interval: 1h

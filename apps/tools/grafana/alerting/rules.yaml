@@ -1,0 +1,306 @@
+# Règles d'alerte Grafana, évaluées sur VictoriaMetrics (datasource
+# victoriametrics-alerting). Liste à revoir : chaque règle notifie ntfy.
+# noDataState OK : une requête sans série = rien d'anormal, sauf pour le dump
+# Postgres, dont la métrique doit toujours exister.
+# Pas de `$` dans les annotations : Grafana y substituerait l'environnement.
+apiVersion: 1
+groups:
+- orgId: 1
+  name: sauvegardes
+  folder: Homelab
+  interval: 5m
+  rules:
+  - uid: postgres-dump-retard
+    title: Dump Postgres en retard
+    condition: C
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: victoriametrics-alerting
+      model:
+        refId: A
+        expr: (time() - postgres_dump_last_success_timestamp_seconds) / 3600
+        instant: true
+    - refId: C
+      datasourceUid: __expr__
+      model:
+        refId: C
+        type: threshold
+        expression: A
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 36
+    noDataState: Alerting
+    execErrState: Error
+    for: 0s
+    annotations:
+      summary: Dernier dump Postgres réussi il y a {{ printf "%.0f" (index .Values "A").Value }} h (pve1, /tank_data/backup/postgres).
+    labels:
+      severity: critical
+  - uid: postgres-dump-echec
+    title: Dump Postgres en échec
+    condition: C
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: victoriametrics-alerting
+      model:
+        refId: A
+        expr: postgres_dump_failed
+        instant: true
+    - refId: C
+      datasourceUid: __expr__
+      model:
+        refId: C
+        type: threshold
+        expression: A
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+    noDataState: OK
+    execErrState: Error
+    for: 0s
+    annotations:
+      summary: '{{ printf "%.0f" (index .Values "A").Value }} base(s) en échec au dernier passage de postgres-dump (journalctl -u postgres-dump sur pve1).'
+    labels:
+      severity: critical
+- orgId: 1
+  name: stockage
+  folder: Homelab
+  interval: 1m
+  rules:
+  - uid: zfs-pool-degrade
+    title: Pool ZFS dégradé
+    condition: C
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: victoriametrics-alerting
+      model:
+        refId: A
+        expr: node_zfs_zpool_state{instance="10.0.0.10:9100", state!="online"}
+        instant: true
+    - refId: C
+      datasourceUid: __expr__
+      model:
+        refId: C
+        type: threshold
+        expression: A
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+    noDataState: OK
+    execErrState: Error
+    for: 5m
+    annotations:
+      summary: Pool {{ .Labels.zpool }} en état {{ .Labels.state }} sur pve1 (zpool status).
+    labels:
+      severity: critical
+  - uid: disque-plein
+    title: Disque presque plein
+    condition: C
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: victoriametrics-alerting
+      model:
+        refId: A
+        expr: 100 * node_filesystem_avail_bytes{fstype!~"tmpfs|overlay|squashfs|nfs.*|fuse.*|ramfs|devtmpfs"} / node_filesystem_size_bytes{fstype!~"tmpfs|overlay|squashfs|nfs.*|fuse.*|ramfs|devtmpfs"}
+        instant: true
+    - refId: C
+      datasourceUid: __expr__
+      model:
+        refId: C
+        type: threshold
+        expression: A
+        conditions:
+        - evaluator:
+            type: lt
+            params:
+            - 10
+    noDataState: OK
+    execErrState: Error
+    for: 15m
+    annotations:
+      summary: '{{ .Labels.mountpoint }} sur {{ .Labels.instance }} : {{ printf "%.0f" (index .Values "A").Value }} % libres.'
+    labels:
+      severity: warning
+  - uid: pvc-plein
+    title: PVC presque plein
+    condition: C
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: victoriametrics-alerting
+      model:
+        refId: A
+        expr: 100 * kubelet_volume_stats_available_bytes / kubelet_volume_stats_capacity_bytes
+        instant: true
+    - refId: C
+      datasourceUid: __expr__
+      model:
+        refId: C
+        type: threshold
+        expression: A
+        conditions:
+        - evaluator:
+            type: lt
+            params:
+            - 10
+    noDataState: OK
+    execErrState: Error
+    for: 15m
+    annotations:
+      summary: 'PVC {{ .Labels.namespace }}/{{ .Labels.persistentvolumeclaim }} : {{ printf "%.0f" (index .Values "A").Value }} % libres.'
+    labels:
+      severity: warning
+- orgId: 1
+  name: kubernetes
+  folder: Homelab
+  interval: 1m
+  rules:
+  - uid: pod-crashloop
+    title: Pod en CrashLoop
+    condition: C
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: victoriametrics-alerting
+      model:
+        refId: A
+        expr: max by (namespace, pod, container) (kube_pod_container_status_waiting_reason{reason="CrashLoopBackOff"})
+        instant: true
+    - refId: C
+      datasourceUid: __expr__
+      model:
+        refId: C
+        type: threshold
+        expression: A
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+    noDataState: OK
+    execErrState: Error
+    for: 15m
+    annotations:
+      summary: '{{ .Labels.namespace }}/{{ .Labels.pod }} (conteneur {{ .Labels.container }}) redémarre en boucle.'
+    labels:
+      severity: warning
+  - uid: deployment-degrade
+    title: Deployment dégradé
+    condition: C
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: victoriametrics-alerting
+      model:
+        refId: A
+        expr: max by (namespace, deployment) (kube_deployment_status_replicas_unavailable)
+        instant: true
+    - refId: C
+      datasourceUid: __expr__
+      model:
+        refId: C
+        type: threshold
+        expression: A
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+    noDataState: OK
+    execErrState: Error
+    for: 15m
+    annotations:
+      summary: '{{ .Labels.namespace }}/{{ .Labels.deployment }} : {{ printf "%.0f" (index .Values "A").Value }} replica(s) indisponible(s).'
+    labels:
+      severity: warning
+- orgId: 1
+  name: infrastructure
+  folder: Homelab
+  interval: 1m
+  rules:
+  - uid: onduleur-sur-batterie
+    title: Onduleur sur batterie
+    condition: C
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: victoriametrics-alerting
+      model:
+        refId: A
+        expr: network_ups_tools_ups_status{flag="OB"}
+        instant: true
+    - refId: C
+      datasourceUid: __expr__
+      model:
+        refId: C
+        type: threshold
+        expression: A
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+    noDataState: OK
+    execErrState: Error
+    for: 1m
+    annotations:
+      summary: 'Coupure secteur : l''onduleur de pve1 tourne sur batterie.'
+    labels:
+      severity: critical
+  - uid: exporteur-muet
+    title: Exporteur de métriques muet
+    condition: C
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: victoriametrics-alerting
+      model:
+        refId: A
+        expr: up{job!="gpu-windows", instance!~"10\\.0\\.0\\.(15|18):.*"}
+        instant: true
+    - refId: C
+      datasourceUid: __expr__
+      model:
+        refId: C
+        type: threshold
+        expression: A
+        conditions:
+        - evaluator:
+            type: lt
+            params:
+            - 1
+    noDataState: OK
+    execErrState: Error
+    for: 10m
+    annotations:
+      summary: '{{ .Labels.job }} / {{ .Labels.instance }} ne répond plus au scrape de vmagent.'
+    labels:
+      severity: warning
