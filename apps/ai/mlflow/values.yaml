@@ -29,6 +29,11 @@ backendStore:
     port: 5432
     database: "mlflow_db"
     user: "mlflow"
+    # SQLAlchemy 2.1 (image officielle) prend psycopg 3 par défaut pour
+    # postgresql:// ; sur une base SQL_ASCII (mlflow_db), psycopg 3 renvoie des
+    # bytes et la connexion échoue (« cannot use a string pattern on a
+    # bytes-like object »). psycopg2 décode correctement.
+    driver: psycopg2
     password: ""  # Ignoré car on utilise existingDatabaseSecret
 
   existingDatabaseSecret:
