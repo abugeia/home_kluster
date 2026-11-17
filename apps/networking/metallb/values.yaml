@@ -1,5 +1,11 @@
-# Values for MetalLB chart 0.15.3
+# Values for the MetalLB chart (version pinned in argocd/apps/metallb.yaml)
 # Custom L2 configuration is handled separately in conf/metallb.yaml
+
+# L2 uniquement : pas besoin du backend BGP frr-k8s (activé par défaut depuis le
+# chart 0.16). Son statuscleaner (hostNetwork + hostPort, sans updateStrategy
+# configurable) bloque chaque rollout sur notre cluster mono-nœud.
+frrk8s:
+  enabled: false
 
 prometheus:
   enabled: false
