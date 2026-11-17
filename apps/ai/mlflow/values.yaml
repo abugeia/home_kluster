@@ -1,5 +1,22 @@
 # MLflow Helm Values - Boten Anna
-# Chart: community-charts/mlflow v1.8.1
+# Chart: community-charts/mlflow (version dans kustomization.yaml)
+
+# --- Image ---
+# Image officielle au lieu de burakince/mlflow (image par défaut du chart),
+# figée en 3.16.0 depuis septembre 2026 comme le chart lui-même : pas de
+# correctif de CVE-2026-116692 (RCE, corrigée en 3.17.0). La variante -full
+# embarque psycopg2 (extra db) et boto3 (extra extras), requis pour Postgres
+# et S3. Tag suivi par Renovate via le customManager regex de renovate.json.
+image:
+  repository: ghcr.io/mlflow/mlflow
+  # renovate: datasource=docker depName=ghcr.io/mlflow/mlflow
+  tag: v3.18.0-full
+
+initImages:
+  mlflowDbMigration:
+    repository: ghcr.io/mlflow/mlflow
+    # renovate: datasource=docker depName=ghcr.io/mlflow/mlflow
+    tag: v3.18.0-full
 
 # --- Backend Store (PostgreSQL externe - LXC Proxmox) ---
 backendStore:
