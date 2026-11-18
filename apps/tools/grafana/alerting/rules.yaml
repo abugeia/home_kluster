@@ -237,6 +237,68 @@ groups:
       summary: '{{ .Labels.namespace }}/{{ .Labels.deployment }} : {{ printf "%.0f" (index .Values "A").Value }} replica(s) indisponible(s).'
     labels:
       severity: warning
+  - uid: certificat-expire
+    title: Certificat TLS bientôt expiré
+    condition: C
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: victoriametrics-alerting
+      model:
+        refId: A
+        expr: (certmanager_certificate_expiration_timestamp_seconds - time()) / 86400
+        instant: true
+    - refId: C
+      datasourceUid: __expr__
+      model:
+        refId: C
+        type: threshold
+        expression: A
+        conditions:
+        - evaluator:
+            type: lt
+            params:
+            - 14
+    noDataState: OK
+    execErrState: Error
+    for: 1h
+    annotations:
+      summary: 'Certificat {{ .Labels.namespace }}/{{ .Labels.name }} : expire dans {{ printf "%.0f" (index .Values "A").Value }} jours, cert-manager ne l''a pas renouvelé (kubectl describe certificate).'
+    labels:
+      severity: warning
+  - uid: job-echec
+    title: Job Kubernetes en échec
+    condition: C
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: victoriametrics-alerting
+      model:
+        refId: A
+        expr: max by (namespace, job_name) (kube_job_status_failed) and on (namespace, job_name) (time() - kube_job_status_start_time < 6 * 3600)
+        instant: true
+    - refId: C
+      datasourceUid: __expr__
+      model:
+        refId: C
+        type: threshold
+        expression: A
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+    noDataState: OK
+    execErrState: Error
+    for: 0s
+    annotations:
+      summary: 'Job {{ .Labels.namespace }}/{{ .Labels.job_name }} en échec (lancé il y a moins de 6 h).'
+    labels:
+      severity: warning
 - orgId: 1
   name: infrastructure
   folder: Homelab
@@ -304,3 +366,65 @@ groups:
       summary: '{{ .Labels.job }} / {{ .Labels.instance }} ne répond plus au scrape de vmagent.'
     labels:
       severity: warning
+  - uid: postgres-injoignable
+    title: Postgres injoignable
+    condition: C
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: victoriametrics-alerting
+      model:
+        refId: A
+        expr: pg_up
+        instant: true
+    - refId: C
+      datasourceUid: __expr__
+      model:
+        refId: C
+        type: threshold
+        expression: A
+        conditions:
+        - evaluator:
+            type: lt
+            params:
+            - 1
+    noDataState: OK
+    execErrState: Error
+    for: 5m
+    annotations:
+      summary: 'Le Postgres du LXC 112 (10.0.0.12) ne répond plus à postgres-exporter : toutes les apps qui en dépendent sont touchées.'
+    labels:
+      severity: critical
+  - uid: onduleur-batterie-faible
+    title: Batterie onduleur faible
+    condition: C
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: victoriametrics-alerting
+      model:
+        refId: A
+        expr: network_ups_tools_battery_charge
+        instant: true
+    - refId: C
+      datasourceUid: __expr__
+      model:
+        refId: C
+        type: threshold
+        expression: A
+        conditions:
+        - evaluator:
+            type: lt
+            params:
+            - 50
+    noDataState: OK
+    execErrState: Error
+    for: 1m
+    annotations:
+      summary: 'Batterie de l''onduleur de pve1 à {{ printf "%.0f" (index .Values "A").Value }} %.'
+    labels:
+      severity: critical
