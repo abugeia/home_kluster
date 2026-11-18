@@ -50,6 +50,7 @@ spec:
               # base, il ne les saute pas. Rien à la racine -> beet n'est pas lancé.
               # Restent à la racine (re-tentés chaque jour) : les fichiers non
               # matchés et les doublons skippés — quelques fichiers, coût négligeable.
+              # (Musique/ est traitée par un CronJob séparé : cronjob-musique.yaml.)
               command:
                 - sh
                 - -c

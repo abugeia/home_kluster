@@ -78,3 +78,110 @@ data:
 
     # Reste = défauts beets : write:yes, autotag:yes, quiet_fallback:skip,
     # paths Artiste/Album/$track $title, ignore ['.*', ...].
+
+  # Config beets — PHASE 2 : bibliothèque maître Musique/ (issue #52).
+  # BEETSDIR distinct (/config/musique) : base, statefile (historique incrémental)
+  # et log séparés de Musique_sync. Un `directory` par base : avec move:yes, beets
+  # range sous SON directory — la config Musique_sync déplacerait tout dans
+  # Musique_sync/ (donc dans la playlist offline).
+  # Mêmes plugins / match que ci-dessus ; seules les différences sont commentées.
+  config-musique.yaml: |
+    directory: /music/Musique
+    library: /config/musique/library.db
+
+    plugins:
+      - aitagcleaner
+      - musicbrainz
+      - chroma
+      - fromfilename
+      - ftintitle
+      - fetchart
+      - info
+
+    aitagcleaner:
+      url: http://ollama-cpu.ai:11434/api/generate
+      model: gemma3:4b
+
+    # Ne pas re-parcourir les fichiers déjà rangés (leur nouveau chemin n'est
+    # pas dans l'historique incrémental -> ils seraient ré-importés chaque jour).
+    ignore: [".*", "*~", "System Volume Information", "lost+found", "Non-Album"]
+
+    import:
+      move: yes
+      quiet: yes
+      # incremental ACTIVÉ (contrairement à Musique_sync) : aucun fichier n'arrive
+      # dans Musique/, et en singleton l'historique est PAR FICHIER (validé dans
+      # beets/importer/tasks.py). Le serveur s'éteint la nuit : chaque run reprend
+      # où le précédent a été coupé ; les fichiers skippés ne sont pas re-tentés.
+      incremental: yes
+      log: /config/musique/import.log
+      # keep (et non skip) : le doublon est importé (suffixe .1) pour que
+      # dedup.py le voie et tranche sur l'enregistrement + la qualité, au lieu
+      # de garder « le premier arrivé » sur un simple artiste+titre.
+      duplicate_action: keep
+      # Mode singleton : beets ne remplit pas l'album et laisse les anciens tags
+      # (« Untitled - New CD (1) », « 1. », pistes 93…) -> on les vide.
+      # album/albumartist sont vidés par `beet modify` dans le CronJob : ici, une
+      # valeur "" est un template vide, que beets remplace par format_item
+      # (« $artist - $album - $title ») au lieu de vider le champ.
+      set_fields:
+        track: "0"
+        tracktotal: "0"
+        disc: "0"
+        disctotal: "0"
+
+    match:
+      strong_rec_thresh: 0.30
+      rec_gap_thresh: 0.90
+      distance_weights:
+        track_length: 1.0
+
+  # Dédoublonnage de Musique/ (lancé par cronjob-musique.yaml avant l'import).
+  # Doublon = même enregistrement MusicBrainz (mb_trackid, trouvé via l'empreinte
+  # AcoustID au match) ET durée à ±5 s. NB : chroma ne persiste pas acoustid_id en
+  # base (apply_acoustid_metadata ne fait pas de store()), d'où mb_trackid.
+  # Garde : lossy avant lossless, puis débit le plus haut PLAFONNÉ à 320 kbps,
+  # puis le plus petit fichier. Sans mb_trackid -> jamais touché.
+  # DEDUP_DELETE=1 pour supprimer ; sinon liste seulement.
+  dedup.py: |
+    import os
+    from collections import defaultdict
+    from beets import config
+    from beets.library import Library
+
+    config.read()
+    lib = Library(config["library"].as_filename(), config["directory"].as_filename())
+    delete = os.environ.get("DEDUP_DELETE") == "1"
+    LOSSLESS = {"FLAC", "ALAC", "WAV", "AIFF", "APE", "WavPack"}
+    CAP, TOL = 320_000, 5.0
+
+    def score(i):
+        return (i.format not in LOSSLESS, min(i.bitrate or 0, CAP), -(i.filesize or 0))
+
+    groups = defaultdict(list)
+    for i in lib.items("mb_trackid::.+"):
+        groups[i.mb_trackid].append(i)
+
+    n_grp = n_del = 0
+    for items in groups.values():
+        if len(items) < 2:
+            continue
+        items.sort(key=lambda i: i.length)
+        clusters = [[items[0]]]
+        for i in items[1:]:
+            if i.length - clusters[-1][-1].length <= TOL:
+                clusters[-1].append(i)
+            else:
+                clusters.append([i])
+        for c in (c for c in clusters if len(c) > 1):
+            n_grp += 1
+            c.sort(key=score, reverse=True)
+            keep, drop = c[0], c[1:]
+            print(f"\n[{keep.artist} - {keep.title}]")
+            print(f"  GARDE  {keep.format} {keep.bitrate // 1000}k {keep.length:.0f}s {keep.path.decode(errors='replace')}")
+            for d in drop:
+                print(f"  {'SUPPR' if delete else 'suppr?'} {d.format} {d.bitrate // 1000}k {d.length:.0f}s {d.path.decode(errors='replace')}")
+                if delete:
+                    d.remove(delete=True)
+                n_del += 1
+    print(f"\n== {n_grp} groupes, {n_del} fichiers {'supprimés' if delete else 'à supprimer (DEDUP_DELETE=0)'}")
