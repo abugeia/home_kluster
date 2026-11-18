@@ -131,7 +131,7 @@ groups:
         - evaluator:
             type: lt
             params:
-            - 10
+            - 20
     noDataState: OK
     execErrState: Error
     for: 15m
