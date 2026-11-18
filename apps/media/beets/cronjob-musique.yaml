@@ -1,0 +1,95 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: beets-musique
+  namespace: media
+  labels:
+    app: beets-musique
+spec:
+  # PHASE 2 (#52) : nettoyage de la bibliothèque maître Musique/.
+  # Fenêtre volontairement restreinte : 8h→14h, du lundi au vendredi (le LLM CPU
+  # `ollama-cpu` peut prendre les 6 CPU du nœud). Le serveur démarre à ~7h55 en
+  # semaine, d'où startingDeadlineSeconds.
+  schedule: "0 8 * * 1-5"
+  timeZone: "Pacific/Noumea"
+  concurrencyPolicy: Replace
+  startingDeadlineSeconds: 1800
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      # 6h : coupe à 14h pour un départ à 8h. Coupure sans risque : import en
+      # incrémental (historique par fichier) et déplacement = rename atomique ;
+      # le run suivant reprend au fichier interrompu.
+      activeDeadlineSeconds: 21600
+      ttlSecondsAfterFinished: 86400
+      template:
+        metadata:
+          labels:
+            app: beets-musique
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: beets
+              # Même image que le CronJob `beets` (cf. cronjob.yaml pour le détail).
+              image: ghcr.io/abugeia/beets-ai-tagcleaner:latest
+              imagePullPolicy: Always
+              # Ordre : d'abord les étapes courtes sur ce qui a été importé la
+              # veille (vidage des vieux tags d'album, liste des doublons), PUIS
+              # l'import, qui occupe le reste de la fenêtre et est coupé à 14h.
+              # Une fois Musique/ entièrement traitée, l'import ne trouve plus rien
+              # (incrémental) et le run dure quelques secondes.
+              command:
+                - sh
+                - -c
+                - |
+                  echo "== Vidage des vieux tags d'album (cf. config-musique.yaml)"
+                  beet modify -y album= albumartist= 'album::.'
+                  echo "== Doublons (DEDUP_DELETE=0 : liste seulement)"
+                  DEDUP_DELETE=0 python3 /scripts/dedup.py
+                  echo "== Import Musique/"
+                  beet -c /config-secret/acoustid.yaml import -q -s /music/Musique
+              env:
+                - name: BEETSDIR
+                  value: /config/musique
+                - name: TZ
+                  value: Pacific/Noumea
+              volumeMounts:
+                # Même PVC que le CronJob `beets` (RWO, nœud unique : les deux
+                # peuvent tourner en même temps). Bases distinctes : /config/*.db
+                # pour Musique_sync, /config/musique/ ici.
+                - name: config
+                  mountPath: /config
+                - name: config-file
+                  mountPath: /config/musique/config.yaml
+                  subPath: config-musique.yaml
+                - name: config-file
+                  mountPath: /scripts/dedup.py
+                  subPath: dedup.py
+                - name: music
+                  mountPath: /music/Musique
+                  subPath: Musique
+                - name: acoustid
+                  mountPath: /config-secret
+                  readOnly: true
+              resources:
+                requests:
+                  memory: "256Mi"
+                  cpu: "100m"
+                limits:
+                  memory: "1Gi"
+                  cpu: "1000m"
+          volumes:
+            - name: config
+              persistentVolumeClaim:
+                claimName: beets-config
+            - name: config-file
+              configMap:
+                name: beets-config
+            - name: music
+              persistentVolumeClaim:
+                claimName: pvc-media-data
+            - name: acoustid
+              secret:
+                secretName: beets-acoustid
