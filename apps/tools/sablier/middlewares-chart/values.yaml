@@ -48,6 +48,3 @@ apps:
   open-webui:
     duration: 1h
     group: "chat.valab.top"
-  grafana:
-    duration: 30m
-    group: "grafana.valab.top"

@@ -40,6 +40,14 @@
 ## Proxmox / Hôte pve1
 - [ ] **Stabiliser le nom de l'interface réseau** : à chaque ajout de matériel PCIe (NVMe, GPU…), l'énumération du bus PCI décale et l'interface change de nom (ex. `enp5s0` → `enp6s0`), ce qui casse `vmbr0` dans `/etc/network/interfaces` et coupe le réseau de l'hôte. Solution durable : ajouter un `.link` systemd qui épingle le nom (ex. `lan0`) à la MAC de la NIC, puis mettre à jour `/etc/network/interfaces` pour référencer ce nom stable. À automatiser dans le rôle Ansible `proxmox_config` (repo `infra_proxmox`).
 
+## Secrets
+- [ ] **Secrets en clair de home_kluster ni dans bw ni dans bws** (constaté le
+  2026-11-18) : ils n'existent que dans `secrets/clear/` du poste WSL perso, et
+  scellés dans git. Récupérables via la clé privée sealed-secrets (bw :
+  `home_kluster-sealed-secrets-key (privée)`, `kubeseal --recovery-unseal`),
+  mais fragile. Choisir un rangement (projet bws dédié, éléments bw) et
+  l'aligner sur `secrets/seal_all.sh`.
+
 ## Sécurité / Harbor
 - [x] **Secrets Harbor** (fait le 2026-11-13) : `secretKey` et les identifiants
   du registry n'ont plus les valeurs publiques du chart, et Harbor ne se

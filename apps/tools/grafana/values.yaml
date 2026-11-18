@@ -36,10 +36,8 @@ securityContext:
 initChownData:
   enabled: true
 
-# Labels Sablier sur le Deployment (scale-to-zero).
-labels:
-  sablier.enable: "true"
-  sablier.group: "grafana.valab.top"
+# Pas de Sablier : Grafana évalue les règles d'alerte en continu, il doit
+# rester allumé (cf. alerting/).
 
 # Ingress pour accès via Traefik
 ingress:
@@ -47,9 +45,7 @@ ingress:
   ingressClassName: traefik
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
-    # Pas de tinyauth : Grafana a son propre login. Pas d'alerting utilisé,
-    # donc rien ne tourne en tâche de fond : l'arrêt est sans effet de bord.
-    traefik.ingress.kubernetes.io/router.middlewares: tools-sablier-grafana@kubernetescrd
+    # Pas de tinyauth : Grafana a son propre login.
     # Homepage dashboard annotations
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Grafana"
@@ -74,6 +70,16 @@ datasources:
         url: http://10.0.0.13:8428
         access: proxy
         isDefault: true
+        editable: false
+      # Même base, UID fixe pour les règles d'alerte provisionnées
+      # (alerting/rules.yaml). La datasource ci-dessus n'a pas d'UID déclaré :
+      # lui en imposer un casserait les dashboards importés à la main.
+      - name: VictoriaMetrics (alerting)
+        uid: victoriametrics-alerting
+        type: prometheus
+        url: http://10.0.0.13:8428
+        access: proxy
+        isDefault: false
         editable: false
 
 # Configuration du backend database
@@ -121,11 +127,18 @@ sidecar:
     folder: /tmp/dashboards
     provider:
       foldersFromFilesStructure: true
+  # Alerting provisionné : ConfigMap `grafana-alerting` (apps/tools/grafana/alerting/,
+  # App ArgoCD `grafana-alerting`), rechargé à chaud par le sidecar.
+  alerts:
+    enabled: true
+    label: grafana_alert
+    labelValue: "1"
 
-# Secrets OIDC et Postgres injectés globalement
+# Secrets OIDC, Postgres et ntfy (NTFY_TOKEN, lu par alerting/contact-points.yaml)
 envFromSecrets:
   - name: grafana-oidc-secret
   - name: grafana-pg-secret
+  - name: grafana-ntfy-secret
 
 # Identifiants admin repris d'un SealedSecret, et NON générés par le chart.
 # Sans ça, le helper `grafana.password` retombe sur `randAlphaNum 40` : son

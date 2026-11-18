@@ -1,0 +1,29 @@
+# Toutes les alertes partent sur ntfy (hébergé sur orarm, hors de la maison).
+# ?template=grafana : ntfy met en forme lui-même le webhook Grafana.
+# Deux points de contact, seule la priorité ntfy change (cf. policies.yaml) :
+# severity=critical → priorité 5 (sonne même en mode silencieux), sinon 3.
+# Jeton : utilisateur `publisher`, écriture seule sur homelab-* (bw : ntfy.cagou.ovh).
+apiVersion: 1
+contactPoints:
+  - orgId: 1
+    name: ntfy
+    receivers:
+      - uid: ntfy
+        type: webhook
+        settings:
+          url: https://ntfy.cagou.ovh/homelab-alerts?template=grafana
+          httpMethod: POST
+          authorization_scheme: Bearer
+          authorization_credentials: ${NTFY_TOKEN}
+        disableResolveMessage: false
+  - orgId: 1
+    name: ntfy-critique
+    receivers:
+      - uid: ntfy-critique
+        type: webhook
+        settings:
+          url: https://ntfy.cagou.ovh/homelab-alerts?template=grafana&priority=5
+          httpMethod: POST
+          authorization_scheme: Bearer
+          authorization_credentials: ${NTFY_TOKEN}
+        disableResolveMessage: false
