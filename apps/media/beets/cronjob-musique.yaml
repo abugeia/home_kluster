@@ -8,12 +8,15 @@ metadata:
 spec:
   # PHASE 2 (#52) : nettoyage de la bibliothèque maître Musique/.
   # Fenêtre volontairement restreinte : 8h→14h, du lundi au vendredi (le LLM CPU
-  # `ollama-cpu` peut prendre les 6 CPU du nœud). Le serveur démarre à ~7h55 en
-  # semaine, d'où startingDeadlineSeconds.
+  # `ollama-cpu` peut prendre les 6 CPU du nœud).
+  # Le serveur s'allume à 07h50 du lundi au jeudi, mais à 08h30 le vendredi
+  # (planning : state.json du pi0), et k3s répond ~5 min plus tard. Avec 1800 s,
+  # le créneau de 8h était abandonné sans bruit le vendredi (20/11). 4 h de marge
+  # sans risque : le script coupe l'import à 14h, et ne lance rien après.
   schedule: "0 8 * * 1-5"
   timeZone: "Pacific/Noumea"
   concurrencyPolicy: Replace
-  startingDeadlineSeconds: 1800
+  startingDeadlineSeconds: 14400
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
   jobTemplate:
