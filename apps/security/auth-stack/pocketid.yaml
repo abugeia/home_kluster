@@ -1,16 +1,4 @@
 ---
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: pocketid-data
-  namespace: security
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -20,10 +8,8 @@ metadata:
     app: pocketid
 spec:
   replicas: 1
-  # Recreate : l'ancien pod s'arrête avant que le nouveau démarre. En
-  # RollingUpdate, deux pods partagent un moment le volume : deux écrivains
-  # sur la même base SQLite. Cf. Jellyfin, plugin SSO chargé en double
-  # (PR #77).
+  # Recreate : un seul pod à la fois (clé de signature, migrations de base
+  # au démarrage).
   strategy:
     type: Recreate
   selector:
@@ -86,16 +72,15 @@ spec:
             # rien à sauvegarder sur le volume.
             - name: FILE_BACKEND
               value: database
-          # Volume SQLite d'avant la migration : plus utilisé, gardé monté
-          # pour pouvoir revenir en arrière (revert de cette PR). À retirer
-          # une fois la migration validée (phase 4).
+          # Toutes les données sont dans Postgres (y compris clés et images).
+          # /app/data reste inscriptible pour l'appli (uid 1000, /app
+          # appartient à root) mais n'est pas conservé.
           volumeMounts:
             - name: data
               mountPath: /app/data
       volumes:
         - name: data
-          persistentVolumeClaim:
-            claimName: pocketid-data
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service

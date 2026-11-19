@@ -19,7 +19,7 @@ Tout accès NFS = aller-retour réseau virtuel sur le même host physique.
 | `syncthing-config` | media | 50Mi | ~~nfs-csi-nvme~~ → **local-path** | ✅ Migré | Config app + DB — `permission denied` récurrents |
 | `asa-shootergame-pvc-local` | games | 10Gi | **local-path** | ✅ OK | Saves de jeu write-intensives |
 | `tinyauth-pvc` | security | 1Gi | *(défaut : local-path)* | ✅ OK | Pas de storageClass explicite = local-path k3s |
-| `pocketid-data` | security | 1Gi | *(défaut : local-path)* | ✅ OK | Idem |
+| ~~`pocketid-data`~~ | security | 1Gi | — | 🗑️ Supprimé (2026-11-20) | PocketID sur Postgres (`pocketid_db`, LXC 112) |
 | `filebrowser-config` | media | 100Mi | nfs-csi-nvme | 🔴 → **local-path** | SQLite DB, un seul pod, write fréquent |
 | `navidrome-data` | media | 1Gi | nfs-csi-nvme | 🔴 → **local-path** | SQLite DB + metadata, un seul pod |
 | `jellyfin-config` | media | 1Gi | nfs-csi-nvme | 🔴 → **local-path** | Config + metadata DB Jellyfin, un seul pod |
