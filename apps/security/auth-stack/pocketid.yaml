@@ -102,6 +102,13 @@ metadata:
   namespace: security
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/pod-selector: "app=pocketid"
+    gethomepage.dev/name: "Pocket ID"
+    gethomepage.dev/description: "Fournisseur OIDC / passkeys"
+    gethomepage.dev/group: "Admin"
+    gethomepage.dev/icon: "pocket-id.png"
+    gethomepage.dev/href: "https://auth-id.valab.top"
 spec:
   ingressClassName: traefik
   tls:

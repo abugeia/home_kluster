@@ -6,6 +6,7 @@ metadata:
   annotations:
     traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd,tools-sablier-webtop@kubernetescrd
     gethomepage.dev/enabled: "true"
+    gethomepage.dev/pod-selector: "app=webtop"
     gethomepage.dev/description: "Webtop Workspace"
     gethomepage.dev/group: "Tools"
     gethomepage.dev/icon: "chrome.png"

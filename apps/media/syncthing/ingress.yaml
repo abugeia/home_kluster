@@ -8,6 +8,7 @@ metadata:
     traefik.ingress.kubernetes.io/router.middlewares: security-local-ip-allowlist@kubernetescrd
     cert-manager.io/cluster-issuer: letsencrypt
     gethomepage.dev/enabled: "true"
+    gethomepage.dev/pod-selector: "app=syncthing"
     gethomepage.dev/description: "File Synchronization"
     gethomepage.dev/group: "Storage"
     gethomepage.dev/icon: "si-syncthing"

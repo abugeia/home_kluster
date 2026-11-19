@@ -91,6 +91,7 @@ ingress:
     cert-manager.io/cluster-issuer: letsencrypt
     # Metadata pour Homepage
     gethomepage.dev/enabled: "true"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/instance=pgadmin,app.kubernetes.io/name=pgadmin4"
     gethomepage.dev/description: "PostgreSQL Explorer"
     gethomepage.dev/group: "Admin"
     gethomepage.dev/icon: "si-postgresql"

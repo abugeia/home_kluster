@@ -80,6 +80,13 @@ ingress:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
     traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd,tools-sablier-mlflow@kubernetescrd
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=mlflow"
+    gethomepage.dev/name: "MLflow"
+    gethomepage.dev/description: "Tracking d'expériences ML"
+    gethomepage.dev/group: "AI"
+    gethomepage.dev/icon: "si-mlflow"
+    gethomepage.dev/href: "https://mlflow.valab.top"
   hosts:
     - host: mlflow.valab.top
       paths:

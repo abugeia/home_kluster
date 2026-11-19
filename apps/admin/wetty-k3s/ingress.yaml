@@ -7,6 +7,7 @@ metadata:
   annotations:
     traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd,tools-sablier-wetty-k3s@kubernetescrd
     gethomepage.dev/enabled: "true"
+    gethomepage.dev/pod-selector: "app=wetty-k3s"
     gethomepage.dev/description: "Web Terminal K3s"
     gethomepage.dev/group: "Admin"
     gethomepage.dev/icon: "si-kubernetes"

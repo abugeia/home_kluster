@@ -117,6 +117,7 @@ server:
       className: traefik
       annotations:
         gethomepage.dev/enabled: "true"
+        gethomepage.dev/pod-selector: "app.kubernetes.io/instance=immich,app.kubernetes.io/name=server"
         gethomepage.dev/description: "Photo Management"
         gethomepage.dev/group: "Media"
         gethomepage.dev/icon: "immich.png"

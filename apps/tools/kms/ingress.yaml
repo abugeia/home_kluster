@@ -8,6 +8,7 @@ metadata:
     traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
     cert-manager.io/cluster-issuer: letsencrypt
     gethomepage.dev/enabled: "true"
+    gethomepage.dev/pod-selector: "app=kms"
     gethomepage.dev/description: "KMS activation monitor"
     gethomepage.dev/group: "Tools"
     gethomepage.dev/icon: "si-microsoft"

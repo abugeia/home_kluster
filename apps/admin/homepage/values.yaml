@@ -11,7 +11,7 @@ env:
   - name: HOMEPAGE_ALLOWED_HOSTS
     value: "home.valab.top,homepage.admin.svc.cluster.local"
   - name: LOG_LEVEL
-    value: "debug"
+    value: "info"
   - name: HOMEPAGE_VAR_ARGOCD_TOKEN
     valueFrom:
       secretKeyRef:
@@ -70,7 +70,16 @@ config:
       Tools:
         style: row
         columns: 4
-    
+      AI:
+        style: row
+        columns: 4
+      Home:
+        style: row
+        columns: 4
+      Games:
+        style: row
+        columns: 4
+
   # Kubernetes configuration (creates kubernetes.yaml)
   kubernetes:
     mode: cluster

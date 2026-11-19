@@ -8,6 +8,7 @@ metadata:
     traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
     cert-manager.io/cluster-issuer: letsencrypt
     gethomepage.dev/enabled: "true"
+    gethomepage.dev/pod-selector: "app=omni-tools"
     gethomepage.dev/description: "Developer Tools"
     gethomepage.dev/group: "Tools"
     gethomepage.dev/icon: "mdi-toolbox"

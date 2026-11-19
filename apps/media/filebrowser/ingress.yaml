@@ -8,6 +8,7 @@ metadata:
     # Middleware Sablier pour le réveil auto + TinyAuth pour protéger l'admin
     traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd,tools-sablier-filebrowser@kubernetescrd
     gethomepage.dev/enabled: "true"
+    gethomepage.dev/pod-selector: "app=filebrowser"
     gethomepage.dev/description: "Web File Manager"
     gethomepage.dev/group: "Storage"
     gethomepage.dev/icon: "si-filebrowser"

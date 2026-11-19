@@ -76,6 +76,13 @@ metadata:
     kubernetes.io/ingress.class: traefik
     traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
     cert-manager.io/cluster-issuer: letsencrypt
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/pod-selector: "app=garage-webui"
+    gethomepage.dev/name: "Garage"
+    gethomepage.dev/description: "Stockage S3"
+    gethomepage.dev/group: "Storage"
+    gethomepage.dev/icon: "garage.png"
+    gethomepage.dev/href: "https://garage.valab.top"
 spec:
   tls:
     - hosts:

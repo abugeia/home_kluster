@@ -21,6 +21,7 @@ expose:
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt
       gethomepage.dev/enabled: "true"
+      gethomepage.dev/pod-selector: "app=harbor,component=portal"
       gethomepage.dev/description: "Docker Registry"
       gethomepage.dev/group: "Admin"
       gethomepage.dev/icon: "si-harbor"

@@ -8,6 +8,7 @@ metadata:
     kubernetes.io/ingress.class: traefik
     traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd,tools-sablier-metube@kubernetescrd
     gethomepage.dev/enabled: "true"
+    gethomepage.dev/pod-selector: "app=metube"
     gethomepage.dev/description: "Youtube Downloader"
     gethomepage.dev/group: "Media"
     gethomepage.dev/icon: "si-youtube"

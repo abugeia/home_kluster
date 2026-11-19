@@ -8,6 +8,7 @@ metadata:
     # Pas de middleware TinyAuth : HA gère sa propre auth (owner natif + OIDC),
     # et un proxy d'auth devant casserait l'app mobile et les webhooks.
     gethomepage.dev/enabled: "true"
+    gethomepage.dev/pod-selector: "app=home-assistant"
     gethomepage.dev/name: "Home Assistant"
     gethomepage.dev/description: "Domotique"
     gethomepage.dev/group: "Home"

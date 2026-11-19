@@ -9,6 +9,7 @@ metadata:
     # rester actif en continu pour télécharger / seeder.
     traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
     gethomepage.dev/enabled: "true"
+    gethomepage.dev/pod-selector: "app=qbittorrent"
     gethomepage.dev/description: "Torrent Client"
     gethomepage.dev/group: "Media"
     gethomepage.dev/icon: "si-qbittorrent"
