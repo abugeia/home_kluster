@@ -19,10 +19,13 @@ spec:
   jobTemplate:
     spec:
       backoffLimit: 0
-      # 6h : coupe à 14h pour un départ à 8h. Coupure sans risque : import en
-      # incrémental (historique par fichier) et déplacement = rename atomique ;
-      # le run suivant reprend au fichier interrompu.
-      activeDeadlineSeconds: 21600
+      # La coupure de 14h est faite par `timeout` dans le script (Job Succeeded,
+      # logs conservés). activeDeadlineSeconds n'est qu'un filet de sécurité :
+      # s'il frappe, k8s supprime le pod et ses logs, et le Job passe Failed
+      # (-> alerte « Job en échec »).
+      # Coupure sans risque : import en incrémental (historique par fichier) et
+      # déplacement = rename atomique ; le run suivant reprend au fichier interrompu.
+      activeDeadlineSeconds: 25200
       ttlSecondsAfterFinished: 86400
       template:
         metadata:
@@ -46,10 +49,19 @@ spec:
                 - |
                   echo "== Vidage des vieux tags d'album (cf. config-musique.yaml)"
                   beet modify -y album= albumartist= 'album::.'
-                  echo "== Doublons (DEDUP_DELETE=0 : liste seulement)"
-                  DEDUP_DELETE=0 python3 /scripts/dedup.py
-                  echo "== Import Musique/"
-                  beet -c /config-secret/acoustid.yaml import -q -s /music/Musique
+                  echo "== Doublons (DEDUP_DELETE=0 : liste seulement, aussi dans /config/musique/dedup.txt)"
+                  DEDUP_DELETE=0 python3 /scripts/dedup.py | tee /config/musique/dedup.txt
+                  # Arrêt propre à 14h (heure locale, TZ) : timeout renvoie 124,
+                  # traité comme un succès. Après 14h (run manuel), pas d'import.
+                  RESTE=$(( $(date -d "$(date +%Y-%m-%d) 14:00:00" +%s) - $(date +%s) ))
+                  if [ "$RESTE" -le 60 ]; then
+                    echo "== Import Musique/ : après 14h, rien à faire"; exit 0
+                  fi
+                  echo "== Import Musique/ (arrêt dans ${RESTE}s)"
+                  timeout "$RESTE" beet -c /config-secret/acoustid.yaml import -q -s /music/Musique
+                  RC=$?
+                  [ "$RC" -eq 124 ] && { echo "== Fenêtre de 14h atteinte, reprise au prochain run"; exit 0; }
+                  exit "$RC"
               env:
                 - name: BEETSDIR
                   value: /config/musique
