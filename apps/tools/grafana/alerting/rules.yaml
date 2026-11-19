@@ -279,7 +279,16 @@ groups:
       datasourceUid: victoriametrics-alerting
       model:
         refId: A
-        expr: max by (namespace, job_name) (kube_job_status_failed) and on (namespace, job_name) (time() - kube_job_status_start_time < 6 * 3600)
+        # Fenêtre de 6 h comptée depuis l'ÉCHEC (première apparition de la
+        # condition Failed), pas depuis le démarrage : l'ancienne version
+        # (time() - kube_job_status_start_time) ne voyait jamais un Job tué
+        # par activeDeadlineSeconds >= 6 h (beets-musique, 19/11). La fenêtre
+        # évite de renotifier les vieux Jobs gardés par failedJobsHistoryLimit.
+        # tfirst_over_time = MetricsQL (VictoriaMetrics).
+        expr: >-
+          max by (namespace, job_name) (kube_job_failed{condition="true"} == 1)
+          and on (namespace, job_name)
+          (time() - tfirst_over_time(kube_job_failed{condition="true"}[1d]) < 6 * 3600)
         instant: true
     - refId: C
       datasourceUid: __expr__
@@ -296,7 +305,7 @@ groups:
     execErrState: Error
     for: 0s
     annotations:
-      summary: 'Job {{ .Labels.namespace }}/{{ .Labels.job_name }} en échec (lancé il y a moins de 6 h).'
+      summary: 'Job {{ .Labels.namespace }}/{{ .Labels.job_name }} en échec (échec il y a moins de 6 h).'
     labels:
       severity: warning
 - orgId: 1
