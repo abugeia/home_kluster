@@ -285,10 +285,14 @@ groups:
         # par activeDeadlineSeconds >= 6 h (beets-musique, 19/11). La fenêtre
         # évite de renotifier les vieux Jobs gardés par failedJobsHistoryLimit.
         # tfirst_over_time = MetricsQL (VictoriaMetrics).
+        # Agrégation par Job AVANT tfirst_over_time (sous-requête) : au boot
+        # quotidien, kube-state-metrics change d'IP, donc de label `instance`,
+        # et la série « renaît » ; sans agrégation, l'échec de la veille
+        # repassait pour récent et renotifiait (beets-musique, 21/11).
         expr: >-
           max by (namespace, job_name) (kube_job_failed{condition="true"} == 1)
           and on (namespace, job_name)
-          (time() - tfirst_over_time(kube_job_failed{condition="true"}[1d]) < 6 * 3600)
+          (time() - tfirst_over_time((max by (namespace, job_name) (kube_job_failed{condition="true"} == 1))[1d:1m]) < 6 * 3600)
         instant: true
     - refId: C
       datasourceUid: __expr__
