@@ -4,6 +4,7 @@ namespace: meteo-nc
 resources:
   - pvc.yaml
   - cronjob.yaml
+  - cronjob-pe.yaml
   - deployment.yaml
   - service.yaml
   - ingress.yaml

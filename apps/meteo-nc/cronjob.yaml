@@ -4,10 +4,14 @@ metadata:
   name: meteo-nc-fetch
   namespace: meteo-nc
 spec:
-  # Runs AROME-OM à 00/06/12/18 UTC, publiés ~6 h 30 plus tard : on passe à HH:45 UTC
-  # (11:45, 17:45, 23:45, 05:45 heure de Nouméa) pour récupérer le run de 6 h plus tôt.
-  schedule: "45 0,6,12,18 * * *"
-  timeZone: "Etc/UTC"
+  # Le cluster est éteint la nuit (planning du pi0, infra_proxmox : ~07:50/09:00 -> 23:30/minuit).
+  # Passage toutes les heures pendant la plage d'allumage ; le job ne fait rien s'il n'y a rien
+  # de neuf, et rattrape au démarrage les runs AROME publiés pendant l'extinction (encore en ligne 2-3 j).
+  # Open-Meteo n'est rafraîchi que si ses données ont plus de 5 h (quota gratuit).
+  schedule: "45 8-23 * * *"
+  timeZone: "Pacific/Noumea"
+  # Démarrage du cluster après l'heure prévue : le passage manqué est lancé s'il date de moins de 30 min.
+  startingDeadlineSeconds: 1800
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 2
   failedJobsHistoryLimit: 3
