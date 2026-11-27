@@ -4,7 +4,7 @@ metadata:
   name: meteo-nc
   namespace: meteo-nc
   annotations:
-    traefik.ingress.kubernetes.io/router.middlewares: security-tinyauth-protect@kubernetescrd
+    # Public, sans tinyauth : site statique en lecture seule, données ouvertes.
     cert-manager.io/cluster-issuer: letsencrypt
     gethomepage.dev/enabled: "true"
     gethomepage.dev/pod-selector: "app=meteo-nc-web"
