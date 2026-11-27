@@ -1,0 +1,70 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: meteo-nc-pe
+  namespace: meteo-nc
+spec:
+  # Prévision d'ensemble PE-AROME (API Météo-France, ~750 requêtes cadencées, ~20 min par run).
+  # Runs 06Z/18Z publiés ~7 h après : le 18Z arrive vers 12 h NC, le 06Z pendant la nuit (rattrapé
+  # au premier passage du matin, l'API garde 5 jours). Le job ne fait rien si le run est déjà traité.
+  schedule: "15 9-23 * * *"
+  timeZone: "Pacific/Noumea"
+  startingDeadlineSeconds: 1800
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 3600
+      ttlSecondsAfterFinished: 86400
+      template:
+        metadata:
+          labels:
+            app: meteo-nc-pe
+        spec:
+          restartPolicy: OnFailure
+          imagePullSecrets:
+            - name: harbor-cicd-secret # répliqué par Reflector (label ns replicate-harbor-cicd)
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000
+          initContainers:
+            # NFS ignore souvent fsGroup : on donne la racine du volume à l'utilisateur du job (non récursif).
+            - name: fix-permissions
+              image: busybox@sha256:a46257e06c82ad85242d0d38077d0a52d9896389ca60a1a59d3463db586e5fa4
+              securityContext:
+                runAsUser: 0
+              command: ["sh", "-c", "mkdir -p /data/forecasts /data/archive && chown 1000:1000 /data /data/forecasts /data/archive"]
+              volumeMounts:
+                - name: data
+                  mountPath: /data
+          containers:
+            - name: pe
+              # :latest + Always : chaque exécution crée un pod neuf qui re-pull (cf. nc-data-loader).
+              image: harbor.valab.top/prod/meteo-nc-job:latest
+              imagePullPolicy: Always
+              args: ["fetch", "pe_arome"]
+              env:
+                - name: METEONC_DATA_DIR
+                  value: /data
+                - name: METEOFRANCE_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: meteo-nc-secrets # SealedSecret (secrets/sealed), source bws HK_METEO_NC_SECRETS
+                      key: METEOFRANCE_API_KEY
+              volumeMounts:
+                - name: data
+                  mountPath: /data
+              resources:
+                requests:
+                  cpu: "250m"
+                  memory: "1Gi"
+                limits:
+                  cpu: "2"
+                  memory: "3Gi" # 16 membres × 47 h en mémoire + calcul des voisinages
+          volumes:
+            - name: data
+              persistentVolumeClaim:
+                claimName: meteo-nc-data
