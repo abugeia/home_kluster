@@ -1,0 +1,32 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: meteo-nc
+  namespace: meteo-nc
+  annotations:
+    # Public, sans tinyauth : site statique en lecture seule, données ouvertes.
+    cert-manager.io/cluster-issuer: letsencrypt
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/pod-selector: "app=meteo-nc-web"
+    gethomepage.dev/name: "Prévi Calédonie"
+    gethomepage.dev/description: "Carte météo horaire NC (AROME 2,5 km)"
+    gethomepage.dev/group: "Tools"
+    gethomepage.dev/icon: "mdi-weather-pouring"
+    gethomepage.dev/href: "https://meteo.valab.top"
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - meteo.valab.top
+      secretName: meteo-nc-tls
+  rules:
+    - host: meteo.valab.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: meteo-nc-web
+                port:
+                  number: 80

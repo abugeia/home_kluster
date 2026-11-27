@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: meteo-nc
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/abugeia/home_kluster.git
+    targetRevision: main
+    path: apps/meteo-nc
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: meteo-nc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true

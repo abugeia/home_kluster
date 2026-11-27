@@ -80,3 +80,21 @@ extraObjects:
           images:
             - alias: app
               imageName: harbor.valab.top/prod/boten-anna:main
+  - apiVersion: argocd-image-updater.argoproj.io/v1alpha1
+    kind: ImageUpdater
+    metadata:
+      name: meteo-nc
+    spec:
+      # tag :main mutable -> on suit le digest ; seule l'image web (le CronJob reste en :latest)
+      commonUpdateSettings:
+        updateStrategy: digest
+      writeBackConfig:
+        method: "git:secret:argocd/image-updater-git-creds"
+        gitConfig:
+          repository: git@github.com:abugeia/home_kluster.git
+          branch: main
+      applicationRefs:
+        - namePattern: meteo-nc
+          images:
+            - alias: web
+              imageName: harbor.valab.top/prod/meteo-nc-web:main

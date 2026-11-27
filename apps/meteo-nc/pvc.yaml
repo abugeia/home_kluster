@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: meteo-nc-data
+  namespace: meteo-nc
+spec:
+  # Partagé : le CronJob écrit, nginx lit (montage en lecture seule).
+  accessModes:
+    - ReadWriteMany
+  storageClassName: nfs-csi-nvme
+  resources:
+    requests:
+      # forecasts/ ~50 Mo ; archive/arome ~11 Mo par run × 4/jour ≈ 16 Go/an (pas encore de purge).
+      storage: 20Gi
