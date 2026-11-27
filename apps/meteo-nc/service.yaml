@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: meteo-nc-web
+  namespace: meteo-nc
+spec:
+  selector:
+    app: meteo-nc-web
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP

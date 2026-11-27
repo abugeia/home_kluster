@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: meteo-nc-web
+  namespace: meteo-nc
+  labels:
+    app: meteo-nc-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: meteo-nc-web
+  template:
+    metadata:
+      labels:
+        app: meteo-nc-web
+    spec:
+      imagePullSecrets:
+        - name: harbor-cicd-secret
+      containers:
+        - name: web
+          image: harbor.valab.top/prod/meteo-nc-web:main
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            periodSeconds: 30
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 60
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+          volumeMounts:
+            - name: data
+              mountPath: /data
+              readOnly: true
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "32Mi"
+            limits:
+              memory: "128Mi"
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: meteo-nc-data

@@ -1,0 +1,63 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: meteo-nc-fetch
+  namespace: meteo-nc
+spec:
+  # Runs AROME-OM à 00/06/12/18 UTC, publiés ~6 h 30 plus tard : on passe à HH:45 UTC
+  # (11:45, 17:45, 23:45, 05:45 heure de Nouméa) pour récupérer le run de 6 h plus tôt.
+  schedule: "45 0,6,12,18 * * *"
+  timeZone: "Etc/UTC"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 1800
+      ttlSecondsAfterFinished: 86400
+      template:
+        metadata:
+          labels:
+            app: meteo-nc-fetch
+        spec:
+          restartPolicy: OnFailure
+          imagePullSecrets:
+            - name: harbor-cicd-secret # répliqué par Reflector (label ns replicate-harbor-cicd)
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000
+          initContainers:
+            # NFS ignore souvent fsGroup : on donne la racine du volume à l'utilisateur du job (non récursif).
+            - name: fix-permissions
+              image: busybox@sha256:a46257e06c82ad85242d0d38077d0a52d9896389ca60a1a59d3463db586e5fa4
+              securityContext:
+                runAsUser: 0
+              command: ["sh", "-c", "mkdir -p /data/forecasts /data/archive && chown 1000:1000 /data /data/forecasts /data/archive"]
+              volumeMounts:
+                - name: data
+                  mountPath: /data
+          containers:
+            - name: fetch
+              # :latest + Always : chaque exécution crée un pod neuf qui re-pull (cf. nc-data-loader).
+              image: harbor.valab.top/prod/meteo-nc-job:latest
+              imagePullPolicy: Always
+              args: ["fetch", "all"]
+              env:
+                - name: METEONC_DATA_DIR
+                  value: /data
+              volumeMounts:
+                - name: data
+                  mountPath: /data
+              resources:
+                requests:
+                  cpu: "250m"
+                  memory: "768Mi"
+                limits:
+                  cpu: "2"
+                  memory: "2Gi"
+          volumes:
+            - name: data
+              persistentVolumeClaim:
+                claimName: meteo-nc-data

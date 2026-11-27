@@ -16,6 +16,13 @@ metadata:
   labels:
     replicate-harbor-cicd: "true"
 ---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: meteo-nc
+  labels:
+    replicate-harbor-cicd: "true"
+---
 # initialement créé par ansible
 apiVersion: v1
 kind: Namespace
