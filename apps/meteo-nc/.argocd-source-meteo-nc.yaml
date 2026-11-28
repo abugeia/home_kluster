@@ -1,3 +1,3 @@
 kustomize:
   images:
-  - harbor.valab.top/prod/meteo-nc-web:main@sha256:7cd784650ed76600b77ebc56eacf296c69978ea110415a33d1ef7c312bd3a929
+  - harbor.valab.top/prod/meteo-nc-web:main@sha256:0922f4ffed732ab4f47ae116c7da1a318e6d5354fa351df8c747f9d584f95068
